@@ -1,0 +1,55 @@
+{
+	"env": {
+		"DefaultIncludePath": [
+			"${workspaceRoot}",
+			"${workspaceRoot}/code/libraries/osal/include",
+			"${workspaceRoot}/code/libraries/core/include"
+		]
+	},
+    "configurations": [
+        {
+            "name": "Win32",
+            "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.23.28105/bin/Hostx64/x64/cl.exe",
+            "intelliSenseMode": "msvc-x64",
+            "includePath": [
+                "${DefaultIncludePath}"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "windowsSdkVersion": "10.0.15063.0"
+        },
+        {
+            "name": "Linux",
+            "compilerPath": "F:/toolchains/RaspberryPi/bin/arm-linux-gnueabihf-g++.exe",
+            "compilerArgs": ["--sysroot=F:/toolchains/RaspberryPi/arm-linux-gnueabihf/sysroot"],
+            "intelliSenseMode": "gcc-arm",
+            "includePath": [
+                "F:/toolchains/RaspberryPi/arm-linux-gnueabihf/sysroot/usr/include",
+                "F:/toolchains/RaspberryPi/arm-linux-gnueabihf/sysroot/usr/include/c++/8",
+                "${DefaultIncludePath}"
+            ],
+            "defines": [
+                "_DEBUG"
+            ],
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "browse": {
+                "path": [
+                    "F:/toolchains/RaspberryPi/arm-linux-gnueabihf/sysroot/usr/include",
+                    "F:/toolchains/RaspberryPi/arm-linux-gnueabihf/sysroot/usr/include/c++/8",
+					"${DefaultIncludePath}"
+                    ],
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "compileCommands": "${workspaceRoot}/compile_commands.json"
+        }
+    ],
+    "version": 4
+}

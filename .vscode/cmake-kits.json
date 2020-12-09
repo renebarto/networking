@@ -1,0 +1,16 @@
+[
+    {
+        "name": "WRLinux 6",
+        "toolchainFile": "${workspaceFolder}/wrlinux6.toolchain",
+        "preferredGenerator": {
+            "name": "Unix Makefiles"
+        }
+    },
+    {
+        "name": "Raspberry Pi 32 bit",
+        "toolchainFile": "${workspaceFolder}/rpi.toolchain",
+        "preferredGenerator": {
+            "name": "Unix Makefiles"
+        }
+    }
+]
