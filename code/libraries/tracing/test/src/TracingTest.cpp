@@ -322,4 +322,13 @@ TEST(TracingTest, TraceErrorFormatted)
         "Error|MyFile:123|MyFunction|Hello World\n", traceOutput);
 }
 
+TEST(TracingTest, TraceToConsole)
+{
+    Tracing::SetTracingFunctions(
+        nullptr, 
+        [](TraceCategory /*category*/) { return true; });
+
+    TraceError("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
+}
+
 } // namespace tracing

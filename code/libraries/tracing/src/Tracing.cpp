@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include "utility/Console.h"
 #include "utility/EnumSerialization.h"
 #include "utility/Error.h"
 #include "utility/GenericError.h"
@@ -10,6 +11,8 @@ namespace tracing {
 
 TraceFunction Tracing::m_traceFunc = nullptr;
 IsTraceCategoryEnabledFunction Tracing::m_isTraceCategoryEnabledFunc = nullptr;
+
+static utility::Console s_traceConsole;
 
 Tracing::~Tracing() noexcept
 {
@@ -33,6 +36,23 @@ bool Tracing::IsTraceCategoryEnabled(TraceCategory category)
     }
 }
 
+utility::ConsoleColor GetColorForCategory(TraceCategory category)
+{
+    switch (category)
+    {
+        case TraceCategory::FunctionBegin:  return utility::ConsoleColor::Yellow;
+        case TraceCategory::FunctionEnd:    return utility::ConsoleColor::Yellow;
+        case TraceCategory::Information:    return utility::ConsoleColor::Cyan;
+        case TraceCategory::Log:            return utility::ConsoleColor::Magenta;
+        case TraceCategory::Startup:        return utility::ConsoleColor::Green;
+        case TraceCategory::Shutdown:       return utility::ConsoleColor::Green;
+        case TraceCategory::Debug:          return utility::ConsoleColor::White;
+        case TraceCategory::Error:          return utility::ConsoleColor::Red;
+
+        default: return utility::ConsoleColor::Default;
+    }
+}
+
 void Tracing::Trace(TraceCategory category, const std::string & fileName, int line , const std::string & functionName, const std::string & msg)
 {
     if (!IsTraceCategoryEnabled(category))
@@ -43,7 +63,9 @@ void Tracing::Trace(TraceCategory category, const std::string & fileName, int li
     }
     else
     {
-        std::cout << "Category: " << category << " " << fileName << ":" << line << " - " << functionName << ":" << msg << std::endl;
+        s_traceConsole << fgcolor(GetColorForCategory(category));
+        s_traceConsole << "Category: " << category << " " << fileName << ":" << line << " - " << functionName << ":" << msg << std::endl;
+        s_traceConsole << fgcolor(utility::ConsoleColor::Default);
     }
 }
 

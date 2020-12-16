@@ -55,6 +55,7 @@ set(PROJECT_LIBS
 set(PROJECT_SOURCES 
     src/AssertTest.cpp
     src/BidirectionalMapTest.cpp
+    src/ConsoleTest.cpp
     src/DeserializationTest.cpp
     src/EnumSerializationTest.cpp
     src/FormatTest.cpp

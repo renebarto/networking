@@ -54,6 +54,8 @@ set(PROJECT_LIBS
 
 set(PROJECT_SOURCES 
     src/IteratorTest.cpp
+    src/NullableTest.cpp
+    src/ObservableTest.cpp
     src/ThreadTest.cpp
     src/WorkerThreadTest.cpp
     )

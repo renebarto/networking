@@ -48,6 +48,7 @@ set(PROJECT_LIBS
 
 set(PROJECT_SOURCES 
     src/Network.cpp
+    src/Signal.cpp
     src/StringConversion.cpp
     src/TypeInfo.cpp
     )
@@ -57,6 +58,7 @@ set(PROJECT_INCLUDES_PUBLIC
     include/osal/ManualEvent.h
     include/osal/Network.h
     include/osal/Semaphore.h
+    include/osal/Signal.h
     include/osal/StringConversion.h
     include/osal/Thread.h
     include/osal/TypeInfo.h
