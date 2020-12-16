@@ -1,14 +1,12 @@
 cmake_minimum_required(VERSION 3.5.1)
 
-project(fdcsib-sw)
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-project(FDCSIB_Software_Main
+project(MainSoftware
     VERSION 1.0.0
-    DESCRIPTION "This is the project for FDCSIB-sw"
+    DESCRIPTION "This is the top level project"
     LANGUAGES CXX
 )
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(MEASURE_COVERAGE "Determine coverage" OFF)
 set(DEPLOYMENT_DIR "C:/Generic" CACHE STRING "Deployment directory")

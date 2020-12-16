@@ -2,6 +2,9 @@
     {
         "name": "WRLinux 6",
         "toolchainFile": "${workspaceFolder}/wrlinux6.toolchain",
+        "environmentVariables": {
+            "PATH": "C:/WRLinux6/utilities-1.0/x86-win32/bin;${env:PATH}"
+        },
         "preferredGenerator": {
             "name": "Unix Makefiles"
         }
@@ -9,6 +12,9 @@
     {
         "name": "Raspberry Pi 32 bit",
         "toolchainFile": "${workspaceFolder}/rpi.toolchain",
+        "environmentVariables": {
+            "PATH": "F:/toolchains/RaspberryPi/bin;${env:PATH}"
+        },
         "preferredGenerator": {
             "name": "Unix Makefiles"
         }

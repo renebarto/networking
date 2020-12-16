@@ -39,6 +39,7 @@ set(PROJECT_LINK_OPTIONS
     )
 
 set(PROJECT_DEPENDENCIES
+    tracing
     utility
     gtest
     gtest_main
@@ -55,6 +56,7 @@ set(PROJECT_SOURCES
     src/AssertTest.cpp
     src/BidirectionalMapTest.cpp
     src/DeserializationTest.cpp
+    src/EnumSerializationTest.cpp
     src/FormatTest.cpp
     src/MapUtilitiesTest.cpp
     src/SerializationTest.cpp

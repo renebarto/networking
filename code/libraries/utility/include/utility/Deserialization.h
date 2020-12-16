@@ -25,18 +25,31 @@ inline bool Deserialize(const std::string & text, std::string & value)
 }
 bool Deserialize(const std::string & text, std::wstring & value);
 
-template<typename T>
-bool Deserialize(const std::string & text, T & value)
+// template<typename T>
+// bool Deserialize(const std::string & text, T & value)
+// {
+//     T t;
+//     std::ostringstream stream(text);
+//     stream >> t;
+//     if (stream.good()) {
+//         value = parsedValue;
+//         return true;
+//     }
+//     return false;
+// }
+
+template<class T>
+class IStringDeserializer
 {
-    T t;
-    std::ostringstream stream(text);
-    stream >> t;
-    if (stream.good()) {
-        value = parsedValue;
-        return true;
-    }
-    return false;
-}
+public:
+    IStringDeserializer()
+    {}
+
+    virtual ~IStringDeserializer()
+    {}
+
+    virtual bool Deserialize(const std::string & text, T & result) = 0;
+};
 
 } // namespace utility
 

@@ -49,7 +49,9 @@ set(PROJECT_LIBS
 set(PROJECT_SOURCES 
     src/Assert.cpp
     src/Deserialization.cpp
+    src/Error.cpp
     src/Format.cpp
+    src/GenericError.cpp
     src/Serialization.cpp
     src/StringFunctions.cpp
     )
@@ -59,6 +61,7 @@ set(PROJECT_INCLUDES_PUBLIC
     include/utility/Assert.h
     include/utility/BidirectionalMap.h
     include/utility/Deserialization.h
+    include/utility/EnumSerialization.h
     include/utility/Format.h
     include/utility/MapUtilities.h
     include/utility/Serialization.h

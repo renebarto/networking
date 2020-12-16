@@ -1,5 +1,6 @@
 #pragma once
 
+#include <sstream>
 #include <string>
 #include "utility/StringFunctions.h"
 
@@ -35,12 +36,25 @@ std::string Serialize(const char * value, int width = 0, bool quote = false);
 std::string Serialize(const wchar_t * value, int width = 0, bool quote = false);
 
 template<typename T>
-std::string Serialize(const T & t, int width = 0)
+std::string Serialize(T t, int width)
 {
     std::ostringstream stream;
     stream << t;
     return Align(stream.str(), width);
 }
+
+template<class T>
+class IStringSerializer
+{
+public:
+    IStringSerializer()
+    {}
+
+    virtual ~IStringSerializer()
+    {}
+
+    virtual void Serialize(std::string & text, const T & result) = 0;
+};
 
 } // namespace utility
 

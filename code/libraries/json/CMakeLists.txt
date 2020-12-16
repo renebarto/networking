@@ -1,6 +1,6 @@
-project(core
+project(json
     VERSION ${MSI_NUMBER}
-    DESCRIPTION "Core funtionality"
+    DESCRIPTION "JSON"
     LANGUAGES CXX)
 
 message(STATUS "\n**********************************************************************************\n")
@@ -23,7 +23,11 @@ set(PROJECT_COMPILER_DEFINITIONS_PUBLIC
 set(PROJECT_COMPILER_OPTIONS_PRIVATE
     ${COMPILER_OPTIONS_CXX}
     )
-
+if (NOT PLATFORM_WINDOWS)
+    list(APPEND PROJECT_COMPILER_OPTIONS_PRIVATE
+        -Wold-style-cast -Wcast-qual -Wcast-align -Wconversion -Wshadow -Wswitch-default -Wswitch-enum
+        )
+endif()
 set(PROJECT_COMPILER_OPTIONS_PUBLIC
     )
 
@@ -32,6 +36,7 @@ set(PROJECT_INCLUDE_DIRS_PRIVATE
 
 set(PROJECT_INCLUDE_DIRS_PUBLIC
     ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/src
     )
 
 set(PROJECT_LINK_OPTIONS
@@ -39,8 +44,7 @@ set(PROJECT_LINK_OPTIONS
     )
 
 set(PROJECT_DEPENDENCIES
-    osal
-    tracing
+    core
     )
 
 set(PROJECT_LIBS
@@ -49,14 +53,28 @@ set(PROJECT_LIBS
     )
 
 set(PROJECT_SOURCES 
-    src/Thread.cpp
+    src/Array.cpp
+    src/Boolean.cpp
+    src/Null.cpp
+    src/Number.cpp
+    src/Object.cpp
+    src/Parse.cpp
+    src/Serialization.cpp
+    src/String.cpp
+    src/Value.cpp
     )
 set(PROJECT_INCLUDES_PRIVATE
     )
 set(PROJECT_INCLUDES_PUBLIC
-    include/core/Iterator.h
-    include/core/Thread.h
-    include/core/WorkerThread.h
+    include/json/Array.h
+    include/json/Boolean.h
+    include/json/Null.h
+    include/json/Number.h
+    include/json/Object.h
+    include/json/Serialization.h
+    include/json/String.h
+    include/json/Value.h
+    src/Parse.h
     )
 
 display_list("Package                           : " ${PROJECT_NAME} )

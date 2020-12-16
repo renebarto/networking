@@ -3,6 +3,7 @@
 #include <chrono>
 #include "osal/ManualEvent.h"
 #include "core/Thread.h"
+#include "tracing/Tracing.h"
 
 namespace core {
 
@@ -46,10 +47,10 @@ protected:
         try
         {
             SetSignalMask();
-            // TraceDebug("WorkerThread " + GetName() + ": Thread starting");
+            TraceDebug(__FILE__, __LINE__, __func__, "WorkerThread " + GetName() + ": Thread starting");
             m_birthEvent.Set();
             Thread();
-            // TraceDebug("WorkerThread " + GetName() + ": Thread stopping");
+            TraceDebug(__FILE__, __LINE__, __func__, "WorkerThread " + GetName() + ": Thread stopping");
             m_state = ThreadState::Finished;
         }
         catch (const std::exception & /*e*/)

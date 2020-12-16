@@ -53,6 +53,7 @@ set(PROJECT_LIBS
     )
 
 set(PROJECT_SOURCES 
+    src/IteratorTest.cpp
     src/ThreadTest.cpp
     src/WorkerThreadTest.cpp
     )
