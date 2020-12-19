@@ -8,7 +8,7 @@ message(STATUS "In directory: ${CMAKE_CURRENT_SOURCE_DIR}")
 
 message("\n** Setting up ${PROJECT_NAME} **\n")
 
-set(TARGET_NAME ${PROJECT_NAME}.out)
+set(TARGET_NAME ${PROJECT_NAME})
 
 set(PROJECT_BUILD_REFERENCE "\"${PROJECT_VERSION}\"")
 
