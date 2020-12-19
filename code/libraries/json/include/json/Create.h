@@ -3,7 +3,6 @@
 #include <iostream>
 #include <memory>
 #include "json/Value.h"
-#include "json/Array.h"
 #include "json/Boolean.h"
 #include "json/Null.h"
 #include "json/Number.h"

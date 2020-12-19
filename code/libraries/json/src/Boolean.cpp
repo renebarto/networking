@@ -29,6 +29,16 @@ bool Boolean::Deserialize(std::istream & stream)
         case TokenType::TrueToken:
             m_value = true;
             return true;
+        case TokenType::NullToken:
+        case TokenType::InvalidToken:
+        case TokenType::CurlyBraceOpen:
+        case TokenType::CurlyBraceClose:
+        case TokenType::SquareBracketOpen:
+        case TokenType::SquareBracketClose:
+        case TokenType::Comma:
+        case TokenType::Colon:
+        case TokenType::Number:
+        case TokenType::QuotedString:
         default:
             m_value = {};
             return false;

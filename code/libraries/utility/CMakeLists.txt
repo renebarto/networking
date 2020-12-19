@@ -48,7 +48,6 @@ set(PROJECT_LIBS
 
 set(PROJECT_SOURCES 
     src/Assert.cpp
-    src/Console.cpp
     src/Deserialization.cpp
     src/Error.cpp
     src/Format.cpp
@@ -61,7 +60,6 @@ set(PROJECT_INCLUDES_PRIVATE
 set(PROJECT_INCLUDES_PUBLIC
     include/utility/Assert.h
     include/utility/BidirectionalMap.h
-    include/utility/Console.h
     include/utility/Deserialization.h
     include/utility/EnumSerialization.h
     include/utility/Format.h

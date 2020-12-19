@@ -11,56 +11,12 @@
 //
 //------------------------------------------------------------------------------
 
-#include "utility/Console.h"
+#include "osal/Console.h"
 
+#include <map>
 #include <string>
 
-#if defined(PLATFORM_WINDOWS)
-#include <io.h>
-#endif
-
-namespace utility {
-
-#if defined(PLATFORM_WINDOWS)
-
-#define STDIN_FILENO 0
-#define STDOUT_FILENO 1
-#define STDERR_FILENO 2
-
-FileDescriptor GetFileDescriptor(FILE * file)
-{
-    return ::_fileno(file);
-}
-const char * GetEnvironment(const char * name)
-{
-    static char buffer[4096];
-    if (::GetEnvironmentVariableA(name, buffer, sizeof(buffer)) == 0)
-    {
-        return nullptr;
-    }
-    return buffer;
-}
-bool IsTTY(int fd)
-{
-    return ::_isatty(fd) != 0;
-}
-
-#else
-
-FileDescriptor GetFileDescriptor(FILE * file)
-{
-    return ::fileno(file);
-}
-const char * GetEnvironment(const char * name)
-{
-    return ::getenv(name);
-}
-bool IsTTY(int fd)
-{
-    return ::isatty(fd) != 0;
-}
-
-#endif
+namespace osal {
 
 static std::ostream * DetermineStream(FileDescriptor handle)
 {
@@ -87,29 +43,22 @@ static FileDescriptor DetermineHandle(std::ostream * stream)
     return InvalidHandle;
 }
 
+static std::map<ConsoleColor, const char *> s_colorLookup {
+    { ConsoleColor::Black, "0" },
+    { ConsoleColor::Red, "1" },
+    { ConsoleColor::Green, "2" },
+    { ConsoleColor::Yellow, "3" },
+    { ConsoleColor::Blue, "4" },
+    { ConsoleColor::Magenta, "5" },
+    { ConsoleColor::Cyan, "6" },
+    { ConsoleColor::White, "7" },
+};
+
 static const char * GetAnsiColorCode(ConsoleColor color)
 {
-    switch (color & ConsoleColor::ColorMask)
-    {
-    case ConsoleColor::Black:
-        return "0";
-    case ConsoleColor::Red:
-        return "1";
-    case ConsoleColor::Green:
-        return "2";
-    case ConsoleColor::Yellow:
-        return "3";
-    case ConsoleColor::Blue:
-        return "4";
-    case ConsoleColor::Magenta:
-        return "5";
-    case ConsoleColor::Cyan:
-        return "6";
-    case ConsoleColor::White:
-        return "7";
-    default:
-        return nullptr;
-    };
+    if (s_colorLookup.find(color & ConsoleColor::ColorMask) != s_colorLookup.end())
+        return s_colorLookup[color & ConsoleColor::ColorMask];
+    return "";
 }
 
 Console::Console(int handle)
@@ -204,14 +153,14 @@ void Console::ForceUseColor(bool value)
     m_forceUseColor = value;
 }
 
-} // namespace utility
+} // namespace osal
 
-utility::_SetForegroundColor fgcolor(utility::ConsoleColor color)
+osal::_SetForegroundColor fgcolor(osal::ConsoleColor color)
 {
     return {color};
 }
 
-utility::_SetBackgroundColor bgcolor(utility::ConsoleColor color)
+osal::_SetBackgroundColor bgcolor(osal::ConsoleColor color)
 {
     return {color};
 }

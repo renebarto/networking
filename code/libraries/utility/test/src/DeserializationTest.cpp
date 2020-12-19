@@ -2,7 +2,7 @@
 
 #include "utility/Deserialization.h"
 
-namespace utility {
+namespace serialization {
 
 TEST(DeserializationTest, DeserializeBool)
 {
@@ -190,4 +190,4 @@ TEST(DeserializationTest, DeserializeWString)
     EXPECT_EQ(expected, actual);
 }
 
-} // namespace utility
+} // namespace serialization

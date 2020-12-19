@@ -6,11 +6,11 @@
 #include "osal/StringConversion.h"
 #include "utility/Assert.h"
 
-namespace utility {
+namespace serialization {
 
 std::string Serialize(bool value, int width)
 {
-    return Align(std::string(value ? "true" : "false"), width);
+    return utility::Align(std::string(value ? "true" : "false"), width);
 }
 
 std::string Serialize(int8_t value, int width, int base)
@@ -43,7 +43,7 @@ std::string Serialize(int8_t value, int width, int base)
         default:
             ASSERT(false);
     }
-    return Align(stream.str(), width);
+    return utility::Align(stream.str(), width);
 }
 
 std::string Serialize(uint8_t value, int width, int base)
@@ -76,7 +76,7 @@ std::string Serialize(uint8_t value, int width, int base)
         default:
             ASSERT(false);
     }
-    return Align(stream.str(), width);
+    return utility::Align(stream.str(), width);
 }
 
 std::string Serialize(int16_t value, int width, int base)
@@ -109,7 +109,7 @@ std::string Serialize(int16_t value, int width, int base)
         default:
             ASSERT(false);
     }
-    return Align(stream.str(), width);
+    return utility::Align(stream.str(), width);
 }
 
 std::string Serialize(uint16_t value, int width, int base)
@@ -142,7 +142,7 @@ std::string Serialize(uint16_t value, int width, int base)
         default:
             ASSERT(false);
     }
-    return Align(stream.str(), width);
+    return utility::Align(stream.str(), width);
 }
 
 std::string Serialize(int32_t value, int width, int base)
@@ -175,7 +175,7 @@ std::string Serialize(int32_t value, int width, int base)
         default:
             ASSERT(false);
     }
-    return Align(stream.str(), width);
+    return utility::Align(stream.str(), width);
 }
 
 std::string Serialize(uint32_t value, int width, int base)
@@ -208,7 +208,7 @@ std::string Serialize(uint32_t value, int width, int base)
         default:
             ASSERT(false);
     }
-    return Align(stream.str(), width);
+    return utility::Align(stream.str(), width);
 }
 
 std::string Serialize(int64_t value, int width, int base)
@@ -241,7 +241,7 @@ std::string Serialize(int64_t value, int width, int base)
         default:
             ASSERT(false);
     }
-    return Align(stream.str(), width);
+    return utility::Align(stream.str(), width);
 }
 
 std::string Serialize(uint64_t value, int width, int base)
@@ -274,7 +274,7 @@ std::string Serialize(uint64_t value, int width, int base)
         default:
             ASSERT(false);
     }
-    return Align(stream.str(), width);
+    return utility::Align(stream.str(), width);
 }
 
 std::string Serialize(float value, int width, int precision, FloatingPointRepresentation representation)
@@ -297,7 +297,7 @@ std::string Serialize(float value, int width, int precision, FloatingPointRepres
             break;
     }
 
-    return Align(stream.str(), width);
+    return utility::Align(stream.str(), width);
 }
 
 std::string Serialize(double value, int width, int precision, FloatingPointRepresentation representation)
@@ -320,7 +320,7 @@ std::string Serialize(double value, int width, int precision, FloatingPointRepre
             break;
     }
 
-    return Align(stream.str(), width);
+    return utility::Align(stream.str(), width);
 }
 
 std::string Serialize(const std::string & value, int width, bool quote)
@@ -333,7 +333,7 @@ std::string Serialize(const std::string & value, int width, bool quote)
     if (quote)
         stream << "\"";
 
-    return Align(stream.str(), width);
+    return utility::Align(stream.str(), width);
 }
 
 std::string Serialize(const std::wstring & value, int width, bool quote)
@@ -342,7 +342,7 @@ std::string Serialize(const std::wstring & value, int width, bool quote)
 
     stream << Serialize(osal::WStringToString(value), width, quote);
 
-    return Align(stream.str(), width);
+    return utility::Align(stream.str(), width);
 }
 
 std::string Serialize(const char * value, int width, bool quote)
@@ -351,7 +351,7 @@ std::string Serialize(const char * value, int width, bool quote)
 
     stream << Serialize(std::string(value), width, quote);
 
-    return Align(stream.str(), width);
+    return utility::Align(stream.str(), width);
 }
 
 std::string Serialize(const wchar_t * value, int width, bool quote)
@@ -360,7 +360,7 @@ std::string Serialize(const wchar_t * value, int width, bool quote)
 
     stream << Serialize(std::wstring(value), width, quote);
 
-    return Align(stream.str(), width);
+    return utility::Align(stream.str(), width);
 }
 
-} // namespace utility
+} // namespace serialization

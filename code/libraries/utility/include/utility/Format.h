@@ -40,7 +40,7 @@ typename std::enable_if<!std::is_integral<V>::value && !std::is_floating_point<V
 Format(V value, int width, const std::basic_string<T> & /*format*/)
 {
     ResetFormatError();
-    return Serialize(value, width);
+    return serialization::Serialize(value, width);
 };
 
 template<typename T, typename V>
@@ -56,39 +56,39 @@ Format(V value, int width, const std::basic_string<T> & format)
                 {
                     int digits {};
                     if (format.length() > 1)
-                        Deserialize(format.substr(1), digits);
-                    return Align(Serialize(value, digits, 10), width);
+                        serialization::Deserialize(format.substr(1), digits);
+                    return Align(serialization::Serialize(value, digits, 10), width);
                 }
                 break;
             case 'O':
                 {
                     int digits {};
                     if (format.length() > 1)
-                        Deserialize(format.substr(1), digits);
-                    return Align(Serialize(value, digits, 8), width);
+                        serialization::Deserialize(format.substr(1), digits);
+                    return Align(serialization::Serialize(value, digits, 8), width);
                 }
                 break;
             case 'B':
                 {
                     int digits {};
                     if (format.length() > 1)
-                        Deserialize(format.substr(1), digits);
-                    return Align(Serialize(value, digits, 2), width);
+                        serialization::Deserialize(format.substr(1), digits);
+                    return Align(serialization::Serialize(value, digits, 2), width);
                 }
                 break;
             case 'X':
                 {
                     int digits {};
                     if (format.length() > 1)
-                        Deserialize(format.substr(1), digits);
-                    return Align(Serialize(value, digits, 16), width);
+                        serialization::Deserialize(format.substr(1), digits);
+                    return Align(serialization::Serialize(value, digits, 16), width);
                 }
                 break;
             default:
-                return Serialize(value, width);
+                return serialization::Serialize(value, width);
         }
     }
-    return Serialize(value, width);
+    return serialization::Serialize(value, width);
 };
 
 template<typename T, typename V>
@@ -112,10 +112,10 @@ Format(V value, int width, const std::basic_string<T> & format)
                     }
                     int integralDecimals {};
                     int fractionalDecimals {};
-                    Deserialize(integralDecimalsSpecifier, integralDecimals);
-                    Deserialize(fractionalDecimalsSpecifier, fractionalDecimals);
-                    return Align(Serialize(value, integralDecimals + fractionalDecimals + 1, fractionalDecimals,
-                                           FloatingPointRepresentation::Fixed), width);
+                    serialization::Deserialize(integralDecimalsSpecifier, integralDecimals);
+                    serialization::Deserialize(fractionalDecimalsSpecifier, fractionalDecimals);
+                    return Align(serialization::Serialize(value, integralDecimals + fractionalDecimals + 1, fractionalDecimals,
+                                           serialization::FloatingPointRepresentation::Fixed), width);
                 }
                 break;
             case 'E':
@@ -131,10 +131,10 @@ Format(V value, int width, const std::basic_string<T> & format)
                     }
                     int integralDecimals {};
                     int fractionalDecimals {};
-                    Deserialize(integralDecimalsSpecifier, integralDecimals);
-                    Deserialize(fractionalDecimalsSpecifier, fractionalDecimals);
-                    return Align(Serialize(value, integralDecimals + fractionalDecimals + 1, fractionalDecimals,
-                                           FloatingPointRepresentation::Exponential), width);
+                    serialization::Deserialize(integralDecimalsSpecifier, integralDecimals);
+                    serialization::Deserialize(fractionalDecimalsSpecifier, fractionalDecimals);
+                    return Align(serialization::Serialize(value, integralDecimals + fractionalDecimals + 1, fractionalDecimals,
+                                           serialization::FloatingPointRepresentation::Exponential), width);
                 }
                 break;
             case 'G':
@@ -150,18 +150,18 @@ Format(V value, int width, const std::basic_string<T> & format)
                     }
                     int integralDecimals {};
                     int fractionalDecimals {};
-                    Deserialize(integralDecimalsSpecifier, integralDecimals);
-                    Deserialize(fractionalDecimalsSpecifier, fractionalDecimals);
+                    serialization::Deserialize(integralDecimalsSpecifier, integralDecimals);
+                    serialization::Deserialize(fractionalDecimalsSpecifier, fractionalDecimals);
                     // We need different behaviour here due to how default output of floating point numbers works
-                    return Align(Serialize(value, 0, integralDecimals + fractionalDecimals + 1,
-                                           FloatingPointRepresentation::Mixed), width);
+                    return Align(serialization::Serialize(value, 0, integralDecimals + fractionalDecimals + 1,
+                                           serialization::FloatingPointRepresentation::Mixed), width);
                 }
                 break;
             default:
-                return Serialize(value, width);
+                return serialization::Serialize(value, width);
         }
     }
-    return Serialize(value, width);
+    return serialization::Serialize(value, width);
 };
 
 template<typename T>
@@ -225,7 +225,7 @@ void Format(std::basic_string<T> & buffer,
                     }
                 }
                 size_t parameterIndex = parameterOrdinal;
-                if (!parameterID.empty() && !Deserialize(parameterID, parameterIndex))
+                if (!parameterID.empty() && !serialization::Deserialize(parameterID, parameterIndex))
                 {
                     std::ostringstream stream;
                     stream << "Invalid index specified: " << parameterID;
@@ -240,7 +240,7 @@ void Format(std::basic_string<T> & buffer,
                     return;
                 }
                 int width {};
-                if (!widthSpecifier.empty() && !Deserialize(widthSpecifier, width))
+                if (!widthSpecifier.empty() && !serialization::Deserialize(widthSpecifier, width))
                 {
                     std::ostringstream stream;
                     stream << "Invalid width specified: " << widthSpecifier;

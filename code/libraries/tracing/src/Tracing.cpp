@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <iomanip>
-#include "utility/Console.h"
+#include "osal/Console.h"
 #include "utility/EnumSerialization.h"
 #include "utility/Error.h"
 #include "utility/GenericError.h"
@@ -12,7 +12,7 @@ namespace tracing {
 TraceFunction Tracing::m_traceFunc = nullptr;
 IsTraceCategoryEnabledFunction Tracing::m_isTraceCategoryEnabledFunc = nullptr;
 
-static utility::Console s_traceConsole;
+static osal::Console s_traceConsole;
 
 Tracing::~Tracing() noexcept
 {
@@ -36,20 +36,20 @@ bool Tracing::IsTraceCategoryEnabled(TraceCategory category)
     }
 }
 
-utility::ConsoleColor GetColorForCategory(TraceCategory category)
+osal::ConsoleColor GetColorForCategory(TraceCategory category)
 {
     switch (category)
     {
-        case TraceCategory::FunctionBegin:  return utility::ConsoleColor::Yellow;
-        case TraceCategory::FunctionEnd:    return utility::ConsoleColor::Yellow;
-        case TraceCategory::Information:    return utility::ConsoleColor::Cyan;
-        case TraceCategory::Log:            return utility::ConsoleColor::Magenta;
-        case TraceCategory::Startup:        return utility::ConsoleColor::Green;
-        case TraceCategory::Shutdown:       return utility::ConsoleColor::Green;
-        case TraceCategory::Debug:          return utility::ConsoleColor::White;
-        case TraceCategory::Error:          return utility::ConsoleColor::Red;
+        case TraceCategory::FunctionBegin:  return osal::ConsoleColor::Yellow;
+        case TraceCategory::FunctionEnd:    return osal::ConsoleColor::Yellow;
+        case TraceCategory::Information:    return osal::ConsoleColor::Cyan;
+        case TraceCategory::Log:            return osal::ConsoleColor::Magenta;
+        case TraceCategory::Startup:        return osal::ConsoleColor::Green;
+        case TraceCategory::Shutdown:       return osal::ConsoleColor::Green;
+        case TraceCategory::Debug:          return osal::ConsoleColor::White;
+        case TraceCategory::Error:          return osal::ConsoleColor::Red;
 
-        default: return utility::ConsoleColor::Default;
+        default: return osal::ConsoleColor::Default;
     }
 }
 
@@ -65,7 +65,7 @@ void Tracing::Trace(TraceCategory category, const std::string & fileName, int li
     {
         s_traceConsole << fgcolor(GetColorForCategory(category));
         s_traceConsole << "Category: " << category << " " << fileName << ":" << line << " - " << functionName << ":" << msg << std::endl;
-        s_traceConsole << fgcolor(utility::ConsoleColor::Default);
+        s_traceConsole << fgcolor(osal::ConsoleColor::Default);
     }
 }
 
@@ -104,15 +104,15 @@ void Tracer::Throw(const std::string & fileName, int line , const std::string & 
 
 std::ostream & operator << (std::ostream & stream, const TraceCategory & value)
 {
-    return stream << utility::Serialize(value, "????");
+    return stream << serialization::Serialize(value, "????");
 }
 
 } // namespace tracing
 
-namespace utility {
+namespace serialization {
 
 template<>
-const BidirectionalMap<tracing::TraceCategory, std::string> EnumSerializationMap<tracing::TraceCategory>::ConversionMap = {
+const utility::BidirectionalMap<tracing::TraceCategory, std::string> EnumSerializationMap<tracing::TraceCategory>::ConversionMap = {
     { tracing::TraceCategory::FunctionBegin, "FuncBeg"},
     { tracing::TraceCategory::FunctionEnd, "FuncEnd"},
     { tracing::TraceCategory::Information, "Info"},
@@ -123,4 +123,4 @@ const BidirectionalMap<tracing::TraceCategory, std::string> EnumSerializationMap
     { tracing::TraceCategory::Error, "Error"}
 };
 
-} // namespace utility
+} // namespace serialization

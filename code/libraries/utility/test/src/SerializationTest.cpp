@@ -2,7 +2,7 @@
 
 #include "utility/Serialization.h"
 
-namespace utility {
+namespace serialization {
 
 template <class T>
 static std::ostream & PrintStandard(std::ostream & stream, std::string::size_type /*integralDigits*/, std::string::size_type fractionalDigits, T value)
@@ -209,4 +209,4 @@ TEST(SerializationTest, SerializeCharPtrWideQuoted)
     EXPECT_EQ(expected, Serialize(value, 0, true));
 }
 
-} // namespace utility
+} // namespace serialization

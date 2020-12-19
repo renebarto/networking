@@ -10,79 +10,91 @@
 
 namespace json {
 
-std::string Serialize(const Array & value)
+template<>
+std::string Serialize(const json::Array & value)
 {
     std::ostringstream stream;
     value.Serialize(stream, 0);
     return stream.str();
 }
 
-std::string Serialize(const Boolean & value)
+template<>
+std::string Serialize(const json::Boolean & value)
 {
     std::ostringstream stream;
     value.Serialize(stream, 0);
     return stream.str();
 }
 
-std::string Serialize(const Null & value)
+template<>
+std::string Serialize(const json::Null & value)
 {
     std::ostringstream stream;
     value.Serialize(stream, 0);
     return stream.str();
 }
 
-std::string Serialize(const Number & value)
+template<>
+std::string Serialize(const json::Number & value)
 {
     std::ostringstream stream;
     value.Serialize(stream, 0);
     return stream.str();
 }
 
-std::string Serialize(const Object & value)
+template<>
+std::string Serialize(const json::Object & value)
 {
     std::ostringstream stream;
     value.Serialize(stream, 0);
     return stream.str();
 }
 
-std::string Serialize(const String & value)
+template<>
+std::string Serialize(const json::String & value)
 {
     std::ostringstream stream;
     value.Serialize(stream, 0);
     return stream.str();
 }
 
-bool Deserialize(const std::string & text, Array & value)
+template<>
+bool Deserialize(const std::string & text, json::Array & value)
 {
     std::istringstream stream(text);
     return value.Deserialize(stream);
 }
 
-bool Deserialize(const std::string & text, Boolean & value)
+template<>
+bool Deserialize(const std::string & text, json::Boolean & value)
 {
     std::istringstream stream(text);
     return value.Deserialize(stream);
 }
 
-bool Deserialize(const std::string & text, Null & value)
+template<>
+bool Deserialize(const std::string & text, json::Null & value)
 {
     std::istringstream stream(text);
     return value.Deserialize(stream);
 }
 
-bool Deserialize(const std::string & text, Number & value)
+template<>
+bool Deserialize(const std::string & text, json::Number & value)
 {
     std::istringstream stream(text);
     return value.Deserialize(stream);
 }
 
-bool Deserialize(const std::string & text, Object & value)
+template<>
+bool Deserialize(const std::string & text, json::Object & value)
 {
     std::istringstream stream(text);
     return value.Deserialize(stream);
 }
 
-bool Deserialize(const std::string & text, String & value)
+template<>
+bool Deserialize(const std::string & text, json::String & value)
 {
     std::istringstream stream(text);
     return value.Deserialize(stream);

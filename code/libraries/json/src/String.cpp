@@ -18,6 +18,11 @@ String::String(const std::string & value)
 {
 }
 
+String::String(const char * value)
+    : m_value(value)
+{
+}
+
 bool String::Deserialize(std::istream & stream)
 {
     Token token = GetToken(stream);
@@ -26,6 +31,17 @@ bool String::Deserialize(std::istream & stream)
         case TokenType::QuotedString:
             m_value = token.value;
             return true;
+        case TokenType::TrueToken:
+        case TokenType::FalseToken:
+        case TokenType::InvalidToken:
+        case TokenType::NullToken:
+        case TokenType::CurlyBraceOpen:
+        case TokenType::CurlyBraceClose:
+        case TokenType::SquareBracketOpen:
+        case TokenType::SquareBracketClose:
+        case TokenType::Comma:
+        case TokenType::Colon:
+        case TokenType::Number:
         default:
             m_value = {};
             return false;

@@ -201,14 +201,14 @@ enum class MyType {
     No
 };
 
-} // anonymous namespace
-
 static BidirectionalMap<MyType, std::string> conversionMap { {MyType::Yes, "Yes" }, { MyType::No, "No" } };
 
 std::ostream & operator << (std::ostream & stream, const MyType & value)
 {
     return stream << conversionMap.Translate(value);
 }
+
+} // anonymous namespace
 
 TEST(FormatTest, FormatEnumClass)
 {

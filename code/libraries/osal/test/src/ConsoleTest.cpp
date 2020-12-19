@@ -14,9 +14,9 @@
 
 #include "GoogleTest.h"
 
-#include "utility/Console.h"
+#include "osal/Console.h"
 
-namespace utility {
+namespace osal {
 
 TEST(ConsoleTest, Constructor)
 {
@@ -60,8 +60,6 @@ TEST(ConsoleTest, OutputNoColor)
     EXPECT_EQ(expected, stream.str());
 }
 
-#if defined(PLATFORM_WINDOWS)
-
 TEST(ConsoleTest, OutputColor)
 {
     std::ostringstream stream;
@@ -72,27 +70,9 @@ TEST(ConsoleTest, OutputColor)
             << fgcolor(ConsoleColor::Green | ConsoleColor::Intensity)
             << bgcolor(ConsoleColor::White | ConsoleColor::Intensity) << "green on black\n"
             << fgcolor(ConsoleColor::Default) << bgcolor(ConsoleColor::Default) << "no color\n";
-    std::string expected("no color\n\033[0;31;1mred\n\033[0;92;1m\033[0;92;1;107;1mgreen on black\n\033[0;107;1m\033[0mno color\n");
-    EXPECT_EQ(expected, stream.str());
-}
-
-#elif defined(PLATFORM_LINUX)
-
-TEST(ConsoleTest, OutputColor)
-{
-    std::ostringstream stream;
-    Console console(stream);
-    console.ForceUseColor(true);
-    console << "no color\n"
-        << fgcolor(ConsoleColor::Red) << "red\n"
-        << fgcolor(ConsoleColor::Green | ConsoleColor::Intensity)
-        << bgcolor(ConsoleColor::White | ConsoleColor::Intensity) << "green on black\n"
-        << fgcolor(ConsoleColor::Default) << bgcolor(ConsoleColor::Default) << "no color\n";
     std::string expected("no color\n\033[0;31mred\n\033[0;92m\033[0;92;107mgreen on black\n\033[0;107m\033[0mno color\n");
     EXPECT_EQ(expected, stream.str());
 }
-
-#endif
 
 TEST(ConsoleTest, SetForegroundColorNoColor)
 {
@@ -156,23 +136,6 @@ TEST(ConsoleTest, SetResetTerminalColorNoColor)
     EXPECT_EQ(expected, stream.str());
 }
 
-#if defined(PLATFORM_WINDOWS)
-
-TEST(ConsoleTest, SetResetTerminalColorWithColor)
-{
-    std::ostringstream stream;
-    Console console(stream);
-    console.ForceUseColor(true);
-    console.SetTerminalColor(ConsoleColor::Blue | ConsoleColor::Bold, ConsoleColor::Red | ConsoleColor::Intensity);
-    console << "text";
-    console.ResetTerminalColor();
-    console << "text";
-    std::string expected("\033[0;34;1;101;1mtext\033[0mtext");
-    EXPECT_EQ(expected, stream.str());
-}
-
-#elif defined(PLATFORM_LINUX)
-
 TEST(ConsoleTest, SetResetTerminalColorWithColor)
 {
     std::ostringstream stream;
@@ -186,6 +149,4 @@ TEST(ConsoleTest, SetResetTerminalColorWithColor)
     EXPECT_EQ(expected, stream.str());
 }
 
-#endif
-
-} // namespace utility
+} // namespace osal

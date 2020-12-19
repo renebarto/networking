@@ -16,49 +16,20 @@
 
 #include <iostream>
 
-#if defined(PLATFORM_WINDOWS)
-#pragma warning(disable: 5039)
-#include <windows.h>
-#pragma warning(default: 5039)
-#endif
+#include "osal/FileHandling.h"
 
-namespace utility
+namespace osal
 {
 
     class Secret;
 
-} // namespace utility
+} // namespace osal
 
 // Ensures that there is at least one operator<< in the global namespace.
 // See Message& operator<<(...) below for why.
-void operator <<(const utility::Secret&, int);
+void operator <<(const osal::Secret&, int);
 
-namespace utility {
-
-typedef int FileDescriptor;
-constexpr FileDescriptor InvalidHandle = static_cast<FileDescriptor>(-1);
-FileDescriptor GetFileDescriptor(FILE * file);
-const char * GetEnvironment(const char * name);
-
-#if defined(PLATFORM_WINDOWS)
-
-enum class ConsoleColor : int
-{
-    Default = -1,
-    Black = 0,
-    Red = FOREGROUND_RED,
-    Green = FOREGROUND_GREEN,
-    Yellow = FOREGROUND_RED | FOREGROUND_GREEN,
-    Blue = FOREGROUND_BLUE,
-    Magenta = FOREGROUND_RED | FOREGROUND_BLUE,
-    Cyan = FOREGROUND_GREEN | FOREGROUND_BLUE,
-    White = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE,
-    ColorMask = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE,
-    Intensity = FOREGROUND_INTENSITY,
-    Bold = 0,
-};
-
-#else
+namespace osal {
 
 enum class ConsoleColor : int {
     Default = -1,
@@ -74,8 +45,6 @@ enum class ConsoleColor : int {
     Intensity = 0x08,
     Bold = 0x10,
 };
-
-#endif
 
 std::ostream & operator << (std::ostream & stream, ConsoleColor value);
 
@@ -166,8 +135,8 @@ inline ConsoleColor operator |(ConsoleColor lhs, ConsoleColor rhs)
     return static_cast<ConsoleColor>(static_cast<int>(lhs) | static_cast<int>(rhs));
 }
 
-} // namespace utility
+} // namespace osal
 
-utility::_SetForegroundColor fgcolor(utility::ConsoleColor color);
-utility::_SetBackgroundColor bgcolor(utility::ConsoleColor color);
+osal::_SetForegroundColor fgcolor(osal::ConsoleColor color);
+osal::_SetBackgroundColor bgcolor(osal::ConsoleColor color);
 

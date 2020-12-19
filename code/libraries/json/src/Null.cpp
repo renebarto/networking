@@ -19,6 +19,17 @@ bool Null::Deserialize(std::istream & stream)
     {
         case TokenType::NullToken:
             return true;
+        case TokenType::TrueToken:
+        case TokenType::FalseToken:
+        case TokenType::InvalidToken:
+        case TokenType::CurlyBraceOpen:
+        case TokenType::CurlyBraceClose:
+        case TokenType::SquareBracketOpen:
+        case TokenType::SquareBracketClose:
+        case TokenType::Comma:
+        case TokenType::Colon:
+        case TokenType::Number:
+        case TokenType::QuotedString:
         default:
             return false;
     }

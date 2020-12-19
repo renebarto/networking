@@ -8,7 +8,8 @@ class String : public Value
 {
 public:
     String();
-    String(const std::string & value);
+    explicit String(const std::string & value);
+    String(const char * value);
     virtual ~String() {};
 
     virtual bool Deserialize(std::istream & stream) override;

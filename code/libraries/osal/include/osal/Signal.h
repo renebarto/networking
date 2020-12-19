@@ -13,6 +13,7 @@
 namespace osal {
 namespace signal {
 
+#if defined(PLATFORM_WINDOWS)
 union sigval
 {
     int    sival_int;       // Integer signal value.
@@ -61,64 +62,48 @@ using sighandler_t = ::_crt_signal_t;
 
 inline sighandler_t signal(int signum, sighandler_t handler)
 {
-#if defined(PLATFORM_WINDOWS)
 #if _MSC_VER > 1900 // Versions after VS 2015
 #pragma warning(disable: 5039)
 #endif
-#endif
     return std::signal(signum, handler);
-#if defined(PLATFORM_WINDOWS)
 #if _MSC_VER > 1900 // Versions after VS 2015
 #pragma warning(default: 5039)
 #endif
-#endif
 }
+
+#else
+
+typedef struct ::sigaction sigaction_t;
+
+inline int sigaction(int signum, const sigaction_t *act, sigaction_t *oldact)
+{
+    return ::sigaction(signum, act, oldact);
+}
+
+using sighandler_t = ::sighandler_t;
+
+inline sighandler_t signal(int signum, sighandler_t handler)
+{
+    return ::signal(signum, handler);
+}
+
+using sigset_t = ::sigset_t;
+
+#endif
 
 class SignalSet
 {
 public:
-    SignalSet()
-            : _set()
-    {
-        clear();
-    }
-    int clear()
-    {
-        _set.set.reset();
-        return 0;
-    }
-    int fill()
-    {
-        _set.set.set();
-        return 0;
-    }
-    int add(int signum)
-    {
-        if ((signum < 0) || (static_cast<size_t>(signum) >= _set.set.size()))
-            return -1;
-        _set.set.set(static_cast<size_t>(signum));
-        return 0;
-    }
-    int remove(int signum)
-    {
-        if ((signum < 0) || (static_cast<size_t>(signum) >= _set.set.size()))
-            return -1;
-        _set.set.reset(static_cast<size_t>(signum));
-        return 0;
-    }
-    int contains(int signum)
-    {
-        if ((signum < 0) || (static_cast<size_t>(signum) >= _set.set.size()))
-            return -1;
-        return (_set.set.test(static_cast<size_t>(signum))) ? 1 : 0;
-    }
-    const sigset_t & get() const
-    {
-        return _set;
-    }
+    SignalSet();
+    int clear();
+    int fill();
+    int add(int signum);
+    int remove(int signum);
+    int contains(int signum);
+    const sigset_t & get() const;
 
 private:
-    sigset_t _set;
+    sigset_t m_set;
 };
 
 enum SignalHow
@@ -128,7 +113,7 @@ enum SignalHow
     SetMask = 2,
 };
 
-int SetSignalMask(SignalHow how, const sigset_t *set, sigset_t *oldset);
+int SetSignalMask(SignalHow how, const sigset_t * set, sigset_t * oldset);
 
 } // namespace signal
 } // namespace core

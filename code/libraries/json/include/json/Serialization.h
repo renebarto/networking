@@ -13,7 +13,36 @@ class Object;
 class String;
 
 template<class T>
-class Deserializer : public utility::IStringDeserializer<T>
+bool Deserialize(const std::string & text, T & value);
+template<>
+bool Deserialize(const std::string & text, Array & value);
+template<>
+bool Deserialize(const std::string & text, Boolean & value);
+template<>
+bool Deserialize(const std::string & text, Null & value);
+template<>
+bool Deserialize(const std::string & text, Number & value);
+template<>
+bool Deserialize(const std::string & text, Object & value);
+template<>
+bool Deserialize(const std::string & text, String & value);
+template<class T>
+std::string Serialize(const T & value);
+template<>
+std::string Serialize(const Array & value);
+template<>
+std::string Serialize(const Boolean & value);
+template<>
+std::string Serialize(const Null & value);
+template<>
+std::string Serialize(const Number & value);
+template<>
+std::string Serialize(const Object & value);
+template<>
+std::string Serialize(const String & value);
+
+template<class T>
+class Deserializer : public serialization::IStringDeserializer<T>
 {
 public:
     Deserializer()
@@ -29,7 +58,7 @@ public:
 };
 
 template<class T>
-class Serializer : public utility::IStringSerializer<T>
+class Serializer : public serialization::IStringSerializer<T>
 {
 public:
     Serializer()
@@ -43,18 +72,5 @@ public:
         text = json::Serialize(value);
     }
 };
-
-bool Deserialize(const std::string & text, Array & value);
-bool Deserialize(const std::string & text, Boolean & value);
-bool Deserialize(const std::string & text, Null & value);
-bool Deserialize(const std::string & text, Number & value);
-bool Deserialize(const std::string & text, Object & value);
-bool Deserialize(const std::string & text, String & value);
-std::string Serialize(const Array & value);
-std::string Serialize(const Boolean & value);
-std::string Serialize(const Null & value);
-std::string Serialize(const Number & value);
-std::string Serialize(const Object & value);
-std::string Serialize(const String & value);
 
 } // namespace json

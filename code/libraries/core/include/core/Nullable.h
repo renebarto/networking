@@ -1,6 +1,8 @@
 #pragma once
 
 #include "utility/Assert.h"
+#include "utility/Deserialization.h"
+#include "utility/Serialization.h"
 
 namespace core
 {
@@ -86,3 +88,33 @@ template <class T>
 const Nullable<T> Nullable<T>::Null = Nullable<T>();
 
 } // namespace core
+
+namespace serialization {
+
+template<class T>
+bool Deserialize(const std::string & text, core::Nullable<T> & value)
+{
+    T parsedValue;
+    if (text == "null")
+    {
+        value.SetNull();
+        return true;
+    }
+    if (Deserialize(text, parsedValue))
+    {
+        value = parsedValue;
+        return true;
+    }
+    value.SetNull();
+    return false;
+}
+
+template<class T>
+std::string Serialize(const core::Nullable<T> & value)
+{
+    if (value.HasValue())
+        return Serialize(value.Value());
+    return "null";
+}
+
+} // namespace serialization

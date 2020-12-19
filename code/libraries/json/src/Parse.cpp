@@ -86,7 +86,7 @@ bool GetTerm(std::istream & stream, std::string & term)
                                 hexDigits += ch;
                             }
                             uint16_t hexCode;
-                            utility::Deserialize(hexDigits, hexCode, 16);
+                            serialization::Deserialize(hexDigits, hexCode, 16);
                             if ((hexCode & 0xFF80) == 0)
                             {
                                 result += static_cast<char>(hexCode);
@@ -229,6 +229,11 @@ ValuePtr Parse(std::istream & stream)
                 return nullptr;
             return object;
         }
+        case TokenType::InvalidToken:
+        case TokenType::CurlyBraceClose:
+        case TokenType::SquareBracketClose:
+        case TokenType::Comma:
+        case TokenType::Colon:
         default:
             return nullptr;
     }

@@ -1,6 +1,7 @@
 #include "utility/StringFunctions.h"
 
 #include <algorithm>
+#include <cstring>
 
 namespace utility {
 

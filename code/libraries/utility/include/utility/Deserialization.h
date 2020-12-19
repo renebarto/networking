@@ -1,9 +1,25 @@
 #pragma once
 
+#include <sstream>
 #include <string>
 #include "utility/StringFunctions.h"
 
-namespace utility {
+namespace serialization {
+
+template<class T>
+typename std::enable_if<!std::is_enum<T>::value, bool>::type
+Deserialize(const std::string & text, T & value)
+{
+    T t;
+    std::istringstream stream(text);
+    stream >> t;
+    if (stream.good())
+    {
+        value = t;
+        return true;
+    }
+    return false;
+}
 
 // String Deserialization
 bool Deserialize(const std::string & text, bool & value);
@@ -25,19 +41,6 @@ inline bool Deserialize(const std::string & text, std::string & value)
 }
 bool Deserialize(const std::string & text, std::wstring & value);
 
-// template<typename T>
-// bool Deserialize(const std::string & text, T & value)
-// {
-//     T t;
-//     std::ostringstream stream(text);
-//     stream >> t;
-//     if (stream.good()) {
-//         value = parsedValue;
-//         return true;
-//     }
-//     return false;
-// }
-
 template<class T>
 class IStringDeserializer
 {
@@ -51,5 +54,5 @@ public:
     virtual bool Deserialize(const std::string & text, T & result) = 0;
 };
 
-} // namespace utility
+} // namespace serialization
 

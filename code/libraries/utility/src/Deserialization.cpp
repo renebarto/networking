@@ -1,14 +1,13 @@
 #include "utility/Deserialization.h"
 
-// #include <bitset>
-// #include <iomanip>
+#include <climits>
+#include <cfloat>
 #include <cstring>
 #include <sstream>
 #include "osal/StringConversion.h"
 #include "utility/StringFunctions.h"
-// #include "utility/Assert.h"
 
-namespace utility {
+namespace serialization {
 
 static bool HasValidCharactersForBase(const std::string & text, int base, bool maybeSigned)
 {
@@ -74,12 +73,12 @@ static bool HasValidCharactersFloatingPoint(const std::string & text)
 
 bool Deserialize(const std::string & text, bool & value)
 {
-    if (IsEqualIgnoreCase("true", text))
+    if (utility::IsEqualIgnoreCase("true", text))
     {
         value = true;
         return true;
     }
-    if (IsEqualIgnoreCase("false", text))
+    if (utility::IsEqualIgnoreCase("false", text))
     {
         value = false;
         return true;
@@ -245,4 +244,4 @@ bool Deserialize(const std::string & text, std::wstring & value)
     return true;
 }
 
-} // namespace utility
+} // namespace serialization

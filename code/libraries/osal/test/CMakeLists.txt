@@ -53,6 +53,7 @@ set(PROJECT_LIBS
     )
 
 set(PROJECT_SOURCES 
+    src/ConsoleTest.cpp
     src/ManualEventTest.cpp
     src/SemaphoreTest.cpp
     src/SignalTest.cpp

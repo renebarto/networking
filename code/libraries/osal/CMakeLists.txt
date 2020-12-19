@@ -47,6 +47,8 @@ set(PROJECT_LIBS
     )
 
 set(PROJECT_SOURCES 
+    src/Console.cpp
+    src/FileHandling.cpp
     src/Network.cpp
     src/Signal.cpp
     src/StringConversion.cpp
@@ -55,6 +57,8 @@ set(PROJECT_SOURCES
 set(PROJECT_INCLUDES_PRIVATE
     )
 set(PROJECT_INCLUDES_PUBLIC
+    include/osal/Console.h
+    include/osal/FileHandling.h
     include/osal/ManualEvent.h
     include/osal/Network.h
     include/osal/Semaphore.h

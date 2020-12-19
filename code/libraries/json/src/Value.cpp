@@ -2,10 +2,10 @@
 
 #include "utility/EnumSerialization.h"
 
-namespace utility {
+namespace serialization {
 
 template<>
-const BidirectionalMap<json::ValueType, std::string> EnumSerializationMap<json::ValueType>::ConversionMap = 
+const utility::BidirectionalMap<json::ValueType, std::string> EnumSerializationMap<json::ValueType>::ConversionMap = 
 {
     {json::ValueType::Null, "Null"},
     {json::ValueType::Boolean, "Boolean"},
@@ -15,4 +15,4 @@ const BidirectionalMap<json::ValueType, std::string> EnumSerializationMap<json::
     {json::ValueType::Array, "Array"},
 };
 
-} // namespace utility
+} // namespace serialization

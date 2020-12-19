@@ -4,7 +4,7 @@
 #include <string>
 #include "utility/StringFunctions.h"
 
-namespace utility {
+namespace serialization {
 
 // String serialization
 // Every serialization specialization uses a width parameter, which is used for expansion
@@ -40,8 +40,16 @@ std::string Serialize(T t, int width)
 {
     std::ostringstream stream;
     stream << t;
-    return Align(stream.str(), width);
+    return utility::Align(stream.str(), width);
 }
+
+// template<typename T>
+// std::string Serialize(T t)
+// {
+//     std::ostringstream stream;
+//     stream << t;
+//     return stream.str();
+// }
 
 template<class T>
 class IStringSerializer
@@ -56,5 +64,5 @@ public:
     virtual void Serialize(std::string & text, const T & result) = 0;
 };
 
-} // namespace utility
+} // namespace serialization
 

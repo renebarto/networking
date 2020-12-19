@@ -4,7 +4,7 @@
 #include <type_traits>
 #include "utility/BidirectionalMap.h"
 
-namespace utility {
+namespace serialization {
 
 template<typename EnumType>
 struct EnumSerializationMap
@@ -36,7 +36,7 @@ public:
         return true;
     }
 private:
-    static const BidirectionalMap<EnumType, std::string> ConversionMap;
+    static const utility::BidirectionalMap<EnumType, std::string> ConversionMap;
 };
 
 template<typename EnumType>
@@ -60,5 +60,5 @@ Deserialize(const std::string & text, EnumType & value)
     return EnumSerializationMap<EnumType>::Deserialize(text, value);
 }
 
-} // namespace utility
+} // namespace serialization
 

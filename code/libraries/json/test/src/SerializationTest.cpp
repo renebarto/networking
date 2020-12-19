@@ -47,6 +47,7 @@ ValuePtr CreateObject(const MyClass & value)
     return object;
 }
 
+template <>
 std::string Serialize(const MyClass & value)
 {
     auto object = CreateObject(value);
@@ -55,6 +56,7 @@ std::string Serialize(const MyClass & value)
     return stream.str();
 }
 
+template <>
 bool Deserialize(const std::string & text, MyClass & value)
 {
     Object object;
@@ -117,6 +119,7 @@ ValuePtr CreateObject(const MyComplexClass & value)
     return object;
 }
 
+template <>
 std::string Serialize(const MyComplexClass & value)
 {
     auto object = CreateObject(value);
@@ -125,6 +128,7 @@ std::string Serialize(const MyComplexClass & value)
     return stream.str();
 }
 
+template <>
 bool Deserialize(const std::string & text, MyComplexClass & value)
 {
     Object object;

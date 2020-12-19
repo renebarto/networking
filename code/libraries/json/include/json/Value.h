@@ -18,7 +18,7 @@ enum class ValueType
 
 inline std::ostream & operator << (std::ostream & stream, ValueType value)
 {
-    return stream << utility::Serialize(value);
+    return stream << serialization::Serialize(value);
 }
 
 class Value

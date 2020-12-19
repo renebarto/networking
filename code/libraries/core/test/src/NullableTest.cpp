@@ -46,10 +46,40 @@ private:
     int m_value;
 };
 
-inline void PrintTo(const Value & value, std::ostream & stream)
+inline std::ostream & PrintTo(std::ostream & stream, const Value & value)
 {
-    stream << static_cast<int>(value);
+    return stream << static_cast<int>(value);
 }
+
+} // namespace core
+
+namespace serialization {
+
+template<>
+std::string Serialize(const core::Value & value, int width)
+{
+    std::ostringstream stream;
+    stream << value;
+    return utility::Align(stream.str(), width);
+}
+
+template<>
+bool Deserialize(const std::string & text, core::Value & value)
+{
+    int intValue;
+    std::istringstream stream(text);
+    stream >> intValue;
+    if (!stream.bad() && !stream.fail())
+    {
+        value = intValue;
+        return true;
+    }
+    return false;
+}
+
+} // namespace serialization
+
+namespace core {
 
 TEST_F(NullableTest, Construction)
 {
@@ -165,6 +195,37 @@ TEST_F(NullableTest, ValueRef)
     ref = 123;
     EXPECT_EQ(123, ref);
     EXPECT_EQ(123, target.Value());
+}
+
+TEST_F(NullableTest, SerializeNull)
+{
+    Nullable<Value> target;
+
+    EXPECT_EQ("null", serialization::Serialize(target));
+}
+
+TEST_F(NullableTest, Serialize)
+{
+    Nullable<Value> target(1234);
+
+    EXPECT_EQ("1234", serialization::Serialize(target));
+}
+
+TEST_F(NullableTest, DeserializeNull)
+{
+    Nullable<Value> target;
+
+    EXPECT_TRUE(serialization::Deserialize("null", target));
+    EXPECT_FALSE(target.HasValue());
+}
+
+TEST_F(NullableTest, Deserialize)
+{
+    Nullable<Value> target;
+
+    EXPECT_TRUE(serialization::Deserialize("1234", target));
+    EXPECT_TRUE(target.HasValue());
+    EXPECT_EQ(1234, target.Value());
 }
 
 } // namespace core
