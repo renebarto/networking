@@ -44,7 +44,14 @@ std::string demangle(const char* name)
 
 // does nothing if not g++
 std::string demangle(const char* name) {
-    return name;
+    std::string result = name;
+    const std::string callingConvention = "__cdecl";
+    auto pos = result.find(callingConvention);
+    if (pos != std::string::npos)
+    {
+        result = result.substr(0, pos) + result.substr(pos + callingConvention.length())
+    }
+    return result;
 }
 
 #endif

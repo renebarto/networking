@@ -2,11 +2,8 @@
     "files.associations": {
         "*.ipp": "cpp"
     },
-    "cmake.preferredGenerators": [
-        "Unix Makefiles", 
-        "Ninja",
-    ],
     "cmake.buildDirectory": "${workspaceFolder}/cmake-${buildKit}-${buildType}",
+    "cmake.buildBeforeRun": true,
     "cmake.configureSettings": {
     },
     "C_Cpp.intelliSenseEngine": "Tag Parser"

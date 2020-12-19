@@ -4,11 +4,12 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
-            "name": "g++ build and debug active file",
+            "name": "g++ debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/${fileBasenameNoExtension}",
+            "program": "${command:cmake.launchTargetPath}",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -22,47 +23,7 @@
                 "ignoreFailures": true
               }
             ],
-            "preLaunchTask": "g++ build active file",
-            "miDebuggerPath": "/usr/bin/gdb"    },
-        {
-            "type": "gdb",
-            "request": "attach",
-            "name": "Attach to gdbserver",
-            "executable": "output/debug/bin/${input:application}",
-            "target": "extended-remote :8888",
-            "remote": false,
-            "cwd": "${workspaceRoot}",
-            "valuesFormatting": "parseText",
-            "gdbpath": "C:/WRLinux6/wrlinux-6/layers/binary-toolchain-4.8-34-other/bin/arm-wrs-linux-gnueabi-gdb.exe",
-            "env": {
-                "HOME": "${env:HOMEDRIVE}${env:HOMEPATH}"
-             },
-            "printCalls": true,
-            "presentation": {
-                "reveal": "always",
-                "panel": "dedicated"
-             },
-            "showDevDebugOutput": true,
-            "autorun": [ "b main", "set remote exec-file /usr/bin/${input:application}"],
+            "miDebuggerPath": "/usr/bin/gdb"
         },
-        {
-            "name": "Launch on Windows",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/output/debug/bin/${input:application}.exe",
-            "args": [ "1", "2", "3"],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false
-        }
-    ],
-    "inputs": [
-        {
-            "id": "application",
-            "description": "Application:",
-            "default": "TestMe",
-            "type": "promptString"
-        }
     ]
 }

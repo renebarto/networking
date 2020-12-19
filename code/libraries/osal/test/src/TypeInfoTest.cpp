@@ -21,7 +21,7 @@ TEST(TypeInfoTest, FunctionName)
 {
     std::string typeName = type(TypeInfoDummyFunction);
 
-    EXPECT_EQ("void __cdecl(int)", typeName);
+    EXPECT_EQ("void (int)", typeName);
 }
 
 TEST(TypeInfoTest, ClassName)

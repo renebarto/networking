@@ -114,10 +114,11 @@ TEST_F(ThreadTest, GetSetName)
     const std::string AltName = "Thread";
     Thread thread(ThreadName);
     EXPECT_EQ(ThreadName, thread.GetName());
+    thread.Create(TestThread);
     thread.SetName(AltName);
     EXPECT_EQ(AltName, thread.GetName());
-    EXPECT_FALSE(thread.HaveResult());
-    EXPECT_THROW(thread.GetResult(), std::future_error);
+    EXPECT_TRUE(thread.HaveResult());
+    EXPECT_NO_THROW(thread.GetResult());
 }
 
 TEST_F(ThreadTest, Create)

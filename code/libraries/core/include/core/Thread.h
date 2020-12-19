@@ -58,6 +58,7 @@ public:
     bool IsFinished();
     bool HasDied();
     const std::string & GetName() const;
+    // Important: on Linux, thread must be running for SetName to succeed!
     void SetName(const std::string & name);
 
     // Wait until thread is in signaled state (thread died)
