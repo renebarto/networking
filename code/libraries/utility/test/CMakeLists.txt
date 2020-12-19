@@ -61,7 +61,7 @@ set(PROJECT_SOURCES
     src/MapUtilitiesTest.cpp
     src/SerializationTest.cpp
     src/StringFunctionsTest.cpp
-    src/TriboolTest.cpp
+    src/TriBoolTest.cpp
     )
 
 set(PROJECT_INCLUDES_PRIVATE
