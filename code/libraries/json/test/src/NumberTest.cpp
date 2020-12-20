@@ -593,6 +593,7 @@ TEST_F(NumberTest, DeserializeIntegerNegative)
     uint64_t uint64Value;
     float floatValue;
     double doubleValue;
+
     EXPECT_TRUE(target.GetValue(int8Value));
     EXPECT_EQ(-123, int8Value);
     EXPECT_FALSE(target.GetValue(uint8Value));

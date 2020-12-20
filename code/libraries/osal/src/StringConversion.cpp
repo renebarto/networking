@@ -9,7 +9,7 @@
 #include <windows.h>
 #pragma warning(default: 5039)
 
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_LINUX_RPI)
 
 #else
 
@@ -38,7 +38,7 @@ std::wstring StringToWString(const std::string & value)
 
     return result;
 
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_LINUX_RPI)
 
     using convert_type = std::codecvt_utf8<wchar_t>;
     std::wstring_convert<convert_type, wchar_t> converter;
@@ -67,7 +67,7 @@ std::string WStringToString(const std::wstring & value)
 
     return result;
 
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_LINUX_RPI)
 
     using convert_type = std::codecvt_utf8<wchar_t>;
     std::wstring_convert<convert_type, wchar_t> converter;

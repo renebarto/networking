@@ -94,7 +94,7 @@ bool Deserialize(const std::string & text, int8_t & value, int base)
         return false;
 
     long result = std::strtol(text.c_str(), nullptr, base);
-    if ((base == 10) && ((result < CHAR_MIN) || (result > CHAR_MAX)))
+    if ((base == 10) && ((result < SCHAR_MIN) || (result > SCHAR_MAX)))
         return false;
     value = static_cast<int8_t>(result);
 

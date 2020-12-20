@@ -3,7 +3,7 @@
 #include <thread>
 #include <string>
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_LINUX_RPI)
 #include  <pthread.h>
 #else
 #pragma warning(disable: 5039)
@@ -13,7 +13,7 @@
 #undef min
 #endif
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_LINUX_RPI)
 
 inline void SetThreadName(std::thread & thread, const std::string & name)
 {

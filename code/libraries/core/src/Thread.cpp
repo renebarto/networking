@@ -188,7 +188,7 @@ void Thread::SetPriority(Priority priority)
     SetPriority(m_thread, priority);
 }
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX)  || defined(PLATFORM_LINUX_RPI)
 
 Priority Thread::GetPriorityCurrentThread()
 {

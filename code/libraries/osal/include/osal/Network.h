@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(PLATFORM_LINUX)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_LINUX_RPI)
 
 #include <strings.h>
 #include <netdb.h>
