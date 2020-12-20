@@ -49,7 +49,7 @@ std::string demangle(const char* name) {
     auto pos = result.find(callingConvention);
     if (pos != std::string::npos)
     {
-        result = result.substr(0, pos) + result.substr(pos + callingConvention.length())
+        result = result.substr(0, pos) + result.substr(pos + callingConvention.length());
     }
     return result;
 }
