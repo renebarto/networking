@@ -25,7 +25,7 @@
             "windowsSdkVersion": "10.0.15063.0"
         },
         {
-            "name": "Linux",
+            "name": "RPI",
             "compilerPath": "F:/toolchains/RaspberryPi/bin/arm-linux-gnueabihf-g++.exe",
             "compilerArgs": ["--sysroot=F:/toolchains/RaspberryPi/arm-linux-gnueabihf/sysroot"],
             "intelliSenseMode": "gcc-arm",
@@ -48,8 +48,33 @@
                     ],
                 "limitSymbolsToIncludedHeaders": true
             },
-            "compileCommands": "${cmake.buildDirectory}/compile_commands.json"
-        }
-    ],
+            "compileCommands": "${workspaceFolder}/cmake-${cmake.buildKit}-${buildType}/compile_commands.json"
+        },
+        {
+            "name": "Linux",
+            "compilerPath": "/usr/bin/g++",
+            "compilerArgs": ["--sysroot=/"],
+            "intelliSenseMode": "gcc-x64",
+            "includePath": [
+                "/usr/include",
+                "/usr/include/c++/7",
+                "${DefaultIncludePath}"
+            ],
+            "defines": [
+                "_DEBUG"
+            ],
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "browse": {
+                "path": [
+                    "/usr/include",
+                    "/usr/include/c++/7",
+					"${DefaultIncludePath}"
+                    ],
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "compileCommands": "${workspaceFolder}/compile_commands.json"
+        }    ],
     "version": 4
 }
