@@ -40,19 +40,25 @@ set(PROJECT_LINK_OPTIONS
     )
 
 set(PROJECT_DEPENDENCIES
+    network
     tracing
     )
 
 set(PROJECT_LIBS
     ${LINKER_LIBRARIES}
     ${PROJECT_DEPENDENCIES}
+    pcap
     )
 
 set(PROJECT_SOURCES 
     src/main.cpp
+    src/pcap-interface.cpp
+    src/pcap-interfaces.cpp
     )
 
 set(PROJECT_INCLUDES_PRIVATE
+    include/pcap-interface.h
+    include/pcap-interfaces.h
     )
 
 set(PROJECT_INCLUDES_PUBLIC
