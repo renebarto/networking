@@ -49,11 +49,23 @@ set(PROJECT_LIBS
     )
 
 set(PROJECT_SOURCES 
+    src/AddressTuple.cpp
+    src/Interface.cpp
+    src/Interfaces.cpp
+    src/IPV4Address.cpp
+    src/IPV6Address.cpp
+    src/MACAddress.cpp
     src/Socket.cpp
     )
 set(PROJECT_INCLUDES_PRIVATE
     )
 set(PROJECT_INCLUDES_PUBLIC
+    include/network/AddressTuple.h
+    include/network/Interface.h
+    include/network/Interfaces.h
+    include/network/IPV4Address.h
+    include/network/IPV6Address.h
+    include/network/MACAddress.h
     include/network/Socket.h
     )
 
