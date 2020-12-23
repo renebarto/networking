@@ -25,6 +25,9 @@ endif()
 list(APPEND CMAKE_MODULE_PATH ${SCRIPTS_DIR})
 
 include(functions)
+find_package(libpcap)
+message(STATUS "Found libpcap: ${PCAP_FOUND}")
+
 
 message(STATUS "In directory: ${CMAKE_CURRENT_SOURCE_DIR}")
 
