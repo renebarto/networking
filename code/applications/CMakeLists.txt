@@ -1,2 +1,7 @@
 add_subdirectory(helloworld)
+if(PLATFORM_LINUX)
+add_subdirectory(ip-sniffer)
+IF(PCAP_FOUND)
 add_subdirectory(packet-sniffer)
+endif()
+endif()
