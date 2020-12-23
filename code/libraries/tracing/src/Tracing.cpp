@@ -1,5 +1,6 @@
 #include "tracing/Tracing.h"
 
+#include <algorithm>
 #include <iostream>
 #include <iomanip>
 #include "osal/Console.h"
@@ -53,10 +54,18 @@ osal::ConsoleColor GetColorForCategory(TraceCategory category)
     }
 }
 
-void Tracing::Trace(TraceCategory category, const std::string & fileName, int line , const std::string & functionName, const std::string & msg)
+std::string ExtractFileName(const std::string & path)
+{
+    std::string convertedPath = path;
+    std::replace(convertedPath.begin(), convertedPath.end(), '\\', '/');
+    return convertedPath.substr(convertedPath.rfind("/") + 1u);
+}
+
+void Tracing::Trace(TraceCategory category, const std::string & path, int line , const std::string & functionName, const std::string & msg)
 {
     if (!IsTraceCategoryEnabled(category))
         return;
+    std::string fileName = ExtractFileName(path);
     if (m_traceFunc != nullptr)
     {
         m_traceFunc(category, fileName, line, functionName, msg);
@@ -64,41 +73,52 @@ void Tracing::Trace(TraceCategory category, const std::string & fileName, int li
     else
     {
         s_traceConsole << fgcolor(GetColorForCategory(category));
-        s_traceConsole << "Category: " << category << " " << fileName << ":" << line << " - " << functionName << ":" << msg << std::endl;
+        s_traceConsole << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
         s_traceConsole << fgcolor(osal::ConsoleColor::Default);
     }
 }
 
-void Tracer::Trace(const std::string & fileName, int line , const std::string & functionName, const utility::Error & error)
+void Tracer::Trace(const std::string & path, int line , const std::string & functionName, const utility::Error & error)
 {
     auto errorCode = error.ErrorCode();
     if (errorCode != -1)
     {
-        Tracing::Trace(TraceCategory::Error, fileName, line, functionName, "Error code: {}", utility::Serialize(error));
+        Tracing::Trace(TraceCategory::Error, path, line, functionName, "Error code: {}", utility::Serialize(error));
     }
     else
     {
-        Tracing::Trace(TraceCategory::Error, fileName, line, functionName, "Error code: Unknown: {}", error.Message());
+        Tracing::Trace(TraceCategory::Error, path, line, functionName, "Error code: Unknown: {}", error.Message());
     }
 }
 
-void Tracer::Fatal(const std::string & fileName, int line , const std::string & functionName, const utility::Error & error)
+void Tracer::Trace(const std::string & path, int line , const std::string & functionName, const utility::GenericError & error)
 {
-    Trace(fileName, line, functionName, error);
+    Tracing::Trace(TraceCategory::Error, path, line, functionName, utility::Serialize(error));
+}
+
+void Tracer::Fatal(const std::string & path, int line , const std::string & functionName, const utility::Error & error)
+{
+    Trace(path, line, functionName, error);
     exit(1);
 }
 
-void Tracer::Throw(const std::string & fileName, int line , const std::string & functionName, const utility::Error & error)
+void Tracer::Fatal(const std::string & path, int line , const std::string & functionName, const utility::GenericError & error)
+{
+    Trace(path, line, functionName, error);
+    exit(1);
+}
+
+void Tracer::Throw(const std::string & path, int line , const std::string & functionName, const utility::Error & error)
 {
     std::ostringstream stream;
-    stream << TraceCategory::Error << " " << fileName << ":" << line << "(" << functionName << "): Error code: " << error;
+    stream << TraceCategory::Error << " " << ExtractFileName(path) << ":" << line << "(" << functionName << "): Error code: " << error;
     throw std::runtime_error(stream.str());
 }
 
-void Tracer::Throw(const std::string & fileName, int line , const std::string & functionName, const utility::GenericError & error)
+void Tracer::Throw(const std::string & path, int line , const std::string & functionName, const utility::GenericError & error)
 {
     std::ostringstream stream;
-    stream << TraceCategory::Error << " " << fileName << ":" << line << "(" << functionName << "): " << error;
+    stream << TraceCategory::Error << " " << ExtractFileName(path) << ":" << line << "(" << functionName << "): " << error;
     throw std::runtime_error(stream.str());
 }
 

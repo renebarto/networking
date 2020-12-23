@@ -42,15 +42,15 @@ public:
     static void SetTracingFunctions(TraceFunction traceFunc, IsTraceCategoryEnabledFunction enabledFunc);
     
     static bool IsTraceCategoryEnabled(TraceCategory category);
-    static void Trace(TraceCategory category, const std::string & fileName, int line, const std::string & functionName, const std::string & message);
+    static void Trace(TraceCategory category, const std::string & path, int line, const std::string & functionName, const std::string & message);
     template <typename ... Args>
-    static void Trace(TraceCategory category, const std::string & fileName, int line, const std::string & functionName, const std::string & format, Args const & ... args) noexcept
+    static void Trace(TraceCategory category, const std::string & path, int line, const std::string & functionName, const std::string & format, Args const & ... args) noexcept
     {
         if (IsTraceCategoryEnabled(category))
         {
             std::string str;
             utility::Format(str, format, args ...);
-            Trace(category, fileName, line, functionName, str);
+            Trace(category, path, line, functionName, str);
         }
     }
 
@@ -66,41 +66,43 @@ std::ostream & operator << (std::ostream & stream, const TraceCategory & value);
 
 class Tracer {
 public:
-    static void Trace(const std::string & fileName, int line, const std::string & functionName, const utility::Error & error);
-    static void Fatal(const std::string & fileName, int line, const std::string & functionName, const utility::Error & error);
-    static void Throw(const std::string & fileName, int line, const std::string & functionName, const utility::Error & error);
-    static void Throw(const std::string & fileName, int line, const std::string & functionName, const utility::GenericError & error);
+    static void Trace(const std::string & path, int line, const std::string & functionName, const utility::Error & error);
+    static void Trace(const std::string & path, int line, const std::string & functionName, const utility::GenericError & error);
+    static void Fatal(const std::string & path, int line, const std::string & functionName, const utility::Error & error);
+    static void Fatal(const std::string & path, int line, const std::string & functionName, const utility::GenericError & error);
+    static void Throw(const std::string & path, int line, const std::string & functionName, const utility::Error & error);
+    static void Throw(const std::string & path, int line, const std::string & functionName, const utility::GenericError & error);
 };
 
 } // namespace tracing
 
-inline void TraceDebug(const std::string & fileName, int line, const std::string & functionName, const std::string & message)
+inline void TraceDebug(const std::string & path, int line, const std::string & functionName, const std::string & message)
 {
-    tracing::Tracing::Trace(tracing::TraceCategory::Debug, fileName, line, functionName, message);
+    tracing::Tracing::Trace(tracing::TraceCategory::Debug, path, line, functionName, message);
 }
 template <typename ... Args>
-void TraceDebug(const std::string & fileName, int line, const std::string & functionName, const std::string & format, Args const & ... args) noexcept
+void TraceDebug(const std::string & path, int line, const std::string & functionName, const std::string & format, Args const & ... args) noexcept
 {
-    tracing::Tracing::Trace(tracing::TraceCategory::Debug, fileName, line, functionName, format, args ...);
+    tracing::Tracing::Trace(tracing::TraceCategory::Debug, path, line, functionName, format, args ...);
 }
 
-inline void TraceInfo(const std::string & fileName, int line, const std::string & functionName, const std::string & message)
+inline void TraceInfo(const std::string & path, int line, const std::string & functionName, const std::string & message)
 {
-    tracing::Tracing::Trace(tracing::TraceCategory::Information, fileName, line, functionName, message);
+    tracing::Tracing::Trace(tracing::TraceCategory::Information, path, line, functionName, message);
 }
 template <typename ... Args>
-void TraceInfo(const std::string & fileName, int line, const std::string & functionName, const std::string & format, Args const & ... args) noexcept
+void TraceInfo(const std::string & path, int line, const std::string & functionName, const std::string & format, Args const & ... args) noexcept
 {
-    tracing::Tracing::Trace(tracing::TraceCategory::Information, fileName, line, functionName, format, args ...);
+    tracing::Tracing::Trace(tracing::TraceCategory::Information, path, line, functionName, format, args ...);
 }
 
-inline void TraceError(const std::string & fileName, int line, const std::string & functionName, const std::string & message)
+inline void TraceError(const std::string & path, int line, const std::string & functionName, const std::string & message)
 {
-    tracing::Tracing::Trace(tracing::TraceCategory::Error, fileName, line, functionName, message);
+    tracing::Tracing::Trace(tracing::TraceCategory::Error, path, line, functionName, message);
 }
 template <typename ... Args>
-static void TraceError(const std::string & fileName, int line, const std::string & functionName, const std::string & format, Args const & ... args) noexcept
+static void TraceError(const std::string & path, int line, const std::string & functionName, const std::string & format, Args const & ... args) noexcept
 {
-    tracing::Tracing::Trace(tracing::TraceCategory::Error, fileName, line, functionName, format, args ...);
+    tracing::Tracing::Trace(tracing::TraceCategory::Error, path, line, functionName, format, args ...);
 }
 
