@@ -4,13 +4,6 @@
 
 namespace utility {
     
-Error::Error(const std::string & text)
-    : m_errorCode()
-    , m_errorString()
-    , m_text(text)
-{
-}
-    
 Error::Error(int errorCode, const std::string errorString, const std::string & text)
     : m_errorCode(errorCode)
     , m_errorString(errorString)
