@@ -66,6 +66,7 @@ set(PROJECT_INCLUDES_PUBLIC
     include/osal/StringConversion.h
     include/osal/Thread.h
     include/osal/TypeInfo.h
+    include/osal/Utilities.h
     )
 
 display_list("Package                           : " ${PROJECT_NAME} )
