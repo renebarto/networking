@@ -27,17 +27,17 @@ std::string Serialize(int8_t value, int width, int base)
             break;
         case 8:
             {
-                stream << std::oct << std::setfill('0') << std::setw(3) << (int)value;
+                stream << std::oct << std::setfill('0') << std::setw(3) << static_cast<int>(value) << std::dec;
             }
             break;
         case 10:
             {
-                stream << std::dec << std::setfill('0') << (int)value;
+                stream << std::dec << std::setfill('0') << static_cast<int>(value);
             }
             break;
         case 16:
             {
-                stream << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << (int)value;
+                stream << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << static_cast<int>(value) << std::dec;
             }
             break;
         default:
@@ -60,17 +60,17 @@ std::string Serialize(uint8_t value, int width, int base)
             break;
         case 8:
             {
-                stream << std::oct << std::setfill('0') << std::setw(3) << (int)value;
+                stream << std::oct << std::setfill('0') << std::setw(3) << static_cast<int>(value) << std::dec;
             }
             break;
         case 10:
             {
-                stream << std::dec << std::setfill('0') << (int)value;
+                stream << std::dec << std::setfill('0') << static_cast<int>(value);
             }
             break;
         case 16:
             {
-                stream << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << (int)value;
+                stream << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << static_cast<int>(value) << std::dec;
             }
             break;
         default:
@@ -93,7 +93,7 @@ std::string Serialize(int16_t value, int width, int base)
             break;
         case 8:
             {
-                stream << std::oct << std::setfill('0') << std::setw(6) << value;
+                stream << std::oct << std::setfill('0') << std::setw(6) << value << std::dec;
             }
             break;
         case 10:
@@ -103,7 +103,7 @@ std::string Serialize(int16_t value, int width, int base)
             break;
         case 16:
             {
-                stream << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << value;
+                stream << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << value << std::dec;
             }
             break;
         default:
@@ -126,7 +126,7 @@ std::string Serialize(uint16_t value, int width, int base)
             break;
         case 8:
             {
-                stream << std::oct << std::setfill('0') << std::setw(6) << value;
+                stream << std::oct << std::setfill('0') << std::setw(6) << value << std::dec;
             }
             break;
         case 10:
@@ -136,7 +136,7 @@ std::string Serialize(uint16_t value, int width, int base)
             break;
         case 16:
             {
-                stream << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << value;
+                stream << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << value << std::dec;
             }
             break;
         default:
@@ -159,7 +159,7 @@ std::string Serialize(int32_t value, int width, int base)
             break;
         case 8:
             {
-                stream << std::oct << std::setfill('0') << std::setw(11) << value;
+                stream << std::oct << std::setfill('0') << std::setw(11) << value << std::dec;
             }
             break;
         case 10:
@@ -169,7 +169,7 @@ std::string Serialize(int32_t value, int width, int base)
             break;
         case 16:
             {
-                stream << std::hex << std::uppercase << std::setfill('0') << std::setw(8) << value;
+                stream << std::hex << std::uppercase << std::setfill('0') << std::setw(8) << value << std::dec;
             }
             break;
         default:
@@ -192,7 +192,7 @@ std::string Serialize(uint32_t value, int width, int base)
             break;
         case 8:
             {
-                stream << std::oct << std::setfill('0') << std::setw(11) << value;
+                stream << std::oct << std::setfill('0') << std::setw(11) << value << std::dec;
             }
             break;
         case 10:
@@ -202,7 +202,7 @@ std::string Serialize(uint32_t value, int width, int base)
             break;
         case 16:
             {
-                stream << std::hex << std::uppercase << std::setfill('0') << std::setw(8) << value;
+                stream << std::hex << std::uppercase << std::setfill('0') << std::setw(8) << value << std::dec;
             }
             break;
         default:
@@ -225,7 +225,7 @@ std::string Serialize(int64_t value, int width, int base)
             break;
         case 8:
             {
-                stream << std::oct << std::setfill('0') << std::setw(22) << value;
+                stream << std::oct << std::setfill('0') << std::setw(22) << value << std::dec;
             }
             break;
         case 10:
@@ -235,7 +235,7 @@ std::string Serialize(int64_t value, int width, int base)
             break;
         case 16:
             {
-                stream << std::hex << std::uppercase << std::setfill('0') << std::setw(16) << value;
+                stream << std::hex << std::uppercase << std::setfill('0') << std::setw(16) << value << std::dec;
             }
             break;
         default:
@@ -258,7 +258,7 @@ std::string Serialize(uint64_t value, int width, int base)
             break;
         case 8:
             {
-                stream << std::oct << std::setfill('0') << std::setw(22) << value;
+                stream << std::oct << std::setfill('0') << std::setw(22) << value << std::dec;
             }
             break;
         case 10:
@@ -268,7 +268,7 @@ std::string Serialize(uint64_t value, int width, int base)
             break;
         case 16:
             {
-                stream << std::hex << std::uppercase << std::setfill('0') << std::setw(16) << value;
+                stream << std::hex << std::uppercase << std::setfill('0') << std::setw(16) << value << std::dec;
             }
             break;
         default:
