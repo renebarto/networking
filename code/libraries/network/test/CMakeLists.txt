@@ -55,12 +55,15 @@ set(PROJECT_LIBS
 set(PROJECT_SOURCES 
     src/AddressTupleTest.cpp
     src/EthernetTest.cpp
-    src/InterfacesTest.cpp
     src/IPV4AddressTest.cpp
     src/IPV6AddressTest.cpp
     src/MACAddressTest.cpp
-    src/RawSocketTest.cpp
     )
+if(NOT PLATFORM_WINDOWS)
+    list(APPEND PROJECT_SOURCES
+        src/InterfacesTest.cpp
+        src/RawSocketTest.cpp)
+endif()
 
 set(PROJECT_INCLUDES_PRIVATE
     include/GoogleTest.h

@@ -52,12 +52,15 @@ set(PROJECT_SOURCES
     src/AddressTuple.cpp
     src/Ethernet.cpp
     src/Interface.cpp
-    src/Interfaces.cpp
     src/IPV4Address.cpp
     src/IPV6Address.cpp
     src/MACAddress.cpp
     src/Socket.cpp
     )
+if(NOT PLATFORM_WINDOWS)
+    list(APPEND PROJECT_SOURCES
+        src/Interfaces.cpp)
+endif()
 set(PROJECT_INCLUDES_PRIVATE
     )
 set(PROJECT_INCLUDES_PUBLIC

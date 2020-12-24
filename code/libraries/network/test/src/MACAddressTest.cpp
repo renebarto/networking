@@ -28,7 +28,7 @@ TEST(MACAddressTest, OperatorEqualAddress)
     MACAddress::AddressType ipAddress {1, 2, 3, 4, 5, 6};
     MACAddress::AddressType target(ipAddress);
     MACAddress::AddressType ref1 {};
-    MACAddress::AddressType ref2({0, 0, 0, 0, 0, 0});
+    MACAddress::AddressType ref2 {0, 0, 0, 0, 0, 0};
     MACAddress::AddressType ref3(ipAddress);
     EXPECT_FALSE(target == ref1);
     EXPECT_FALSE(target == ref2);
@@ -49,7 +49,7 @@ TEST(MACAddressTest, OperatorNotEqualAddress)
     MACAddress::AddressType ipAddress {1, 2, 3, 4, 5, 6};
     MACAddress::AddressType target(ipAddress);
     MACAddress::AddressType ref1 {};
-    MACAddress::AddressType ref2({0, 0, 0, 0, 0, 0});
+    MACAddress::AddressType ref2 {0, 0, 0, 0, 0, 0};
     MACAddress::AddressType ref3(ipAddress);
     EXPECT_TRUE(target != ref1);
     EXPECT_TRUE(target != ref2);
