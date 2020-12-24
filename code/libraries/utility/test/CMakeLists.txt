@@ -56,6 +56,7 @@ set(PROJECT_SOURCES
     src/AssertTest.cpp
     src/BidirectionalMapTest.cpp
     src/DeserializationTest.cpp
+    src/EndianTest.cpp
     src/EnumSerializationTest.cpp
     src/FormatTest.cpp
     src/MapUtilitiesTest.cpp
