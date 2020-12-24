@@ -50,6 +50,7 @@ set(PROJECT_LIBS
 
 set(PROJECT_SOURCES 
     src/AddressTuple.cpp
+    src/Ethernet.cpp
     src/Interface.cpp
     src/Interfaces.cpp
     src/IPV4Address.cpp
@@ -61,6 +62,7 @@ set(PROJECT_INCLUDES_PRIVATE
     )
 set(PROJECT_INCLUDES_PUBLIC
     include/network/AddressTuple.h
+    include/network/Ethernet.h
     include/network/Interface.h
     include/network/Interfaces.h
     include/network/IPV4Address.h
