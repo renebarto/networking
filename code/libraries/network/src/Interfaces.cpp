@@ -8,6 +8,7 @@
 #include "tracing/Tracing.h"
 #include "utility/Assert.h"
 #include <ifaddrs.h>
+#include "utility/Endian.h"
 #include "utility/Error.h"
 #include "utility/GenericError.h"
 #include "network/Interface.h"
@@ -86,7 +87,7 @@ static void ConvertAddressInfo(const struct sockaddr * address, network::Address
     case AF_INET:
         {
             auto ipV4Address = reinterpret_cast<const struct sockaddr_in *>(address);
-            network::IPV4Address addr(ipV4Address->sin_addr.s_addr);
+            network::IPV4Address addr(utility::FromNetworkByteOrder(ipV4Address->sin_addr.s_addr));
             addressTuple = network::AddressTuple(addr);
         }
         break;
@@ -112,8 +113,8 @@ void Interfaces::ExtractInterfaceInfo()
     {
         std::string name = interface->ifa_name;
         bool isUp = ((interface->ifa_flags & IFF_UP) != 0);
-        // bool hasBroadcastAddress = ((interface->ifa_flags & IFF_BROADCAST) != 0);
-        // bool hasDestinationAddress = ((interface->ifa_flags & IFF_POINTOPOINT) != 0);
+        bool hasBroadcastAddress = ((interface->ifa_flags & IFF_BROADCAST) != 0);
+        bool hasDestinationAddress = ((interface->ifa_flags & IFF_POINTOPOINT) != 0);
         // void * address = interface->ifa_data;
         if (!HaveInterface(name))
         {
@@ -125,18 +126,18 @@ void Interfaces::ExtractInterfaceInfo()
         {
             AddressInfo addressInfo;
             ConvertAddressInfo(interface->ifa_addr, addressInfo.address);
-            // if (address->netmask)
-            // {
-            //     ConvertAddressInfo(address->netmask, addressInfo.netmask);
-            // }
-            // if (address->broadaddr)
-            // {
-            //     ConvertAddressInfo(address->broadaddr, addressInfo.broadcastAddress);
-            // }
-            // if (address->dstaddr)
-            // {
-            //     ConvertAddressInfo(address->dstaddr, addressInfo.destinationAddress);
-            // }
+            if (interface->ifa_netmask)
+            {
+                ConvertAddressInfo(interface->ifa_netmask, addressInfo.netmask);
+            }
+            if (hasBroadcastAddress && interface->ifa_ifu.ifu_broadaddr)
+            {
+                ConvertAddressInfo(interface->ifa_ifu.ifu_broadaddr, addressInfo.broadcastAddress);
+            }
+            if (hasDestinationAddress && interface->ifa_ifu.ifu_dstaddr)
+            {
+                ConvertAddressInfo(interface->ifa_ifu.ifu_dstaddr, addressInfo.destinationAddress);
+            }
             TraceInfo(__FILE__, __LINE__, __func__, serialization::Serialize(addressInfo, 0));
             addresses.push_back(addressInfo);
         }
