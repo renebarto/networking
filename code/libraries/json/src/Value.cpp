@@ -1,7 +1,5 @@
 #include "json/Value.h"
 
-#include "utility/EnumSerialization.h"
-
 namespace serialization {
 
 template<>
