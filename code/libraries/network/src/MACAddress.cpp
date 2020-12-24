@@ -12,7 +12,7 @@ std::ostream & operator << (std::ostream & stream, const MACAddress & value)
         << std::uppercase << std::setw(2) << static_cast<int>(value.m_address[size_t{2}]) << "-"
         << std::uppercase << std::setw(2) << static_cast<int>(value.m_address[size_t{3}]) << "-"
         << std::uppercase << std::setw(2) << static_cast<int>(value.m_address[size_t{4}]) << "-"
-        << std::uppercase << std::setw(2) << static_cast<int>(value.m_address[size_t{5}]);
+        << std::uppercase << std::setw(2) << static_cast<int>(value.m_address[size_t{5}]) << std::dec;
 }
 
 bool operator == (const MACAddress & lhs, const MACAddress & rhs)
