@@ -27,6 +27,7 @@ public:
     IPV4Address(const AddressType & address)
         : m_address(address)
     {}
+    // Always platform byte order
     IPV4Address(const std::uint32_t address)
         : m_address()
     {
@@ -34,6 +35,7 @@ public:
     }
 
     AddressType Address() const { return m_address; }
+    // Always platform byte order
     std::uint32_t GetUInt32() const;
     void SetUInt32(std::uint32_t value);
 

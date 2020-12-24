@@ -29,7 +29,7 @@ TEST(IPV4Address, Broadcast)
 TEST(IPV4Address, LocalHost)
 {
   EXPECT_EQ(IPV4Address({127, 0, 0, 1}), IPV4Address::LocalHost.Address());
-  EXPECT_EQ(std::uint32_t {0x0100007F}, IPV4Address::LocalHost.GetUInt32());
+  EXPECT_EQ(std::uint32_t {0x7F000001}, IPV4Address::LocalHost.GetUInt32());
   EXPECT_EQ("127.0.0.1", serialization::Serialize(IPV4Address::LocalHost, 0));
 }
 
@@ -47,16 +47,16 @@ TEST(IPV4Address, ConstructFromBytes)
   IPV4Address address({1, 2, 3, 4});
 
   EXPECT_EQ(IPV4Address({1, 2, 3, 4}), address.Address());
-  EXPECT_EQ(std::uint32_t {0x04030201}, address.GetUInt32());
+  EXPECT_EQ(std::uint32_t {0x01020304}, address.GetUInt32());
   EXPECT_EQ("1.2.3.4", serialization::Serialize(address, 0));
 }
 
 TEST(IPV4Address, ConstructFromUInt32)
 {
-  IPV4Address address(0x78563412);
+  IPV4Address address(0x12345678);
 
   EXPECT_EQ(IPV4Address({0x12, 0x34, 0x56, 0x78}), address.Address());
-  EXPECT_EQ(std::uint32_t {0x78563412}, address.GetUInt32());
+  EXPECT_EQ(std::uint32_t {0x12345678}, address.GetUInt32());
   EXPECT_EQ("18.52.86.120", serialization::Serialize(address, 0));
 }
 

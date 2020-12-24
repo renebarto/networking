@@ -1,5 +1,7 @@
 #include "network/IPV4Address.h"
 
+#include "osal/Utilities.h"
+
 namespace network {
 
 IPV4Address const IPV4Address::None = IPV4Address({0, 0, 0, 0});
@@ -11,12 +13,15 @@ std::uint32_t IPV4Address::GetUInt32() const
 {
     std::uint32_t address;
     std::copy(m_address.begin(), m_address.end(), reinterpret_cast<std::uint8_t *>(&address));
-    return address;
+    // We need to swap bytes after copying from byte array
+    return osal::SwapBytes(address);
 }
 
 void IPV4Address::SetUInt32(std::uint32_t value)
 {
-    std::copy(reinterpret_cast<const std::uint8_t *>(&value), reinterpret_cast<const std::uint8_t *>(&value + 1), std::begin(m_address));
+    // We need to swap bytes before copying to byte array
+    std::uint32_t swappedValue = osal::SwapBytes(value);
+    std::copy(reinterpret_cast<const std::uint8_t *>(&swappedValue), reinterpret_cast<const std::uint8_t *>(&swappedValue + 1), std::begin(m_address));
 }
 
 std::ostream & operator << (std::ostream & stream, const IPV4Address & value)
