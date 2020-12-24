@@ -54,6 +54,7 @@ set(PROJECT_LIBS
 
 set(PROJECT_SOURCES 
     src/AddressTupleTest.cpp
+    src/EthernetTest.cpp
     src/InterfacesTest.cpp
     src/IPV4AddressTest.cpp
     src/IPV6AddressTest.cpp
