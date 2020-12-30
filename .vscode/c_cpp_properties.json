@@ -57,7 +57,7 @@
             "intelliSenseMode": "gcc-x64",
             "includePath": [
                 "/usr/include",
-                "/usr/include/c++/7",
+                "/usr/include/c++/8",
                 "${DefaultIncludePath}"
             ],
             "defines": [
@@ -69,12 +69,12 @@
             "browse": {
                 "path": [
                     "/usr/include",
-                    "/usr/include/c++/7",
+                    "/usr/include/c++/8",
 					"${DefaultIncludePath}"
                     ],
                 "limitSymbolsToIncludedHeaders": true
             },
-            "compileCommands": "${workspaceFolder}/compile_commands.json"
+            "compileCommands": "${workspaceFolder}/cmake-GCC 8.3.0-Debug/compile_commands.json"
         }    ],
     "version": 4
 }
