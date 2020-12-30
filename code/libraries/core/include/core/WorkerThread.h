@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include "osal/ManualEvent.h"
+#include "osal/Signal.h"
 #include "core/Thread.h"
 #include "tracing/Tracing.h"
 
@@ -62,16 +63,16 @@ protected:
 
     void SetSignalMask()
     {
-//         osal::Signal::SignalSet signalMaskSet;
-//         signalMaskSet.clear();
-//         signalMaskSet.add(SIGTERM);
-//         signalMaskSet.add(SIGINT);
-// #if defined(SIGQUIT)
-//         signalMaskSet.add(SIGQUIT);
-// #endif
-//         if (!osal::Thread::SetSignalMask(signalMaskSet))
-//             throw OSAL::SystemError(__func__, __FILE__, __LINE__, errno,
-//                                     "Cannot set signal mask for thread");
+        osal::signal::SignalSet signalMaskSet;
+        signalMaskSet.clear();
+        signalMaskSet.add(SIGTERM);
+        signalMaskSet.add(SIGINT);
+#if defined(SIGQUIT)
+        signalMaskSet.add(SIGQUIT);
+#endif
+        // if (!osal::Thread::SetSignalMask(signalMaskSet))
+        //     throw OSAL::SystemError(__func__, __FILE__, __LINE__, errno,
+        //                             "Cannot set signal mask for thread");
     }
 };
 
