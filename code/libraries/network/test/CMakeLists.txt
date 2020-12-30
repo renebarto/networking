@@ -58,6 +58,8 @@ set(PROJECT_SOURCES
     src/IPV4AddressTest.cpp
     src/IPV6AddressTest.cpp
     src/MACAddressTest.cpp
+    src/SocketTest.cpp
+    src/SocketDefinitionsTest.cpp
     )
 if(NOT PLATFORM_WINDOWS)
     list(APPEND PROJECT_SOURCES
