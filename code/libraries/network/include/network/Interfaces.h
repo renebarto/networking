@@ -19,12 +19,15 @@ public:
     bool HaveInterface(const std::string & interfaceName) const;
     const Interface & GetInterface(const std::string & interfaceName) const;
     const std::map<std::string, Interface> & GetAllInterfaces() const { return m_interfacesMap; }
+    std::map<std::string, Interface> GetLocalLoopbackInterfaces() const;
+    std::map<std::string, Interface> GetIPV4Interfaces() const;
+    std::map<std::string, Interface> GetIPV6Interfaces() const;
 
 private:
     std::map<std::string, Interface> m_interfacesMap;
     void * m_interfaces;
 
-    void ExtractInterfaceInfo();
+    void ExtractInterfaceInfo(const std::string & interfaceName = {});
 };
 
 } // namespace packetcapture

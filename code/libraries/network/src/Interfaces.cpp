@@ -16,6 +16,8 @@
 namespace network
 {
 
+static const std::string LocalLoopbackInterface = "lo";
+
 Interfaces::Interfaces()
     : m_interfacesMap()
     , m_interfaces()
@@ -32,6 +34,24 @@ Interfaces::Interfaces()
         m_interfaces = reinterpret_cast<void *>(interfaces);
     }
     ExtractInterfaceInfo();
+}
+
+Interfaces::Interfaces(const std::string & interfaceName)
+    : m_interfacesMap()
+    , m_interfaces()
+{
+    ifaddrs * interfaces {};
+
+    // Get all NICs
+    if (getifaddrs(&interfaces) == -1)
+    {
+        tracing::Tracer::Trace(__FILE__, __LINE__, __func__, utility::Error(errno, strerror(errno), "Cannot determine network interfaces"));
+    }
+    else
+    {
+        m_interfaces = reinterpret_cast<void *>(interfaces);
+    }
+    ExtractInterfaceInfo(interfaceName);
 }
 
 bool Interfaces::HaveInterface(const std::string & interfaceName) const
@@ -54,6 +74,61 @@ Interfaces::~Interfaces()
     {
         freeifaddrs(reinterpret_cast<ifaddrs *>(m_interfaces));
     }
+}
+
+std::map<std::string, Interface> Interfaces::GetLocalLoopbackInterfaces() const
+{
+    std::map<std::string, Interface> result;
+    for (auto const & entry : m_interfacesMap)
+    {
+        if (entry.first == LocalLoopbackInterface)
+        {
+            result.emplace(entry);
+        }
+    }
+    return result;
+}
+
+std::map<std::string, Interface> Interfaces::GetIPV4Interfaces() const
+{
+    std::map<std::string, Interface> result;
+    for (auto const & entry : m_interfacesMap)
+    {
+        bool foundIPV4Address = false;
+        auto addresses = entry.second.Addresses();
+        for (auto const & addressInfo : addresses)
+        {
+            if (addressInfo.address.IsIPV4Address())
+            {
+                foundIPV4Address = true;
+                break;
+            }
+        }
+        if (foundIPV4Address)
+            result.emplace(entry);
+    }
+    return result;
+}
+
+std::map<std::string, Interface> Interfaces::GetIPV6Interfaces() const
+{
+    std::map<std::string, Interface> result;
+    for (auto const & entry : m_interfacesMap)
+    {
+        bool foundIPV6Address = false;
+        auto addresses = entry.second.Addresses();
+        for (auto const & addressInfo : addresses)
+        {
+            if (addressInfo.address.IsIPV6Address())
+            {
+                foundIPV6Address = true;
+                break;
+            }
+        }
+        if (foundIPV6Address)
+            result.emplace(entry);
+    }
+    return result;
 }
 
 static void ConvertAddressInfo(const struct sockaddr * address, network::AddressTuple & addressTuple)
@@ -104,7 +179,7 @@ static void ConvertAddressInfo(const struct sockaddr * address, network::Address
     }
 }
 
-void Interfaces::ExtractInterfaceInfo()
+void Interfaces::ExtractInterfaceInfo(const std::string & interfaceName)
 {
     ifaddrs * interfaces = reinterpret_cast<ifaddrs *>(m_interfaces);
 
@@ -112,37 +187,41 @@ void Interfaces::ExtractInterfaceInfo()
     while (interface)
     {
         std::string name = interface->ifa_name;
-        bool isUp = ((interface->ifa_flags & IFF_UP) != 0);
-        bool hasBroadcastAddress = ((interface->ifa_flags & IFF_BROADCAST) != 0);
-        bool hasDestinationAddress = ((interface->ifa_flags & IFF_POINTOPOINT) != 0);
-        // void * address = interface->ifa_data;
-        if (!HaveInterface(name))
+        if (interfaceName.empty() || (name == interfaceName))
         {
-            m_interfacesMap.emplace(name, Interface(name, isUp));
-        }
-        Interface & nic = m_interfacesMap[name];
-        std::vector<AddressInfo> & addresses = nic.Addresses();
-        if (interface->ifa_addr)
-        {
-            AddressInfo addressInfo;
-            ConvertAddressInfo(interface->ifa_addr, addressInfo.address);
-            if (interface->ifa_netmask)
+            bool isUp = ((interface->ifa_flags & IFF_UP) != 0);
+            bool hasBroadcastAddress = ((interface->ifa_flags & IFF_BROADCAST) != 0);
+            bool hasDestinationAddress = ((interface->ifa_flags & IFF_POINTOPOINT) != 0);
+            // void * address = interface->ifa_data;
+            if (!HaveInterface(name))
             {
-                ConvertAddressInfo(interface->ifa_netmask, addressInfo.netmask);
+                m_interfacesMap.emplace(name, Interface(name, isUp));
             }
-            if (hasBroadcastAddress && interface->ifa_ifu.ifu_broadaddr)
+            Interface & nic = m_interfacesMap[name];
+            std::vector<AddressInfo> & addresses = nic.Addresses();
+            if (interface->ifa_addr)
             {
-                ConvertAddressInfo(interface->ifa_ifu.ifu_broadaddr, addressInfo.broadcastAddress);
+                AddressInfo addressInfo;
+                ConvertAddressInfo(interface->ifa_addr, addressInfo.address);
+                if (interface->ifa_netmask)
+                {
+                    ConvertAddressInfo(interface->ifa_netmask, addressInfo.netmask);
+                }
+                if (hasBroadcastAddress && interface->ifa_ifu.ifu_broadaddr)
+                {
+                    ConvertAddressInfo(interface->ifa_ifu.ifu_broadaddr, addressInfo.broadcastAddress);
+                }
+                if (hasDestinationAddress && interface->ifa_ifu.ifu_dstaddr)
+                {
+                    ConvertAddressInfo(interface->ifa_ifu.ifu_dstaddr, addressInfo.destinationAddress);
+                }
+                TraceInfo(__FILE__, __LINE__, __func__, serialization::Serialize(addressInfo, 0));
+                addresses.push_back(addressInfo);
             }
-            if (hasDestinationAddress && interface->ifa_ifu.ifu_dstaddr)
-            {
-                ConvertAddressInfo(interface->ifa_ifu.ifu_dstaddr, addressInfo.destinationAddress);
-            }
-            TraceInfo(__FILE__, __LINE__, __func__, serialization::Serialize(addressInfo, 0));
-            addresses.push_back(addressInfo);
+            
+            TraceInfo(__FILE__, __LINE__, __func__, "Device: {} ({})", name, (isUp ? "Up" : "Down"));
         }
         
-        TraceInfo(__FILE__, __LINE__, __func__, "Device: {} ({})", name, (isUp ? "Up" : "Down"));
         interface = interface->ifa_next;
     }
 }
