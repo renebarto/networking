@@ -55,7 +55,9 @@ set(PROJECT_SOURCES
     src/IPV4Address.cpp
     src/IPV6Address.cpp
     src/MACAddress.cpp
+    src/Network.cpp
     src/Socket.cpp
+    src/SocketDefinitions.cpp
     )
 if(NOT PLATFORM_WINDOWS)
     list(APPEND PROJECT_SOURCES
@@ -71,7 +73,9 @@ set(PROJECT_INCLUDES_PUBLIC
     include/network/IPV4Address.h
     include/network/IPV6Address.h
     include/network/MACAddress.h
+    include/network/Network.h
     include/network/Socket.h
+    include/network/SocketDefinitions.h
     )
 
 display_list("Package                           : " ${PROJECT_NAME} )

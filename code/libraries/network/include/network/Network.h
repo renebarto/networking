@@ -1,23 +1,10 @@
 #pragma once
 
+namespace network {
+
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_LINUX_RPI)
 
-#include <strings.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <net/if.h>
-#include <ifaddrs.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-
 #elif defined(PLATFORM_WINDOWS)
-
-#pragma warning(disable: 5039)
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#pragma warning(default: 5039)
 
 // int inet_aton(const char *cp, struct in_addr *inp);
 
@@ -39,3 +26,4 @@
 
 #endif
 
+} // namespace network
