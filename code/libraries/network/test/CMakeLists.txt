@@ -41,6 +41,7 @@ set(PROJECT_LINK_OPTIONS
 
 set(PROJECT_DEPENDENCIES
     network
+    core
     gtest
     gtest_main
     gmock
@@ -53,19 +54,10 @@ set(PROJECT_LIBS
     )
 
 set(PROJECT_SOURCES 
-    src/AddressTupleTest.cpp
-    src/EthernetTest.cpp
-    src/IPV4AddressTest.cpp
-    src/IPV6AddressTest.cpp
-    src/MACAddressTest.cpp
-    src/SocketTest.cpp
-    src/SocketDefinitionsTest.cpp
+    src/IPV4EndPointTest.cpp
+    src/IPV4SocketTest.cpp
+    src/IPV6EndPointTest.cpp
     )
-if(NOT PLATFORM_WINDOWS)
-    list(APPEND PROJECT_SOURCES
-        src/InterfacesTest.cpp
-        src/RawSocketTest.cpp)
-endif()
 
 set(PROJECT_INCLUDES_PRIVATE
     include/GoogleTest.h

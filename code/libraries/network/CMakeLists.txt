@@ -1,6 +1,6 @@
 project(network
     VERSION ${MSI_NUMBER}
-    DESCRIPTION "Network funtionality"
+    DESCRIPTION "Network functionality"
     LANGUAGES CXX)
 
 message(STATUS "\n**********************************************************************************\n")
@@ -39,8 +39,8 @@ set(PROJECT_LINK_OPTIONS
     )
 
 set(PROJECT_DEPENDENCIES
-    osal
-    tracing
+    network-osal
+    utility
     )
 
 set(PROJECT_LIBS
@@ -49,33 +49,17 @@ set(PROJECT_LIBS
     )
 
 set(PROJECT_SOURCES 
-    src/AddressTuple.cpp
-    src/Ethernet.cpp
-    src/Interface.cpp
-    src/IPV4Address.cpp
-    src/IPV6Address.cpp
-    src/MACAddress.cpp
-    src/Network.cpp
-    src/Socket.cpp
-    src/SocketDefinitions.cpp
+    src/IPV4EndPoint.cpp
+    src/IPV4Socket.cpp
+    src/IPV6EndPoint.cpp
     )
-if(NOT PLATFORM_WINDOWS)
-    list(APPEND PROJECT_SOURCES
-        src/Interfaces.cpp)
-endif()
 set(PROJECT_INCLUDES_PRIVATE
     )
 set(PROJECT_INCLUDES_PUBLIC
-    include/network/AddressTuple.h
-    include/network/Ethernet.h
-    include/network/Interface.h
-    include/network/Interfaces.h
-    include/network/IPV4Address.h
-    include/network/IPV6Address.h
-    include/network/MACAddress.h
-    include/network/Network.h
-    include/network/Socket.h
-    include/network/SocketDefinitions.h
+    include/network/IPV4EndPoint.h
+    include/network/IPV4Socket.h
+    include/network/IPV6EndPoint.h
+    include/network/IPV6Socket.h
     )
 
 display_list("Package                           : " ${PROJECT_NAME} )
