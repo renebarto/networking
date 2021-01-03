@@ -13,7 +13,7 @@ Deserialize(const std::string & text, T & value)
     T t;
     std::istringstream stream(text);
     stream >> t;
-    if (stream.good())
+    if (!stream.bad())
     {
         value = t;
         return true;
