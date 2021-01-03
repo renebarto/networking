@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <mutex>
 #include <string>
 #include "utility/Format.h"
 
@@ -57,6 +58,9 @@ public:
 private:
     static TraceFunction m_traceFunc;
     static IsTraceCategoryEnabledFunction m_isTraceCategoryEnabledFunc;
+    typedef std::recursive_mutex Mutex;
+    typedef std::lock_guard<Mutex> Lock;
+    static Mutex m_traceMutex;
 
     std::string m_fileName;
     std::string m_functionName;

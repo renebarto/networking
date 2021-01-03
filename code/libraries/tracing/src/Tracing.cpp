@@ -12,6 +12,7 @@ namespace tracing {
 
 TraceFunction Tracing::m_traceFunc = nullptr;
 IsTraceCategoryEnabledFunction Tracing::m_isTraceCategoryEnabledFunc = nullptr;
+Tracing::Mutex Tracing::m_traceMutex;
 
 static osal::Console s_traceConsole;
 
@@ -61,10 +62,11 @@ std::string ExtractFileName(const std::string & path)
     return convertedPath.substr(convertedPath.rfind("/") + 1u);
 }
 
-void Tracing::Trace(TraceCategory category, const std::string & path, int line , const std::string & functionName, const std::string & msg)
+void Tracing::Trace(TraceCategory category, const std::string & path, int line, const std::string & functionName, const std::string & msg)
 {
     if (!IsTraceCategoryEnabled(category))
         return;
+    Lock guard(m_traceMutex);
     std::string fileName = ExtractFileName(path);
     if (m_traceFunc != nullptr)
     {
@@ -78,7 +80,7 @@ void Tracing::Trace(TraceCategory category, const std::string & path, int line ,
     }
 }
 
-void Tracer::Trace(const std::string & path, int line , const std::string & functionName, const utility::Error & error)
+void Tracer::Trace(const std::string & path, int line, const std::string & functionName, const utility::Error & error)
 {
     auto errorCode = error.ErrorCode();
     if (errorCode != -1)
@@ -91,31 +93,33 @@ void Tracer::Trace(const std::string & path, int line , const std::string & func
     }
 }
 
-void Tracer::Trace(const std::string & path, int line , const std::string & functionName, const utility::GenericError & error)
+void Tracer::Trace(const std::string & path, int line, const std::string & functionName, const utility::GenericError & error)
 {
     Tracing::Trace(TraceCategory::Error, path, line, functionName, utility::Serialize(error));
 }
 
-void Tracer::Fatal(const std::string & path, int line , const std::string & functionName, const utility::Error & error)
+void Tracer::Fatal(const std::string & path, int line, const std::string & functionName, const utility::Error & error)
 {
     Trace(path, line, functionName, error);
     exit(1);
 }
 
-void Tracer::Fatal(const std::string & path, int line , const std::string & functionName, const utility::GenericError & error)
+void Tracer::Fatal(const std::string & path, int line, const std::string & functionName, const utility::GenericError & error)
 {
     Trace(path, line, functionName, error);
     exit(1);
 }
 
-void Tracer::Throw(const std::string & path, int line , const std::string & functionName, const utility::Error & error)
+void Tracer::Throw(const std::string & path, int line, const std::string & functionName, const utility::Error & error)
 {
     std::ostringstream stream;
-    stream << TraceCategory::Error << " " << ExtractFileName(path) << ":" << line << "(" << functionName << "): Error code: " << error;
-    throw std::runtime_error(stream.str());
+    stream 
+        << TraceCategory::Error << " " << ExtractFileName(path) << ":" << line << "(" << functionName << "): " << error.Message() << ": Error code: "
+        << std::dec << error.ErrorCode() << " (" << std::hex << std::setw(2) << std::setfill('0') << error.ErrorCode() << ")";
+    throw std::system_error(std::error_code(error.ErrorCode(), std::generic_category()), stream.str());
 }
 
-void Tracer::Throw(const std::string & path, int line , const std::string & functionName, const utility::GenericError & error)
+void Tracer::Throw(const std::string & path, int line, const std::string & functionName, const utility::GenericError & error)
 {
     std::ostringstream stream;
     stream << TraceCategory::Error << " " << ExtractFileName(path) << ":" << line << "(" << functionName << "): " << error;
