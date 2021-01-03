@@ -19,6 +19,8 @@ private:
     ExitFunction m_exitFunction;
 };
 
-#define SCOPEDTRACE(msg, exitFunction) tracing::ScopedTracing(__FILE__, __LINE__, __func__, msg, exitFunction)
+#define TOKENPASTE(x, y, z) x ## y ## z
+#define TOKENPASTE3(x, y, z) TOKENPASTE(x, y, z)
+#define SCOPEDTRACE(msg, exitFunction) tracing::ScopedTracing TOKENPASTE3(_trace, __func__, __LINE__)(__FILE__, __LINE__, __func__, msg, exitFunction)
 
 } // namespace core
