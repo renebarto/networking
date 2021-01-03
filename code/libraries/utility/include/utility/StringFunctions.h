@@ -43,5 +43,5 @@ std::string Quote(const std::string & text);
 
 std::string UnQuote(const std::string & text);
 
-} // namespace core
+} // namespace utility
 
