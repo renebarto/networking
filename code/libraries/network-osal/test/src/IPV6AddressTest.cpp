@@ -150,6 +150,17 @@ TEST(IPV6AddressTest, TryParseInvalid)
     EXPECT_FALSE(IPV6Address::TryParse(text2, ipAddress));
 }
 
+TEST(IPV6AddressTest, ConvertAddress)
+{
+    IPV6Address ipAddress({255, 254, 253, 252, 251, 250, 249, 248, 247, 246, 245, 244, 243, 242, 241, 240});
+    in6_addr actual;
+    in6_addr expected;
+    std::uint8_t address[] {255, 254, 253, 252, 251, 250, 249, 248, 247, 246, 245, 244, 243, 242, 241, 240};
+    std::copy(std::begin(address), std::begin(address), std::begin(expected.s6_addr));
+    actual = ipAddress.ConvertAddress();
+    EXPECT_TRUE(std::equal(std::begin(expected.s6_addr), std::end(expected.s6_addr), std::end(actual.s6_addr)));
+}
+
 TEST(IPV6AddressTest, OperatorEqual)
 {
     IPV6Address::AddressType ipAddress {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};

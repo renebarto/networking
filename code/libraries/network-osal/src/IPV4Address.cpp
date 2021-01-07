@@ -93,6 +93,13 @@ void IPV4Address::SetUInt32(std::uint32_t value)
     std::copy(reinterpret_cast<const std::uint8_t *>(&value), reinterpret_cast<const std::uint8_t *>(&value + 1), std::begin(m_address));
 }
 
+in_addr IPV4Address::ConvertAddress() const 
+{
+    in_addr result {};
+    result.s_addr = GetUInt32();
+    return result;
+}
+
 bool operator == (const IPV4Address & lhs, const IPV4Address & rhs)
 {
     return (lhs.m_address == rhs.m_address);

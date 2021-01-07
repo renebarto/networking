@@ -36,6 +36,7 @@ public:
     static bool TryParse(const std::string & text, IPV6Address & ipAddress);
 
     AddressType Address() const { return m_address; }
+    in6_addr ConvertAddress() const;
 
     friend bool operator == (const IPV6Address & lhs, const IPV6Address & rhs);
     friend bool operator == (const AddressType & lhs, const IPV6Address & rhs);

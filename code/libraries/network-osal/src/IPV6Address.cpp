@@ -89,6 +89,13 @@ bool IPV6Address::TryParse(const std::string & text, IPV6Address & ipAddress)
     return true;
 }
 
+in6_addr IPV6Address::ConvertAddress() const
+{
+    in6_addr result {};
+    std::copy(std::begin(m_address), std::end(m_address), std::begin(result.s6_addr));
+    return result;
+}
+
 bool operator == (const IPV6Address & lhs, const IPV6Address & rhs)
 {
     return (lhs.m_address == rhs.m_address);

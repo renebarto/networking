@@ -140,6 +140,16 @@ TEST(IPV4AddressTest, TryParseInvalid)
     EXPECT_FALSE(IPV4Address::TryParse(text2, ipAddress));
 }
 
+TEST(IPV4AddressTest, ConvertAddress)
+{
+    IPV4Address ipAddress({255, 254, 253, 252});
+    in_addr actual;
+    in_addr expected;
+    expected.s_addr = 0xFCFDFEFF;
+    actual = ipAddress.ConvertAddress();
+    EXPECT_EQ(expected.s_addr, actual.s_addr);
+}
+
 TEST(IPV4AddressTest, OperatorEqual)
 {
     IPV4Address::AddressType ipAddress = {1, 2, 3, 4};

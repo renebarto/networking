@@ -40,6 +40,7 @@ public:
     // Always network byte order
     std::uint32_t GetUInt32() const;
     void SetUInt32(std::uint32_t value);
+    in_addr ConvertAddress() const;
 
     friend bool operator == (const IPV4Address & lhs, const IPV4Address & rhs);
     friend bool operator == (std::uint32_t lhs, const IPV4Address & rhs);
