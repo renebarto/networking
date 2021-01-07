@@ -34,6 +34,7 @@ std::string Serialize(const std::string & value, int width = 0, bool quote = fal
 std::string Serialize(const std::wstring & value, int width = 0, bool quote = false);
 std::string Serialize(const char * value, int width = 0, bool quote = false);
 std::string Serialize(const wchar_t * value, int width = 0, bool quote = false);
+std::string Serialize(const void * value, int width = 0);
 
 template<typename T>
 std::string Serialize(T t, int width)

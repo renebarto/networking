@@ -363,4 +363,13 @@ std::string Serialize(const wchar_t * value, int width, bool quote)
     return utility::Align(stream.str(), width);
 }
 
+std::string Serialize(const void * value, int width)
+{
+    std::ostringstream stream;
+
+    stream << "0x" + Serialize(reinterpret_cast<uint64_t>(value), width, 16);
+
+    return utility::Align(stream.str(), width);
+}
+
 } // namespace serialization

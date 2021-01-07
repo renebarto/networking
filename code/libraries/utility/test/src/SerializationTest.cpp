@@ -209,4 +209,11 @@ TEST(SerializationTest, SerializeCharPtrWideQuoted)
     EXPECT_EQ(expected, Serialize(value, 0, true));
 }
 
+TEST(SerializationTest, SerializeVoidPtr)
+{
+    const void * value = reinterpret_cast<const void *>(0x123456789ABCDEF0llu);
+    std::string expected = "0x123456789ABCDEF0";
+    EXPECT_EQ(expected, Serialize(value, 0));
+}
+
 } // namespace serialization
