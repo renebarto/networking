@@ -1,6 +1,7 @@
 #include "GoogleTest.h"
 
 #include "utility/Deserialization.h"
+#include "utility/Endian.h"
 #include "utility/Serialization.h"
 #include "network/IPV6EndPoint.h"
 
@@ -161,11 +162,19 @@ TEST(IPV6EndPointTest, ConstructorPort)
 
 TEST(IPV6EndPointTest, ConstructorSockAddr)
 {
-    SockAddrIPV6 address({ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }, 1234, 12345678, 87654321);
+    std::uint16_t port = 1234;
+    std::uint32_t flowInfo = 12345678;
+    std::uint32_t scopeID = 87654321;
+    SockAddrIPV6 address({ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }, 
+                         utility::ToNetworkByteOrder(port), 
+                         utility::ToNetworkByteOrder(flowInfo), 
+                         utility::ToNetworkByteOrder(scopeID));
     IPV6EndPoint target(address);
     const std::string expected = "[102:304:506:708:90a:b0c:d0e:f10]:1234%87654321";
     EXPECT_EQ(IPV6Address::AddressType({ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }), target.IPAddress().Address());
-    EXPECT_EQ(address.sin6_port, target.Port());
+    EXPECT_EQ(address.sin6_port, utility::ToNetworkByteOrder(target.Port()));
+    EXPECT_EQ(address.sin6_flowinfo, utility::ToNetworkByteOrder(target.FlowInfo()));
+    EXPECT_EQ(address.sin6_scope_id, utility::ToNetworkByteOrder(target.ScopeID()));
     EXPECT_EQ(expected, serialization::Serialize(target, 0));
 }
 
@@ -243,6 +252,28 @@ TEST(IPV6EndPointTest, TryParseInvalid)
     EXPECT_FALSE(IPV6EndPoint::TryParse(text1, ipAddress));
     EXPECT_FALSE(IPV6EndPoint::TryParse(text2, ipAddress));
     EXPECT_FALSE(IPV6EndPoint::TryParse(text3, ipAddress));
+}
+
+TEST(IPV6EndPointTest, ConvertAddress)
+{
+    IPV6Address ipAddress({ 255, 254, 253, 252, 251, 250, 249, 248, 247, 246, 245, 244, 243, 242, 241, 240 });
+    std::uint16_t port = 1234;
+    std::uint32_t flowInfo = 0x12345678;
+    std::uint32_t scopeID = 0xFEDCBA98;
+    IPV6EndPoint ipEndPoint(ipAddress, port, flowInfo, scopeID);
+    sockaddr_in6 expected;
+    std::uint8_t address[] { 255, 254, 253, 252, 251, 250, 249, 248, 247, 246, 245, 244, 243, 242, 241, 240 };
+    expected.sin6_family = AF_INET6;
+    std::copy(std::begin(address), std::end(address), std::begin(expected.sin6_addr.s6_addr));
+    expected.sin6_port = utility::ToNetworkByteOrder(port);
+    expected.sin6_flowinfo = utility::ToNetworkByteOrder(flowInfo);
+    expected.sin6_scope_id = utility::ToNetworkByteOrder(scopeID);
+    sockaddr_in6 actual = ipEndPoint.ConvertAddress();
+    EXPECT_EQ(expected.sin6_port, actual.sin6_port);
+    EXPECT_TRUE(std::equal(std::begin(expected.sin6_addr.s6_addr), std::end(expected.sin6_addr.s6_addr), std::begin(actual.sin6_addr.s6_addr)));
+    EXPECT_EQ(expected.sin6_port, actual.sin6_port);
+    EXPECT_EQ(expected.sin6_flowinfo, actual.sin6_flowinfo);
+    EXPECT_EQ(expected.sin6_scope_id, actual.sin6_scope_id);
 }
 
 TEST(IPV6EndPointTest, OperatorEqual)

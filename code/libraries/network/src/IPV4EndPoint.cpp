@@ -1,5 +1,6 @@
 #include "network/IPV4EndPoint.h"
 
+#include "utility/Endian.h"
 #include "utility/GenericError.h"
 #include "tracing/Tracing.h"
 
@@ -178,6 +179,11 @@ bool IPV4EndPoint::TryParse(const std::string & text, IPV4EndPoint & ipEndPoint)
     }
     ipEndPoint = IPV4EndPoint(address, static_cast<uint16_t>(port));
     return true;
+}
+
+SockAddrIPV4 IPV4EndPoint::ConvertAddress() const
+{
+    return SockAddrIPV4(IPAddress().ConvertAddress(), utility::ToNetworkByteOrder(Port()));
 }
 
 bool IPV4EndPoint::operator == (const IPV4EndPoint & other) const

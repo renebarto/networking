@@ -1,6 +1,7 @@
 #include "GoogleTest.h"
 
 #include "utility/Deserialization.h"
+#include "utility/Endian.h"
 #include "utility/Serialization.h"
 #include "network/IPV4EndPoint.h"
 
@@ -199,6 +200,23 @@ TEST(IPV4EndPointTest, TryParseInvalid)
     EXPECT_FALSE(IPV4EndPoint::TryParse(text1, ipAddress));
     EXPECT_FALSE(IPV4EndPoint::TryParse(text2, ipAddress));
     EXPECT_FALSE(IPV4EndPoint::TryParse(text3, ipAddress));
+}
+
+TEST(IPV4EndPointTest, ConvertAddress)
+{
+    IPV4Address::AddressType address { 1, 2, 3, 4 };
+    std::uint16_t port = 1234;
+    IPV4EndPoint ipEndPoint(IPV4Address(address), port);
+    sockaddr_in expected;
+    expected.sin_family = AF_INET;
+    expected.sin_addr.s_addr = 0x04030201;
+    expected.sin_port = utility::ToNetworkByteOrder(port);
+    std::fill(std::begin(expected.sin_zero), std::end(expected.sin_zero), char {0});
+    sockaddr_in actual = ipEndPoint.ConvertAddress();
+    EXPECT_EQ(expected.sin_family, actual.sin_family);
+    EXPECT_EQ(expected.sin_addr.s_addr, actual.sin_addr.s_addr);
+    EXPECT_EQ(expected.sin_port, actual.sin_port);
+    EXPECT_TRUE(std::equal(std::begin(expected.sin_zero), std::end(expected.sin_zero), std::begin(actual.sin_zero)));
 }
 
 TEST(IPV4EndPointTest, OperatorEqual)

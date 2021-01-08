@@ -1,5 +1,6 @@
 #include "network/IPV6EndPoint.h"
 
+#include "utility/Endian.h"
 #include "utility/GenericError.h"
 #include "tracing/Tracing.h"
 
@@ -81,89 +82,6 @@ SockAddrIPV6 & SockAddrIPV6::operator = (const in6_addr & address)
     sin6_flowinfo = 0;
     sin6_scope_id = 0;
     return *this;
-}
-
-IPV6EndPoint IPV6EndPoint::Parse(const std::string & text)
-{
-    IPV6EndPoint ipAddress;
-    if (!TryParse(text, ipAddress))
-    {
-        tracing::Tracer::Throw(__FILE__, __LINE__, __func__, 
-            utility::GenericError("IPV6EndPoint string representation must be formatted as "
-                  "[xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx]:ddddd (or a shortened format),  string is {}", text));
-    }
-    return ipAddress;
-}
-
-static std::uint32_t ParseScopeID(const std::string & text)
-{
-    std::uint32_t value = 0;
-    for (auto ch : text)
-    {
-        if (!std::isdigit(ch))
-            break;
-        value = value * 10 + (ch - '0');
-    }
-    return value;
-}
-
-bool IPV6EndPoint::TryParse(const std::string & text, IPV6EndPoint & ipEndPoint)
-{
-    IPV6Address address = IPV6Address::None;
-    std::uint16_t port = AnyPort;
-    std::uint32_t scopeID = 0;
-    size_t bracketPos = text.find('[');
-    if (bracketPos == 0)
-    {
-        // We have a URI with possibly a port number
-        bracketPos = text.find(']');
-        if (bracketPos == std::string::npos)
-            return false;
-        size_t scopeDelimiterPos = text.find('%', 1);
-        if (scopeDelimiterPos == std::string::npos)
-        {
-            if (!IPV6Address::TryParse(text.substr(1, bracketPos - 1), address))
-                return false;
-            size_t pos = text.find(':', bracketPos + 1);
-            if (pos != std::string::npos)
-            {
-                if (!serialization::Deserialize(text.substr(pos + 1), port, 10))
-                    return false;
-            }
-        }
-        else
-        {
-            if (!IPV6Address::TryParse(text.substr(1, bracketPos - 1), address))
-                return false;
-            scopeID = ParseScopeID(text.substr(scopeDelimiterPos + 1, bracketPos));
-            size_t pos = text.find(':', bracketPos + 1);
-            if (pos != std::string::npos)
-            {
-                if (!serialization::Deserialize(text.substr(pos + 1, scopeDelimiterPos - pos - 1), port, 10))
-                    return false;
-            }
-        }
-    }
-    else
-    {
-        // We have a plain IPV6 address with possibly a scope identifier
-        size_t scopeDelimiterPos = text.find('%');
-        if (scopeDelimiterPos == std::string::npos)
-        {
-            // We have a plain IPV6 address
-            if (!IPV6Address::TryParse(text, address))
-                return false;
-        }
-        else
-        {
-            // We have a plain IPV6 address with a scope identifier
-            if (!IPV6Address::TryParse(text.substr(0, scopeDelimiterPos), address))
-                return false;
-            scopeID = ParseScopeID(text.substr(scopeDelimiterPos + 1));
-        }
-    }
-    ipEndPoint = IPV6EndPoint(address, static_cast<uint16_t>(port), 0, scopeID);
-    return true;
 }
 
 SocketFamily SockAddrIPV6::family() const
@@ -253,9 +171,9 @@ IPV6EndPoint::IPV6EndPoint(PortType port)
 }
 IPV6EndPoint::IPV6EndPoint(const SockAddrIPV6 & address)
     : m_ipAddress(address.address())
-    , m_port(address.port())
-    , m_flowInformation(address.flowinfo())
-    , m_scopeIdentifier(address.scopeid())
+    , m_port(utility::FromNetworkByteOrder(address.port()))
+    , m_flowInformation(utility::FromNetworkByteOrder(address.flowinfo()))
+    , m_scopeIdentifier(utility::FromNetworkByteOrder(address.scopeid()))
 {
 }
 
@@ -269,6 +187,98 @@ IPV6EndPoint & IPV6EndPoint::operator = (const IPV6EndPoint & other)
         m_scopeIdentifier = other.m_scopeIdentifier;
     }
     return *this;
+}
+
+IPV6EndPoint IPV6EndPoint::Parse(const std::string & text)
+{
+    IPV6EndPoint ipAddress;
+    if (!TryParse(text, ipAddress))
+    {
+        tracing::Tracer::Throw(__FILE__, __LINE__, __func__, 
+            utility::GenericError("IPV6EndPoint string representation must be formatted as "
+                  "[xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx]:ddddd (or a shortened format),  string is {}", text));
+    }
+    return ipAddress;
+}
+
+static std::uint32_t ParseScopeID(const std::string & text)
+{
+    std::uint32_t value = 0;
+    for (auto ch : text)
+    {
+        if (!std::isdigit(ch))
+            break;
+        value = value * 10 + (ch - '0');
+    }
+    return value;
+}
+
+bool IPV6EndPoint::TryParse(const std::string & text, IPV6EndPoint & ipEndPoint)
+{
+    IPV6Address address = IPV6Address::None;
+    std::uint16_t port = AnyPort;
+    std::uint32_t scopeID = 0;
+    size_t bracketPos = text.find('[');
+    if (bracketPos == 0)
+    {
+        // We have a URI with possibly a port number
+        bracketPos = text.find(']');
+        if (bracketPos == std::string::npos)
+            return false;
+        size_t scopeDelimiterPos = text.find('%', 1);
+        if (scopeDelimiterPos == std::string::npos)
+        {
+            if (!IPV6Address::TryParse(text.substr(1, bracketPos - 1), address))
+                return false;
+            size_t pos = text.find(':', bracketPos + 1);
+            if (pos != std::string::npos)
+            {
+                if (!serialization::Deserialize(text.substr(pos + 1), port, 10))
+                    return false;
+            }
+        }
+        else
+        {
+            if (!IPV6Address::TryParse(text.substr(1, bracketPos - 1), address))
+                return false;
+            scopeID = ParseScopeID(text.substr(scopeDelimiterPos + 1, bracketPos));
+            size_t pos = text.find(':', bracketPos + 1);
+            if (pos != std::string::npos)
+            {
+                if (!serialization::Deserialize(text.substr(pos + 1, scopeDelimiterPos - pos - 1), port, 10))
+                    return false;
+            }
+        }
+    }
+    else
+    {
+        // We have a plain IPV6 address with possibly a scope identifier
+        size_t scopeDelimiterPos = text.find('%');
+        if (scopeDelimiterPos == std::string::npos)
+        {
+            // We have a plain IPV6 address
+            if (!IPV6Address::TryParse(text, address))
+                return false;
+        }
+        else
+        {
+            // We have a plain IPV6 address with a scope identifier
+            if (!IPV6Address::TryParse(text.substr(0, scopeDelimiterPos), address))
+                return false;
+            scopeID = ParseScopeID(text.substr(scopeDelimiterPos + 1));
+        }
+    }
+    ipEndPoint = IPV6EndPoint(address, static_cast<uint16_t>(port), 0, scopeID);
+    return true;
+}
+
+SockAddrIPV6 IPV6EndPoint::ConvertAddress() const
+{
+    return SockAddrIPV6(
+        IPAddress().ConvertAddress(), 
+        utility::ToNetworkByteOrder(Port()),
+        utility::ToNetworkByteOrder(FlowInfo()),
+        utility::ToNetworkByteOrder(ScopeID()));
 }
 
 bool IPV6EndPoint::operator == (const IPV6EndPoint & other) const

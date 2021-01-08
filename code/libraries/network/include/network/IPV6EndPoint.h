@@ -59,6 +59,7 @@ public:
     uint32_t FlowInfo() const { return m_flowInformation; }
     uint32_t ScopeID() const { return m_scopeIdentifier; }
     size_t Size() const { return sizeof(sockaddr_in6); }
+    SockAddrIPV6 ConvertAddress() const;
 
     bool operator == (const IPV6EndPoint & other) const;
     bool operator != (const IPV6EndPoint & other) const;

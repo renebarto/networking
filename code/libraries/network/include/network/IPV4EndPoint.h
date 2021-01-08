@@ -51,6 +51,7 @@ public:
     const IPV4Address & IPAddress() const { return m_ipAddress; }
     PortType Port() const { return m_port; }
     size_t Size() const { return sizeof(sockaddr_in); }
+    SockAddrIPV4 ConvertAddress() const;
 
     bool operator == (const IPV4EndPoint & other) const;
     bool operator != (const IPV4EndPoint & other) const;
