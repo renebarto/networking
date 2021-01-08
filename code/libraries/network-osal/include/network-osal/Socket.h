@@ -36,44 +36,44 @@ public:
     SocketFamily Family() const { return m_socketFamily; }
     SocketType Type() const { return m_socketType; }
 
-	void   Open(SocketFamily socketFamily, SocketType socketType, SocketProtocol protocol = SocketProtocol::IP);
-	void   Close();
-	bool   IsOpen();
+	void Open(SocketFamily socketFamily, SocketType socketType, SocketProtocol protocol = SocketProtocol::IP);
+	void Close();
+	bool IsOpen();
 
-    void                      SetSocketOption(SocketOptionLevel level, SocketOption socketOption, const void * optionValue, socklen_t optionLength);
-    void                      GetSocketOption(SocketOptionLevel level, SocketOption socketOption, void * optionValue, socklen_t * optionLength);
-    void                      SetSocketOption(SocketOption socketOption, const void * optionValue, socklen_t optionLength);
-    void                      GetSocketOption(SocketOption socketOption, void * optionValue, socklen_t * optionLength);
+    void SetSocketOptionWithLevel(SocketOptionLevel level, SocketOption socketOption, const void * optionValue, socklen_t optionLength);
+    void GetSocketOptionWithLevel(SocketOptionLevel level, SocketOption socketOption, void * optionValue, socklen_t * optionLength);
+    void SetSocketOption(SocketOption socketOption, const void * optionValue, socklen_t optionLength);
+    void GetSocketOption(SocketOption socketOption, void * optionValue, socklen_t * optionLength);
 
-    bool                      GetSocketOptionBool(SocketOption socketOption);
-    void                      SetSocketOptionBool(SocketOption socketOption, bool value);
-    int                       GetSocketOptionInt(SocketOption socketOption);
-    void                      SetSocketOptionInt(SocketOption socketOption, int value);
+    bool GetSocketOptionBool(SocketOption socketOption);
+    void SetSocketOptionBool(SocketOption socketOption, bool value);
+    int  GetSocketOptionInt(SocketOption socketOption);
+    void SetSocketOptionInt(SocketOption socketOption, int value);
 
-    bool                      GetBroadcastOption();
-    void                      SetBroadcastOption(bool value);
-    bool                      GetBlockingMode();
-    void                      SetBlockingMode(bool value);
-    bool                      GetReuseAddress();
-    void                      SetReuseAddress(bool value);
+    bool GetBroadcastOption();
+    void SetBroadcastOption(bool value);
+    bool GetBlockingMode();
+    void SetBlockingMode(bool value);
+    bool GetReuseAddress();
+    void SetReuseAddress(bool value);
     std::chrono::milliseconds GetReceiveTimeout();
     void                      SetReceiveTimeout(std::chrono::milliseconds timeout);
     std::chrono::milliseconds GetSendTimeout();
     void                      SetSendTimeout(std::chrono::milliseconds timeout);
 
-    void                      Bind(const sockaddr * address, socklen_t addressLength);
+    void Bind(const sockaddr * address, socklen_t addressLength);
 
-    bool                      Connect(const sockaddr * serverAddress, socklen_t serverAddressLength, SocketTimeout timeout);
-    void                      Listen(int numListeners);
-    bool                      Accept(Socket & connectionSocket, sockaddr * clientAddress, socklen_t * clientAddressLength, SocketTimeout timeout);
+    bool Connect(const sockaddr * serverAddress, socklen_t serverAddressLength, SocketTimeout timeout);
+    void Listen(int numListeners);
+    bool Accept(Socket & connectionSocket, sockaddr * clientAddress, socklen_t * clientAddressLength, SocketTimeout timeout);
 
-    void                      GetLocalAddress(sockaddr * address, socklen_t * addressLength);
-    void                      GetRemoteAddress(sockaddr * address, socklen_t * addressLength);
+    void GetLocalAddress(sockaddr * address, socklen_t * addressLength);
+    void GetRemoteAddress(sockaddr * address, socklen_t * addressLength);
 
-    std::size_t               Receive(std::uint8_t * data, std::size_t bufferSize, int flags);
-    bool                      Send(const std::uint8_t * data, std::size_t bytesToSend, int flags);
-    std::size_t               ReceiveFrom(sockaddr * address, socklen_t * addressLength, std::uint8_t * data, std::size_t bufferSize);
-    void                      SendTo(const sockaddr * address, socklen_t addressLength, const std::uint8_t * data, std::size_t bytesToSend);
+    std::size_t Receive(std::uint8_t * data, std::size_t bufferSize, int flags);
+    bool        Send(const std::uint8_t * data, std::size_t bytesToSend, int flags);
+    std::size_t ReceiveFrom(sockaddr * address, socklen_t * addressLength, std::uint8_t * data, std::size_t bufferSize);
+    void        SendTo(const sockaddr * address, socklen_t addressLength, const std::uint8_t * data, std::size_t bytesToSend);
 };
 
 inline std::ostream &

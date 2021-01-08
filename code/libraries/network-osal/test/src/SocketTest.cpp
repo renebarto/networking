@@ -9,20 +9,35 @@
 
 namespace network {
 
-TEST(SocketTest, Construct)
+class SocketTest : public ::testing::Test
+{
+public:
+    SocketTest()
+    {
+        tracing::Tracing::SetTracingFunctions(
+            nullptr, 
+            [](tracing::TraceCategory /*category*/) { return false; });
+    }
+};
+
+TEST_F(SocketTest, Construct)
 {
     Socket target;
     EXPECT_EQ(InvalidHandleValue, target.GetHandle());
     EXPECT_FALSE(target.IsOpen());
+    EXPECT_EQ(SocketFamily::Any, target.Family());
+    EXPECT_EQ(SocketType::None, target.Type());
 }
 
-TEST(SocketTest, ConstructAndOpen)
+TEST_F(SocketTest, ConstructAndOpen)
 {
     Socket target(SocketFamily::Internet, SocketType::Stream);
     EXPECT_TRUE(target.IsOpen());
+    EXPECT_EQ(SocketFamily::Internet, target.Family());
+    EXPECT_EQ(SocketType::Stream, target.Type());
 }
 
-TEST(SocketTest, ConstructCopy)
+TEST_F(SocketTest, ConstructCopy)
 {
     Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     auto handle = target.GetHandle();
@@ -31,15 +46,18 @@ TEST(SocketTest, ConstructCopy)
     EXPECT_TRUE(target.IsOpen());
     EXPECT_EQ(handle, newSocket.GetHandle());
     EXPECT_TRUE(newSocket.IsOpen());
+    EXPECT_EQ(SocketFamily::Internet, target.Family());
+    EXPECT_EQ(SocketType::Datagram, target.Type());
+    EXPECT_EQ(SocketFamily::Internet, newSocket.Family());
+    EXPECT_EQ(SocketType::Datagram, newSocket.Type());
 
     // Do not close twice
     newSocket.SetHandle(InvalidHandleValue);
 }
 
-TEST(SocketTest, ConstructMove)
+TEST_F(SocketTest, ConstructMove)
 {
-    Socket target;
-    target.Open(SocketFamily::InternetV4, SocketType::Datagram);
+    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     auto handle = target.GetHandle();
 
     Socket newSocket(std::move(target));
@@ -47,12 +65,15 @@ TEST(SocketTest, ConstructMove)
     EXPECT_FALSE(target.IsOpen());
     EXPECT_EQ(handle, newSocket.GetHandle());
     EXPECT_TRUE(newSocket.IsOpen());
+    EXPECT_EQ(SocketFamily::Any, target.Family());
+    EXPECT_EQ(SocketType::None, target.Type());
+    EXPECT_EQ(SocketFamily::Internet, newSocket.Family());
+    EXPECT_EQ(SocketType::Datagram, newSocket.Type());
 }
 
-TEST(SocketTest, AssignMove)
+TEST_F(SocketTest, AssignMove)
 {
-    Socket target;
-    target.Open(SocketFamily::InternetV4, SocketType::Datagram);
+    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     auto handle = target.GetHandle();
 
     Socket newSocket;
@@ -61,12 +82,13 @@ TEST(SocketTest, AssignMove)
     EXPECT_FALSE(target.IsOpen());
     EXPECT_EQ(handle, newSocket.GetHandle());
     EXPECT_TRUE(newSocket.IsOpen());
-
-    target.SetHandle(InvalidHandleValue);
-    newSocket.SetHandle(InvalidHandleValue);
+    EXPECT_EQ(SocketFamily::Any, target.Family());
+    EXPECT_EQ(SocketType::None, target.Type());
+    EXPECT_EQ(SocketFamily::Internet, newSocket.Family());
+    EXPECT_EQ(SocketType::Datagram, newSocket.Type());
 }
 
-TEST(SocketTest, GetSetHandle)
+TEST_F(SocketTest, GetSetHandle)
 {
     Socket target;
     EXPECT_EQ(InvalidHandleValue, target.GetHandle());
@@ -80,66 +102,69 @@ TEST(SocketTest, GetSetHandle)
     EXPECT_EQ(InvalidHandleValue, target.GetHandle());
 }
 
-TEST(SocketTest, Open)
+TEST_F(SocketTest, Open)
 {
-    Socket target;
-    target.Open(SocketFamily::Internet, SocketType::Stream);
+    Socket target(SocketFamily::Internet, SocketType::Stream);
     EXPECT_TRUE(target.IsOpen());
+    EXPECT_EQ(SocketFamily::Internet, target.Family());
+    EXPECT_EQ(SocketType::Stream, target.Type());
 }
 
-TEST(SocketTest, OpenAndReOpen)
+TEST_F(SocketTest, OpenAndReOpen)
 {
-    Socket target;
-    target.Open(SocketFamily::Internet, SocketType::Stream);
+    Socket target(SocketFamily::Internet, SocketType::Stream);
     EXPECT_TRUE(target.IsOpen());
+    EXPECT_EQ(SocketFamily::Internet, target.Family());
+    EXPECT_EQ(SocketType::Stream, target.Type());
     target.Open(SocketFamily::Internet, SocketType::Datagram);
     EXPECT_TRUE(target.IsOpen());
+    EXPECT_EQ(SocketFamily::Internet, target.Family());
+    EXPECT_EQ(SocketType::Datagram, target.Type());
 }
 
-TEST(SocketTest, Close)
+TEST_F(SocketTest, Close)
 {
-    Socket target;
-    target.Open(SocketFamily::Internet, SocketType::Stream);
+    Socket target(SocketFamily::Internet, SocketType::Stream);
     EXPECT_TRUE(target.IsOpen());
     target.Close();
     EXPECT_FALSE(target.IsOpen());
+    EXPECT_EQ(SocketFamily::Any, target.Family());
+    EXPECT_EQ(SocketType::None, target.Type());
 }
 
-TEST(SocketTest, GetOptionWithLevel)
+TEST_F(SocketTest, GetOptionWithLevel)
 {
     Socket target(SocketFamily::Internet, SocketType::Datagram);
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value;
-    target.GetSocketOption(SocketOptionLevel::Socket, SocketOption::Broadcast, &value, &size);
+    target.GetSocketOptionWithLevel(SocketOptionLevel::Socket, SocketOption::Broadcast, &value, &size);
     EXPECT_FALSE(value != 0);
 }
 
-TEST(SocketTest, SetOptionWithLevel)
+TEST_F(SocketTest, SetOptionWithLevel)
 {
     Socket target(SocketFamily::Internet, SocketType::Datagram);
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value = 1;
     int actual;
-    target.SetSocketOption(SocketOptionLevel::Socket, SocketOption::Broadcast, &value, size);
-    target.GetSocketOption(SocketOptionLevel::Socket, SocketOption::Broadcast, &actual, &size);
+    target.SetSocketOptionWithLevel(SocketOptionLevel::Socket, SocketOption::Broadcast, &value, size);
+    target.GetSocketOptionWithLevel(SocketOptionLevel::Socket, SocketOption::Broadcast, &actual, &size);
     EXPECT_EQ(value, actual);
 }
 
-TEST(SocketTest, GetOption)
+TEST_F(SocketTest, GetOption)
 {
-    Socket target;
-    target.Open(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::Internet, SocketType::Datagram);
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value;
     target.GetSocketOption(SocketOption::Broadcast, &value, &size);
     EXPECT_FALSE(value != 0);
 }
 
-TEST(SocketTest, SetOption)
+TEST_F(SocketTest, SetOption)
 {
-    Socket target;
-    target.Open(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::Internet, SocketType::Datagram);
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value = 1;
@@ -149,66 +174,58 @@ TEST(SocketTest, SetOption)
     EXPECT_EQ(value, actual);
 }
 
-TEST(SocketTest, GetSocketOptionBool)
+TEST_F(SocketTest, GetSocketOptionBool)
 {
-    Socket target;
-    target.Open(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::Internet, SocketType::Datagram);
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
 }
 
-TEST(SocketTest, SetSocketOptionBool)
+TEST_F(SocketTest, SetSocketOptionBool)
 {
-    Socket target;
-    target.Open(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::Internet, SocketType::Datagram);
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
     target.SetSocketOptionBool(SocketOption::Broadcast, true);
     EXPECT_TRUE(target.GetSocketOptionBool(SocketOption::Broadcast));
 }
 
-TEST(SocketTest, GetSocketOptionInt)
+TEST_F(SocketTest, GetSocketOptionInt)
 {
-    Socket target;
-    target.Open(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::Internet, SocketType::Datagram);
     EXPECT_EQ(0, target.GetSocketOptionInt(SocketOption::Broadcast));
 }
 
-TEST(SocketTest, SetSocketOptionInt)
+TEST_F(SocketTest, SetSocketOptionInt)
 {
-    Socket target;
     int enableBroadcast = 1;
-    target.Open(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::Internet, SocketType::Datagram);
     EXPECT_FALSE(target.GetSocketOptionInt(SocketOption::Broadcast));
     target.SetSocketOptionInt(SocketOption::Broadcast, enableBroadcast);
     EXPECT_EQ(enableBroadcast, target.GetSocketOptionInt(SocketOption::Broadcast));
 }
 
-TEST(SocketTest, GetBroadcastOption)
+TEST_F(SocketTest, GetBroadcastOption)
 {
-    Socket target;
-    target.Open(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::Internet, SocketType::Datagram);
     EXPECT_FALSE(target.GetBroadcastOption());
 }
 
-TEST(SocketTest, SetBroadcastOption)
+TEST_F(SocketTest, SetBroadcastOption)
 {
-    Socket target;
-    target.Open(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::Internet, SocketType::Datagram);
     EXPECT_FALSE(target.GetBroadcastOption());
     target.SetBroadcastOption(true);
     EXPECT_TRUE(target.GetBroadcastOption());
 }
 
-TEST(SocketTest, GetBlockingMode)
+TEST_F(SocketTest, GetBlockingMode)
 {
-    Socket target;
-    target.Open(SocketFamily::Internet, SocketType::Stream);
+    Socket target(SocketFamily::Internet, SocketType::Stream);
     EXPECT_TRUE(target.GetBlockingMode());
 }
 
-TEST(SocketTest, SetBlockingMode)
+TEST_F(SocketTest, SetBlockingMode)
 {
-    Socket target;
-    target.Open(SocketFamily::Internet, SocketType::Stream);
+    Socket target(SocketFamily::Internet, SocketType::Stream);
     EXPECT_TRUE(target.GetBlockingMode());
     target.SetBlockingMode(false);
     EXPECT_FALSE(target.GetBlockingMode());
@@ -216,17 +233,15 @@ TEST(SocketTest, SetBlockingMode)
     EXPECT_TRUE(target.GetBlockingMode());
 }
 
-TEST(SocketTest, GetReuseAddress)
+TEST_F(SocketTest, GetReuseAddress)
 {
-    Socket target;
-    target.Open(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::Internet, SocketType::Datagram);
     EXPECT_FALSE(target.GetReuseAddress());
 }
 
-TEST(SocketTest, SetReuseAddress)
+TEST_F(SocketTest, SetReuseAddress)
 {
-    Socket target;
-    target.Open(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::Internet, SocketType::Datagram);
     EXPECT_FALSE(target.GetReuseAddress());
     target.SetReuseAddress(true);
     EXPECT_TRUE(target.GetReuseAddress());
@@ -234,20 +249,18 @@ TEST(SocketTest, SetReuseAddress)
     EXPECT_FALSE(target.GetReuseAddress());
 }
 
-TEST(SocketTest, GetReceiveTimeout)
+TEST_F(SocketTest, GetReceiveTimeout)
 {
-    Socket target;
-    target.Open(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::Internet, SocketType::Datagram);
     std::chrono::milliseconds timeout(0);
     EXPECT_EQ(timeout, target.GetReceiveTimeout());
 }
 
-TEST(SocketTest, SetReceiveTimeout)
+TEST_F(SocketTest, SetReceiveTimeout)
 {
-    Socket target;
+    Socket target(SocketFamily::Internet, SocketType::Datagram);
     std::chrono::milliseconds timeout(0);
     std::chrono::milliseconds timeoutNew(1000);
-    target.Open(SocketFamily::Internet, SocketType::Datagram);
     EXPECT_EQ(timeout, target.GetReceiveTimeout());
     target.SetReceiveTimeout(timeoutNew);
     EXPECT_EQ(timeoutNew, target.GetReceiveTimeout());
@@ -255,20 +268,18 @@ TEST(SocketTest, SetReceiveTimeout)
     EXPECT_EQ(timeout, target.GetReceiveTimeout());
 }
 
-TEST(SocketTest, GetSendTimeout)
+TEST_F(SocketTest, GetSendTimeout)
 {
-    Socket target;
-    target.Open(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::Internet, SocketType::Datagram);
     std::chrono::milliseconds timeout(0);
     EXPECT_EQ(timeout, target.GetSendTimeout());
 }
 
-TEST(SocketTest, SetSendTimeout)
+TEST_F(SocketTest, SetSendTimeout)
 {
-    Socket target;
+    Socket target(SocketFamily::Internet, SocketType::Datagram);
     std::chrono::milliseconds timeout(0);
     std::chrono::milliseconds timeoutNew(1000);
-    target.Open(SocketFamily::Internet, SocketType::Datagram);
     EXPECT_EQ(timeout, target.GetSendTimeout());
     target.SetSendTimeout(timeoutNew);
     EXPECT_EQ(timeoutNew, target.GetSendTimeout());
@@ -308,6 +319,8 @@ void FillAddress(sockaddr_in & address, std::uint16_t port, std::uint32_t ipAddr
     address.sin_addr.s_addr = ipAddress;
 }
 
+static const std::uint16_t TestPort = 22222;
+
 bool TCPAcceptThread()
 {
     bool accepted {};
@@ -316,7 +329,7 @@ bool TCPAcceptThread()
     });
     Socket acceptorSocket(SocketFamily::InternetV4, SocketType::Stream);
     sockaddr_in serverAddress {};
-    FillAddress(serverAddress, 22222, IPV4Address::LocalHost.GetUInt32());
+    FillAddress(serverAddress, TestPort, IPV4Address::LocalHost.GetUInt32());
 
     acceptorSocket.Bind(reinterpret_cast<sockaddr *>(&serverAddress), sizeof(serverAddress));
     acceptorSocket.Listen(1);
@@ -332,17 +345,11 @@ bool TCPAcceptThread()
     return accepted;
 }
 
-TEST(SocketTest, ConnectAcceptSendReceiveTCP)
+TEST_F(SocketTest, ConnectAcceptSendReceiveTCP)
 {
-    tracing::Tracing::SetTracingFunctions(
-        nullptr, 
-        [](tracing::TraceCategory category) { return (category != tracing::TraceCategory::FunctionBegin) &&
-                                                     (category != tracing::TraceCategory::FunctionEnd) &&
-                                                     (category != tracing::TraceCategory::Information); });
-
     Socket clientSocket(SocketFamily::InternetV4, SocketType::Stream);
     sockaddr_in serverAddress {};
-    FillAddress(serverAddress, 22222, IPV4Address::LocalHost.GetUInt32());
+    FillAddress(serverAddress, TestPort, IPV4Address::LocalHost.GetUInt32());
 
     BoolReturnThread acceptorThread(TCPAcceptThread);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -371,7 +378,7 @@ bool UDPServerThread()
     });
     Socket serverSocket(SocketFamily::InternetV4, SocketType::Datagram);
     sockaddr_in serverAddress {};
-    FillAddress(serverAddress, 22222, IPV4Address::Any.GetUInt32());
+    FillAddress(serverAddress, TestPort, IPV4Address::Any.GetUInt32());
 
     serverSocket.Bind(reinterpret_cast<sockaddr *>(&serverAddress), sizeof(serverAddress));
 
@@ -386,16 +393,11 @@ bool UDPServerThread()
     return ok;
 }
 
-TEST(SocketTest, SendReceiveUDPConnected)
+TEST_F(SocketTest, SendReceiveUDPConnected)
 {
-    tracing::Tracing::SetTracingFunctions(
-        nullptr, 
-        [](tracing::TraceCategory category) { return (category != tracing::TraceCategory::FunctionBegin) &&
-                                                     (category != tracing::TraceCategory::FunctionEnd); });
-
     Socket clientSocket(SocketFamily::InternetV4, SocketType::Datagram);
     sockaddr_in serverAddress {};
-    FillAddress(serverAddress, 22222, IPV4Address::LocalHost.GetUInt32());
+    FillAddress(serverAddress, TestPort, IPV4Address::LocalHost.GetUInt32());
 
     BoolReturnThread serverThread(UDPServerThread);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -416,16 +418,11 @@ TEST(SocketTest, SendReceiveUDPConnected)
     EXPECT_TRUE(accepted);
 }
 
-TEST(SocketTest, SendReceiveUDPConnectionless)
+TEST_F(SocketTest, SendReceiveUDPConnectionless)
 {
-    tracing::Tracing::SetTracingFunctions(
-        nullptr, 
-        [](tracing::TraceCategory category) { return (category != tracing::TraceCategory::FunctionBegin) &&
-                                                     (category != tracing::TraceCategory::FunctionEnd); });
-
     Socket clientSocket(SocketFamily::InternetV4, SocketType::Datagram);
     sockaddr_in serverAddress {};
-    FillAddress(serverAddress, 22222, IPV4Address::LocalHost.GetUInt32());
+    FillAddress(serverAddress, TestPort, IPV4Address::LocalHost.GetUInt32());
 
     BoolReturnThread serverThread(UDPServerThread);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -443,7 +440,7 @@ TEST(SocketTest, SendReceiveUDPConnectionless)
     EXPECT_TRUE(accepted);
 }
 
-// TEST(SocketTest, Ping)
+// TEST_F(SocketTest, Ping)
 // {
 //     tracing::Tracing::SetTracingFunctions(
 //         nullptr, 
@@ -454,7 +451,7 @@ TEST(SocketTest, SendReceiveUDPConnectionless)
 //     clientSocket.SetSocketOptionInt(static_cast<SocketOption>(IPSocketOption::TTL), ttl);
 
 //     sockaddr_in serverAddress {};
-//     FillAddress(serverAddress, 22222, IPV4Address::LocalHost.GetUInt32());
+//     FillAddress(serverAddress, TestPort, IPV4Address::LocalHost.GetUInt32());
 
 //     BoolReturnThread serverThread(UDPServerThread);
 //     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
