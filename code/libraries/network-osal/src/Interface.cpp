@@ -15,9 +15,10 @@ std::ostream & operator << (std::ostream & stream, const AddressInfo & value)
     return stream;
 }
 
-Interface::Interface(const std::string & name, bool isUp)
+Interface::Interface(const std::string & name, bool isUp, bool isLoopback)
     : m_name(name)
     , m_isUp(isUp)
+    , m_isLoopback(isLoopback)
     , m_addresses()
 {
 }
@@ -25,6 +26,11 @@ Interface::Interface(const std::string & name, bool isUp)
 Interface::~Interface()
 {
 
+}
+
+std::ostream & operator << (std::ostream & stream, const Interface & value)
+{
+    return stream << value.Name() << " UP: " << value.IsUp() << " Loopback: " << value.IsLoopback();
 }
 
 } // namespace network

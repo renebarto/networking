@@ -1,3 +1,4 @@
+#if defined(PLATFORM_LINUX)
 #include "network-osal/DomainSocketAddress.h"
 
 #include <netdb.h>
@@ -120,3 +121,4 @@ std::ostream & operator << (std::ostream & stream, const DomainSocketAddress & v
 }
 
 } // namespace network
+#endif // if defined(PLATFORM_LINUX)

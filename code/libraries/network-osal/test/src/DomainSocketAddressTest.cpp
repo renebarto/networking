@@ -1,3 +1,4 @@
+#if defined(PLATFORM_LINUX)
 #include "GoogleTest.h"
 
 #include "network-osal/DomainSocketAddress.h"
@@ -317,3 +318,4 @@ TEST_F(DomainSocketAddressTest, Constructor)
 // }
 
 } // namespace network
+#endif // if defined(PLATFORM_LINUX)

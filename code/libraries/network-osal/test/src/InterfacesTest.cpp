@@ -8,18 +8,17 @@
 
 namespace network {
 
-static const std::string LocalLoopbackInterface = "lo";
-
-bool TraceEnabled(tracing::TraceCategory /*category*/)
-{
-    return true;
-}
-
 TEST(InterfacesTest, HasAtLeastLocalLoopInterface)
 {
+    tracing::Tracing::SetTracingFunctions(
+        nullptr, 
+        [](tracing::TraceCategory /*category*/) { return true; });
+
     Interfaces interfaces;
-    EXPECT_TRUE(interfaces.HaveInterface(LocalLoopbackInterface));
-    const Interface & localLoopbackNIC = interfaces.GetInterface(LocalLoopbackInterface);
+    std::string localLoopbackInterface;
+
+    ASSERT_TRUE(interfaces.HaveLocalLoopbackInterface(localLoopbackInterface));
+    const Interface & localLoopbackNIC = interfaces.GetInterface(localLoopbackInterface);
     for (auto const & addressInfo : localLoopbackNIC.Addresses())
     {
         if (addressInfo.address.IsIPV4Address())
@@ -35,9 +34,13 @@ TEST(InterfacesTest, HasAtLeastLocalLoopInterface)
 
 TEST(InterfacesTest, ConstructOnlyLocalLoopInterface)
 {
-    Interfaces interfaces(LocalLoopbackInterface);
-    EXPECT_TRUE(interfaces.HaveInterface(LocalLoopbackInterface));
-    const Interface & localLoopbackNIC = interfaces.GetInterface(LocalLoopbackInterface);
+    Interfaces interfacesForLookup;
+    std::string localLoopbackInterface;
+    ASSERT_TRUE(interfacesForLookup.HaveLocalLoopbackInterface(localLoopbackInterface));
+
+    Interfaces interfaces(localLoopbackInterface);
+    ASSERT_TRUE(interfaces.HaveInterface(localLoopbackInterface));
+    const Interface & localLoopbackNIC = interfaces.GetInterface(localLoopbackInterface);
     for (auto const & addressInfo : localLoopbackNIC.Addresses())
     {
         if (addressInfo.address.IsIPV4Address())
@@ -54,33 +57,37 @@ TEST(InterfacesTest, ConstructOnlyLocalLoopInterface)
 TEST(InterfacesTest, GetAllInterfaces)
 {
     Interfaces interfaces;
-    EXPECT_TRUE(interfaces.HaveInterface(LocalLoopbackInterface));
+    std::string localLoopbackInterface;
+    ASSERT_TRUE(interfaces.HaveLocalLoopbackInterface(localLoopbackInterface));
     auto allInterfaces = interfaces.GetAllInterfaces();
-    EXPECT_TRUE(allInterfaces.find(LocalLoopbackInterface) != allInterfaces.end());
+    EXPECT_TRUE(allInterfaces.find(localLoopbackInterface) != allInterfaces.end());
 }
 
 TEST(InterfacesTest, GetLocalLoopbackInterfaces)
 {
     Interfaces interfaces;
-    EXPECT_TRUE(interfaces.HaveInterface(LocalLoopbackInterface));
+    std::string localLoopbackInterface;
+    ASSERT_TRUE(interfaces.HaveLocalLoopbackInterface(localLoopbackInterface));
     auto localLoopbackInterfaces = interfaces.GetLocalLoopbackInterfaces();
-    EXPECT_TRUE(localLoopbackInterfaces.find(LocalLoopbackInterface) != localLoopbackInterfaces.end());
+    EXPECT_TRUE(localLoopbackInterfaces.find(localLoopbackInterface) != localLoopbackInterfaces.end());
 }
 
 TEST(InterfacesTest, GetIPV4Interfaces)
 {
     Interfaces interfaces;
-    EXPECT_TRUE(interfaces.HaveInterface(LocalLoopbackInterface));
+    std::string localLoopbackInterface;
+    ASSERT_TRUE(interfaces.HaveLocalLoopbackInterface(localLoopbackInterface));
     auto ipV4Interfaces = interfaces.GetIPV4Interfaces();
-    EXPECT_TRUE(ipV4Interfaces.find(LocalLoopbackInterface) != ipV4Interfaces.end());
+    EXPECT_TRUE(ipV4Interfaces.find(localLoopbackInterface) != ipV4Interfaces.end());
 }
 
 TEST(InterfacesTest, GetIPV6Interfaces)
 {
     Interfaces interfaces;
-    EXPECT_TRUE(interfaces.HaveInterface(LocalLoopbackInterface));
+    std::string localLoopbackInterface;
+    ASSERT_TRUE(interfaces.HaveLocalLoopbackInterface(localLoopbackInterface));
     auto ipV6Interfaces = interfaces.GetIPV6Interfaces();
-    EXPECT_TRUE(ipV6Interfaces.find(LocalLoopbackInterface) != ipV6Interfaces.end());
+    EXPECT_TRUE(ipV6Interfaces.find(localLoopbackInterface) != ipV6Interfaces.end());
 }
 
 } // namespace network

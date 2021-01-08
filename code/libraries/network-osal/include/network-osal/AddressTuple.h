@@ -62,9 +62,9 @@ public:
     {}
 
     bool IsValid() const { return m_type != AddressType::Invalid; }
-    bool IsMACAddress() const { return m_type == AddressType::Packet; }
-    bool IsIPV4Address() const { return m_type == AddressType::IPV4; }
-    bool IsIPV6Address() const { return m_type == AddressType::IPV6; }
+    bool IsMACAddress() const noexcept { return m_type == AddressType::Packet; }
+    bool IsIPV4Address() const noexcept { return m_type == AddressType::IPV4; }
+    bool IsIPV6Address() const noexcept { return m_type == AddressType::IPV6; }
     const MACAddress & GetMACAddress() const { return m_macAddress; }
     int GetInterfaceIndex() const { return m_interfaceIndex; }
     const IPV4Address & GetIPV4Address() const { return m_ipV4Address; }

@@ -13,10 +13,10 @@ class Interfaces
 public:
     Interfaces();
     explicit Interfaces(const std::string & interfaceName);
-    ~Interfaces();
 
-    bool IsValid() const { return m_interfaces != nullptr; }
+    bool IsValid() const { return !m_interfacesMap.empty(); }
     bool HaveInterface(const std::string & interfaceName) const;
+    bool HaveLocalLoopbackInterface(std::string & interfaceName) const;
     const Interface & GetInterface(const std::string & interfaceName) const;
     const std::map<std::string, Interface> & GetAllInterfaces() const { return m_interfacesMap; }
     std::map<std::string, Interface> GetLocalLoopbackInterfaces() const;
@@ -25,9 +25,8 @@ public:
 
 private:
     std::map<std::string, Interface> m_interfacesMap;
-    void * m_interfaces;
 
-    void ExtractInterfaceInfo(const std::string & interfaceName = {});
+    void ExtractInterfaceInfo(void * info, const std::string & interfaceName = {});
 };
 
 } // namespace packetcapture

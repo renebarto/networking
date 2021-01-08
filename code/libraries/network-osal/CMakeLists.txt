@@ -49,13 +49,16 @@ set(PROJECT_LIBS
     )
     if( PLATFORM_WINDOWS)
     list(APPEND PROJECT_LIBS
-        Ws2_32)
+        WS2_32
+        iphlpapi)
 endif()
 
 set(PROJECT_SOURCES 
     src/AddressTuple.cpp
+    src/DomainSocketAddress.cpp
     src/Ethernet.cpp
     src/Interface.cpp
+    src/Interfaces.cpp
     src/IPV4Address.cpp
     src/IPV6Address.cpp
     src/MACAddress.cpp
@@ -63,18 +66,14 @@ set(PROJECT_SOURCES
     src/Socket.cpp
     src/SocketDefinitions.cpp
     )
-    if(NOT PLATFORM_WINDOWS)
-    list(APPEND PROJECT_SOURCES
-        src/DomainSocketAddress.cpp
-        src/Interfaces.cpp
-        )
-endif()
 set(PROJECT_INCLUDES_PRIVATE
     )
 set(PROJECT_INCLUDES_PUBLIC
     include/network-osal/AddressTuple.h
+    include/network-osal/DomainSocketAddress.h
     include/network-osal/Ethernet.h
     include/network-osal/Interface.h
+    include/network-osal/Interfaces.h
     include/network-osal/IPV4Address.h
     include/network-osal/IPV6Address.h
     include/network-osal/MACAddress.h
@@ -82,12 +81,6 @@ set(PROJECT_INCLUDES_PUBLIC
     include/network-osal/Socket.h
     include/network-osal/SocketDefinitions.h
     )
-    if(NOT PLATFORM_WINDOWS)
-    list(APPEND PROJECT_SOURCES
-        include/network-osal/DomainSocketAddress.h
-        include/network-osal/Interfaces.h
-        )
-endif()
 
 display_list("Package                           : " ${PROJECT_NAME} )
 display_list("Package description               : " ${PROJECT_DESCRIPTION} )

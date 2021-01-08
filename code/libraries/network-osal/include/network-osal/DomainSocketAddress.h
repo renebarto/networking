@@ -1,3 +1,4 @@
+#if defined(PLATFORM_LINUX)
 #pragma once
 
 #include <array>
@@ -46,3 +47,4 @@ std::istream & operator >> (std::istream & stream, DomainSocketAddress & value);
 std::ostream & operator << (std::ostream & stream, const DomainSocketAddress & value);
 
 } // namespace network
+#endif // if defined(PLATFORM_LINUX)
