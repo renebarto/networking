@@ -57,8 +57,11 @@ set(PROJECT_SOURCES
     src/IPV4EndPointTest.cpp
     src/IPV4SocketTest.cpp
     src/IPV4TCPSocketTest.cpp
+    src/IPV4UDPSocketTest.cpp
     src/IPV6EndPointTest.cpp
     src/IPV6SocketTest.cpp
+    src/IPV6TCPSocketTest.cpp
+    src/IPV6UDPSocketTest.cpp
     src/Utility.cpp
     )
 

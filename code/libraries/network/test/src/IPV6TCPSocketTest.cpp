@@ -1,6 +1,6 @@
 #include "GoogleTest.h"
 
-#include "network/IPV4TCPSocket.h"
+#include "network/IPV6TCPSocket.h"
 
 #include "tracing/ScopedTracing.h"
 #include "tracing/Tracing.h"
@@ -8,10 +8,10 @@
 
 namespace network {
 
-class IPV4TCPSocketTest : public ::testing::Test
+class IPV6TCPSocketTest : public ::testing::Test
 {
 public:
-    IPV4TCPSocketTest()
+    IPV6TCPSocketTest()
     {
         tracing::Tracing::SetTracingFunctions(
             nullptr, 
@@ -19,55 +19,55 @@ public:
     }
 };
 
-TEST_F(IPV4TCPSocketTest, ConstructDefault)
+TEST_F(IPV6TCPSocketTest, ConstructDefault)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     EXPECT_NE(InvalidHandleValue, target.GetHandle());
     EXPECT_TRUE(target.IsOpen());
-    EXPECT_EQ(SocketFamily::InternetV4, target.Family());
+    EXPECT_EQ(SocketFamily::InternetV6, target.Family());
     EXPECT_EQ(SocketType::Stream, target.Type());
 }
 
-TEST_F(IPV4TCPSocketTest, ConstructCopy)
+TEST_F(IPV6TCPSocketTest, ConstructCopy)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     auto handle = target.GetHandle();
-    IPV4TCPSocket newSocket(target);
+    IPV6TCPSocket newSocket(target);
     EXPECT_EQ(handle, target.GetHandle());
     EXPECT_TRUE(target.IsOpen());
     EXPECT_EQ(handle, newSocket.GetHandle());
     EXPECT_TRUE(newSocket.IsOpen());
-    EXPECT_EQ(SocketFamily::InternetV4, target.Family());
+    EXPECT_EQ(SocketFamily::InternetV6, target.Family());
     EXPECT_EQ(SocketType::Stream, target.Type());
-    EXPECT_EQ(SocketFamily::InternetV4, newSocket.Family());
+    EXPECT_EQ(SocketFamily::InternetV6, newSocket.Family());
     EXPECT_EQ(SocketType::Stream, newSocket.Type());
 
     // Do not close twice
     newSocket.SetHandle(InvalidHandleValue);
 }
 
-TEST_F(IPV4TCPSocketTest, ConstructMove)
+TEST_F(IPV6TCPSocketTest, ConstructMove)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     auto handle = target.GetHandle();
 
-    IPV4TCPSocket newSocket(std::move(target));
+    IPV6TCPSocket newSocket(std::move(target));
     EXPECT_EQ(InvalidHandleValue, target.GetHandle());
     EXPECT_FALSE(target.IsOpen());
     EXPECT_EQ(handle, newSocket.GetHandle());
     EXPECT_TRUE(newSocket.IsOpen());
     EXPECT_EQ(SocketFamily::Any, target.Family());
     EXPECT_EQ(SocketType::None, target.Type());
-    EXPECT_EQ(SocketFamily::InternetV4, newSocket.Family());
+    EXPECT_EQ(SocketFamily::InternetV6, newSocket.Family());
     EXPECT_EQ(SocketType::Stream, newSocket.Type());
 }
 
-TEST_F(IPV4TCPSocketTest, AssignMove)
+TEST_F(IPV6TCPSocketTest, AssignMove)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     auto handle = target.GetHandle();
 
-    IPV4TCPSocket newSocket;
+    IPV6TCPSocket newSocket;
     newSocket = std::move(target);
     EXPECT_EQ(InvalidHandleValue, target.GetHandle());
     EXPECT_FALSE(target.IsOpen());
@@ -75,13 +75,13 @@ TEST_F(IPV4TCPSocketTest, AssignMove)
     EXPECT_TRUE(newSocket.IsOpen());
     EXPECT_EQ(SocketFamily::Any, target.Family());
     EXPECT_EQ(SocketType::None, target.Type());
-    EXPECT_EQ(SocketFamily::InternetV4, newSocket.Family());
+    EXPECT_EQ(SocketFamily::InternetV6, newSocket.Family());
     EXPECT_EQ(SocketType::Stream, newSocket.Type());
 }
 
-TEST_F(IPV4TCPSocketTest, GetSetHandle)
+TEST_F(IPV6TCPSocketTest, GetSetHandle)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     target.Close();
 
     SocketHandle handle = 1234;
@@ -94,20 +94,20 @@ TEST_F(IPV4TCPSocketTest, GetSetHandle)
     EXPECT_FALSE(target.IsOpen());
 }
 
-TEST_F(IPV4TCPSocketTest, Open)
+TEST_F(IPV6TCPSocketTest, Open)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     target.Close();
+
     target.Open();
     EXPECT_TRUE(target.IsOpen());
-    EXPECT_EQ(SocketFamily::InternetV4, target.Family());
+    EXPECT_EQ(SocketFamily::InternetV6, target.Family());
     EXPECT_EQ(SocketType::Stream, target.Type());
 }
 
-TEST_F(IPV4TCPSocketTest, Close)
+TEST_F(IPV6TCPSocketTest, Close)
 {
-    IPV4TCPSocket target;
-    target.Open();
+    IPV6TCPSocket target;
     EXPECT_TRUE(target.IsOpen());
     target.Close();
     EXPECT_FALSE(target.IsOpen());
@@ -115,18 +115,18 @@ TEST_F(IPV4TCPSocketTest, Close)
     EXPECT_EQ(SocketType::None, target.Type());
 }
 
-TEST_F(IPV4TCPSocketTest, GetOptionWithLevel)
+TEST_F(IPV6TCPSocketTest, GetOptionWithLevel)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value;
     target.GetSocketOptionWithLevel(SocketOptionLevel::Socket, SocketOption::Linger, &value, &size);
     EXPECT_FALSE(value != 0);
 }
 
-TEST_F(IPV4TCPSocketTest, SetOptionWithLevel)
+TEST_F(IPV6TCPSocketTest, SetOptionWithLevel)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Linger));
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value = 1;
@@ -136,18 +136,18 @@ TEST_F(IPV4TCPSocketTest, SetOptionWithLevel)
     EXPECT_EQ(value, actual);
 }
 
-TEST_F(IPV4TCPSocketTest, GetOption)
+TEST_F(IPV6TCPSocketTest, GetOption)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value;
     target.GetSocketOption(SocketOption::Linger, &value, &size);
     EXPECT_FALSE(value != 0);
 }
 
-TEST_F(IPV4TCPSocketTest, SetOption)
+TEST_F(IPV6TCPSocketTest, SetOption)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Linger));
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value = 1;
@@ -157,44 +157,44 @@ TEST_F(IPV4TCPSocketTest, SetOption)
     EXPECT_EQ(value, actual);
 }
 
-TEST_F(IPV4TCPSocketTest, GetSocketOptionBool)
+TEST_F(IPV6TCPSocketTest, GetSocketOptionBool)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Linger));
 }
 
-TEST_F(IPV4TCPSocketTest, SetSocketOptionBool)
+TEST_F(IPV6TCPSocketTest, SetSocketOptionBool)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Linger));
     target.SetSocketOptionBool(SocketOption::Linger, true);
     EXPECT_TRUE(target.GetSocketOptionBool(SocketOption::Linger));
 }
 
-TEST_F(IPV4TCPSocketTest, GetSocketOptionInt)
+TEST_F(IPV6TCPSocketTest, GetSocketOptionInt)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     EXPECT_EQ(0, target.GetSocketOptionInt(SocketOption::Linger));
 }
 
-TEST_F(IPV4TCPSocketTest, SetSocketOptionInt)
+TEST_F(IPV6TCPSocketTest, SetSocketOptionInt)
 {
     int enableLinger = 1;
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     EXPECT_FALSE(target.GetSocketOptionInt(SocketOption::Linger));
     target.SetSocketOptionInt(SocketOption::Linger, enableLinger);
     EXPECT_EQ(enableLinger, target.GetSocketOptionInt(SocketOption::Linger));
 }
 
-TEST_F(IPV4TCPSocketTest, GetBlockingMode)
+TEST_F(IPV6TCPSocketTest, GetBlockingMode)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     EXPECT_TRUE(target.GetBlockingMode());
 }
 
-TEST_F(IPV4TCPSocketTest, SetBlockingMode)
+TEST_F(IPV6TCPSocketTest, SetBlockingMode)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     EXPECT_TRUE(target.GetBlockingMode());
     target.SetBlockingMode(false);
     EXPECT_FALSE(target.GetBlockingMode());
@@ -202,15 +202,15 @@ TEST_F(IPV4TCPSocketTest, SetBlockingMode)
     EXPECT_TRUE(target.GetBlockingMode());
 }
 
-TEST_F(IPV4TCPSocketTest, GetReuseAddress)
+TEST_F(IPV6TCPSocketTest, GetReuseAddress)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     EXPECT_FALSE(target.GetReuseAddress());
 }
 
-TEST_F(IPV4TCPSocketTest, SetReuseAddress)
+TEST_F(IPV6TCPSocketTest, SetReuseAddress)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     EXPECT_FALSE(target.GetReuseAddress());
     target.SetReuseAddress(true);
     EXPECT_TRUE(target.GetReuseAddress());
@@ -218,16 +218,16 @@ TEST_F(IPV4TCPSocketTest, SetReuseAddress)
     EXPECT_FALSE(target.GetReuseAddress());
 }
 
-TEST_F(IPV4TCPSocketTest, GetReceiveTimeout)
+TEST_F(IPV6TCPSocketTest, GetReceiveTimeout)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     std::chrono::milliseconds timeout(0);
     EXPECT_EQ(timeout, target.GetReceiveTimeout());
 }
 
-TEST_F(IPV4TCPSocketTest, SetReceiveTimeout)
+TEST_F(IPV6TCPSocketTest, SetReceiveTimeout)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     std::chrono::milliseconds timeout(0);
     std::chrono::milliseconds timeoutNew(1000);
     EXPECT_EQ(timeout, target.GetReceiveTimeout());
@@ -237,16 +237,16 @@ TEST_F(IPV4TCPSocketTest, SetReceiveTimeout)
     EXPECT_EQ(timeout, target.GetReceiveTimeout());
 }
 
-TEST_F(IPV4TCPSocketTest, GetSendTimeout)
+TEST_F(IPV6TCPSocketTest, GetSendTimeout)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     std::chrono::milliseconds timeout(0);
     EXPECT_EQ(timeout, target.GetSendTimeout());
 }
 
-TEST_F(IPV4TCPSocketTest, SetSendTimeout)
+TEST_F(IPV6TCPSocketTest, SetSendTimeout)
 {
-    IPV4TCPSocket target;
+    IPV6TCPSocket target;
     std::chrono::milliseconds timeout(0);
     std::chrono::milliseconds timeoutNew(1000);
     EXPECT_EQ(timeout, target.GetSendTimeout());
@@ -256,18 +256,18 @@ TEST_F(IPV4TCPSocketTest, SetSendTimeout)
     EXPECT_EQ(timeout, target.GetSendTimeout());
 }
 
-bool IPV4TCPSocketTCPAcceptThread()
+bool IPV6TCPSocketTCPAcceptThread()
 {
     bool accepted {};
     SCOPEDTRACE("TCP Accept Send Recv thread", [&]{
         return serialization::Serialize(accepted);
     });
-    IPV4TCPSocket acceptorSocket;
+    IPV6TCPSocket acceptorSocket;
 
-    acceptorSocket.Bind(IPV4EndPoint(TestPort));
+    acceptorSocket.Bind(IPV6EndPoint(TestPort));
     acceptorSocket.Listen(1);
-    IPV4TCPSocket newSocket;
-    IPV4EndPoint clientAddress;
+    IPV6TCPSocket newSocket;
+    IPV6EndPoint clientAddress;
     accepted = acceptorSocket.Accept(newSocket, clientAddress, 5000);
     const std::size_t BufferSize = 10;
     std::uint8_t buffer[BufferSize];
@@ -277,12 +277,12 @@ bool IPV4TCPSocketTCPAcceptThread()
     return accepted;
 }
 
-TEST_F(IPV4TCPSocketTest, ConnectAcceptSendReceiveTCP)
+TEST_F(IPV6TCPSocketTest, ConnectAcceptSendReceiveTCP)
 {
-    IPV4TCPSocket clientSocket;
-    IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
+    IPV6TCPSocket clientSocket;
+    IPV6EndPoint serverAddress(IPV6Address::LocalHost, TestPort);
 
-    BoolReturnThread acceptorThread(IPV4TCPSocketTCPAcceptThread);
+    BoolReturnThread acceptorThread(IPV6TCPSocketTCPAcceptThread);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     bool connected = clientSocket.Connect(serverAddress, 5000);
     EXPECT_TRUE(connected);

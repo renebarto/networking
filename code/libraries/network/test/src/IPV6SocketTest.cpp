@@ -2,7 +2,6 @@
 
 #include "network/IPV6Socket.h"
 
-#include "network-osal/IPV6Address.h"
 #include "tracing/ScopedTracing.h"
 #include "tracing/Tracing.h"
 #include "Utility.h"
