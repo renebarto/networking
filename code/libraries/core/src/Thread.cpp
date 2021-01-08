@@ -68,8 +68,9 @@ void Thread::Create(ThreadFunction threadFunc)
         SetThreadName(m_thread, m_name);
 
     }
-    catch (const std::exception &)
+    catch (const std::exception & e)
     {
+        tracing::Tracing::Trace(tracing::TraceCategory::Error, __FILE__, __LINE__, __func__, e.what());
         Cleanup();
         throw;
     }

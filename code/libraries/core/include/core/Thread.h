@@ -74,7 +74,7 @@ public:
 
     void GetResult()
     {
-        // Will thrown exception thrown by thread if it threw,
+        // Will throw exception thrown by thread if it threw,
         // or std::future_error when thread was not run
         m_threadResult.get();
     }
