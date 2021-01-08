@@ -115,8 +115,9 @@ void Tracer::Throw(const std::string & path, int line, const std::string & funct
     std::ostringstream stream;
     stream 
         << TraceCategory::Error << " " << ExtractFileName(path) << ":" << line << "(" << functionName << "): " << error.Message() << ": Error code: "
-        << std::dec << error.ErrorCode() << " (" << std::hex << std::setw(2) << std::setfill('0') << error.ErrorCode() << ")";
-    throw std::system_error(std::error_code(error.ErrorCode(), std::generic_category()), stream.str());
+        << std::dec << error.ErrorCode() << " (" << std::hex << std::setw(2) << std::setfill('0') << error.ErrorCode() << "): "
+        << error.ErrorString();
+    throw std::runtime_error(stream.str());
 }
 
 void Tracer::Throw(const std::string & path, int line, const std::string & functionName, const utility::GenericError & error)

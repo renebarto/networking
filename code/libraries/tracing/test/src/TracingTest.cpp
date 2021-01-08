@@ -175,13 +175,8 @@ TEST(TracingTest, TracerThrowError)
     {
         traceOutput = e.what();        
     }
-#if defined(PLATFORM_LINUX)
     EXPECT_EQ(
         "Error MyFile:123(MyFunction): Fake error: Error code: 2 (02): No such file or directory", traceOutput);
-#else
-    EXPECT_EQ(
-        "Error MyFile:123(MyFunction): Fake error: Error code: 2 (02): no such file or directory", traceOutput);
-#endif
 }
 
 TEST(TracingTest, TracerThrowGenericError)
