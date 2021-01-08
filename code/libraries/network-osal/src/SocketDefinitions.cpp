@@ -20,6 +20,7 @@ const utility::BidirectionalMap<network::SocketFamily, std::string> EnumSerializ
 template<>
 const utility::BidirectionalMap<network::SocketType, std::string> EnumSerializationMap<network::SocketType>::ConversionMap = 
 {
+    {network::SocketType::None, "None"},
     {network::SocketType::Stream, "Stream"},
     {network::SocketType::Datagram, "Datagram"},
     {network::SocketType::Raw, "Raw"},

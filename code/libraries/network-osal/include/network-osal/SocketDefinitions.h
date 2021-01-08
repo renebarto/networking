@@ -127,6 +127,7 @@ enum class SocketFamily
 
 enum class SocketType
 {
+    None = 0,
     Stream = SOCK_STREAM,
     Datagram = SOCK_DGRAM,
     Raw = SOCK_RAW,
@@ -197,6 +198,7 @@ enum class SocketFamily
 
 enum class SocketType
 {
+    None = 0,
     Stream = SOCK_STREAM,
     Datagram = SOCK_DGRAM,
     Raw = SOCK_RAW,

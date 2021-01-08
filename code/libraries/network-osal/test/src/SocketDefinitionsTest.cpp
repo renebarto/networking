@@ -55,6 +55,7 @@ TEST(NetworkTest, SerializeSocketFamily)
 
 TEST(NetworkTest, SerializeSocketType)
 {
+    EXPECT_EQ("None", Serialize(SocketType::None));
     EXPECT_EQ("Stream", Serialize(SocketType::Stream));
     EXPECT_EQ("Datagram", Serialize(SocketType::Datagram));
     EXPECT_EQ("Raw", Serialize(SocketType::Raw));
