@@ -50,7 +50,7 @@ public:
     using Socket::SetSendTimeout;
 
     void Bind(const IPV4Address & ipAddress = IPV4Address::Any);
-    void Bind(const IPV4Address & ipAddress, uint16_t port);
+    void Bind(const IPV4Address & ipAddress, std::uint16_t port);
     void Bind(uint16_t port);
     void Bind(const IPV4EndPoint & ipEndPoint);
 
@@ -62,17 +62,17 @@ public:
     void GetRemoteAddress(IPV4EndPoint & ipEndPoint);
 
     void SendTo(const IPV4EndPoint & ipEndPoint, const std::vector<uint8_t> & data, size_t bytesToSend);
-    void SendTo(const IPV4Address & ipAddress, uint16_t port, const std::vector<uint8_t> & data, size_t bytesToSend);
+    void SendTo(const IPV4Address & ipAddress, std::uint16_t port, const std::vector<uint8_t> & data, size_t bytesToSend);
     void SendTo(const IPV4EndPoint & ipEndPoint, const uint8_t * data, size_t bytesToSend);
-    void SendTo(const IPV4Address & ipAddress, uint16_t port, const uint8_t * data, size_t bytesToSend);
+    void SendTo(const IPV4Address & ipAddress, std::uint16_t port, const uint8_t * data, size_t bytesToSend);
 
     using Socket::Receive;
     using Socket::Send;
 
     std::vector<uint8_t> ReceiveFrom(IPV4EndPoint & ipEndPoint);
-    std::vector<uint8_t> ReceiveFrom(IPV4Address & ipAddress, uint16_t & port);
+    std::vector<uint8_t> ReceiveFrom(IPV4Address & ipAddress, std::uint16_t & port);
     size_t ReceiveFrom(IPV4EndPoint & ipEndPoint, uint8_t * data, size_t bufferSize);
-    size_t ReceiveFrom(IPV4Address & ipAddress, uint16_t & port, uint8_t * data, size_t bufferSize);
+    size_t ReceiveFrom(IPV4Address & ipAddress, std::uint16_t & port, uint8_t * data, size_t bufferSize);
 };
 
 std::ostream & operator <<(std::ostream & stream, const IPV4Socket & value);

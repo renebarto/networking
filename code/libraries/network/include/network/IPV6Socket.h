@@ -3,64 +3,78 @@
 #include "network-osal/Socket.h"
 
 #include "utility/Serialization.h"
+#include "network/IPV6EndPoint.h"
 
 namespace network {
 
 class IPV6Socket
-    : public Socket
+    : private Socket
 {
 public:
     IPV6Socket();
+    IPV6Socket(SocketType socketType);
     IPV6Socket(const IPV6Socket & other);
     IPV6Socket(IPV6Socket && other);
-    virtual ~IPV6Socket();
 
-    IPV6Socket & operator = (IPV6Socket const & other);
     IPV6Socket & operator = (IPV6Socket && other);
 
+    using Socket::GetHandle;
+    using Socket::SetHandle;
+
+    using Socket::Family;
+    using Socket::Type;
+
+	void Open(SocketType socketType, SocketProtocol protocol = SocketProtocol::IP);
+    using Socket::Close;
+    using Socket::IsOpen;
+
+    using Socket::SetSocketOptionWithLevel;
+    using Socket::GetSocketOptionWithLevel;
+    using Socket::SetSocketOption;
+    using Socket::GetSocketOption;
+
+    using Socket::GetSocketOptionBool;
+    using Socket::SetSocketOptionBool;
+    using Socket::GetSocketOptionInt;
+    using Socket::SetSocketOptionInt;
+
+    using Socket::GetBroadcastOption;
+    using Socket::SetBroadcastOption;
+    using Socket::GetBlockingMode;
+    using Socket::SetBlockingMode;
+    using Socket::GetReuseAddress;
+    using Socket::SetReuseAddress;
+    using Socket::GetReceiveTimeout;
+    using Socket::SetReceiveTimeout;
+    using Socket::GetSendTimeout;
+    using Socket::SetSendTimeout;
+
     void Bind(const IPV6Address & ipAddress = IPV6Address::Any);
-    void Bind(const IPV6Address & ipAddress, uint16_t port);
-    void Bind(uint16_t port);
+    void Bind(const IPV6Address & ipAddress, std::uint16_t port, std::uint32_t flowInfo = 0, std::uint32_t scopeID = 0);
+    void Bind(std::uint16_t port);
+    void Bind(const IPV6EndPoint & ipEndPoint);
 
-    void Bind(const IPEndPoint<IPV6Address> & ipEndPoint)
-    {
-        Bind(ipEndPoint.IPV6Address(), ipEndPoint.GetPort());
-    }
+    bool Connect(const IPV6EndPoint & serverAddress, SocketTimeout timeout);
+    using Socket::Listen;
+    bool Accept(IPV6Socket & connectionSocket, IPV6EndPoint & clientAddress, SocketTimeout timeout);
 
-    void GetLocalAddress(IPEndPoint<IPV6Address> & ipEndPoint);
-    void GetRemoteAddress(IPEndPoint<IPV6Address> & ipEndPoint);
+    void GetLocalAddress(IPV6EndPoint & ipEndPoint);
+    void GetRemoteAddress(IPV6EndPoint & ipEndPoint);
 
-    void SendTo(const IPEndPoint<IPV6Address> & ipEndPoint, const std::vector<uint8_t> & data, size_t bytesToSend);
-    void SendTo(const IPV6Address & ipAddress, uint16_t port, const std::vector<uint8_t> & data, size_t bytesToSend);
-    void SendTo(const IPEndPoint<IPV6Address> & ipEndPoint, const uint8_t * data, size_t bytesToSend);
-    void SendTo(const IPV6Address & ipAddress, uint16_t port, const uint8_t * data, size_t bytesToSend);
+    void SendTo(const IPV6EndPoint & ipEndPoint, const std::vector<uint8_t> & data, size_t bytesToSend);
+    void SendTo(const IPV6Address & ipAddress, std::uint16_t port, std::uint32_t flowInfo, std::uint32_t scopeID, const std::vector<uint8_t> & data, size_t bytesToSend);
+    void SendTo(const IPV6EndPoint & ipEndPoint, const uint8_t * data, size_t bytesToSend);
+    void SendTo(const IPV6Address & ipAddress, std::uint16_t port, std::uint32_t flowInfo, std::uint32_t scopeID, const uint8_t * data, size_t bytesToSend);
 
-    std::vector<uint8_t> ReceiveFrom(IPEndPoint<IPV6Address> & ipEndPoint);
-    std::vector<uint8_t> ReceiveFrom(IPV6Address & ipAddress, uint16_t & port);
-    size_t ReceiveFrom(IPEndPoint<IPV6Address> & ipEndPoint, uint8_t * data, size_t bufferSize);
-    size_t ReceiveFrom(IPV6Address & ipAddress, uint16_t & port, uint8_t * data, size_t bufferSize);
+    using Socket::Receive;
+    using Socket::Send;
+
+    std::vector<uint8_t> ReceiveFrom(IPV6EndPoint & ipEndPoint);
+    std::vector<uint8_t> ReceiveFrom(IPV6Address & ipAddress, std::uint16_t & port, std::uint32_t & flowInfo, std::uint32_t & scopeID);
+    size_t ReceiveFrom(IPV6EndPoint & ipEndPoint, uint8_t * data, size_t bufferSize);
+    size_t ReceiveFrom(IPV6Address & ipAddress, std::uint16_t & port, std::uint32_t & flowInfo, std::uint32_t & scopeID, uint8_t * data, size_t bufferSize);
 };
 
-void IPV6Socket<IPV4Address>::GetLocalAddress(IPEndPoint<IPV4Address> & ipEndPoint)
-{
-    sockaddr_in localAddress;
-    socklen_t addressSize = sizeof(localAddress);
-    Socket::GetLocalAddress((sockaddr *)&localAddress, &addressSize);
-    ipEndPoint = IPEndPoint<IPV4Address>(IPV4Address(localAddress.sin_addr.s_addr), htons(localAddress.sin_port));
-}
-
-void IPV6Socket<IPV4Address>::GetRemoteAddress(IPEndPoint<IPV4Address> & ipEndPoint)
-{
-    sockaddr_in localAddress;
-    socklen_t addressSize = sizeof(localAddress);
-    Socket::GetRemoteAddress((sockaddr *)&localAddress, &addressSize);
-    ipEndPoint = IPEndPoint<IPV4Address>(IPV4Address(localAddress.sin_addr.s_addr), htons(localAddress.sin_port));
-}
-
-inline std::ostream &
-operator <<(std::ostream & stream, const IPV6Socket & value)
-{
-    return stream << serialization::Serialize(value, 0);
-}
+std::ostream & operator <<(std::ostream & stream, const IPV6Socket & value);
 
 } // namespace network

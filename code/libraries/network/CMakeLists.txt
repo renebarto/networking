@@ -51,15 +51,24 @@ set(PROJECT_LIBS
 set(PROJECT_SOURCES 
     src/IPV4EndPoint.cpp
     src/IPV4Socket.cpp
+    src/IPV4TCPSocket.cpp
+    src/IPV4UDPSocket.cpp
     src/IPV6EndPoint.cpp
+    src/IPV6Socket.cpp
+    src/IPV6TCPSocket.cpp
+    src/IPV6UDPSocket.cpp
     )
 set(PROJECT_INCLUDES_PRIVATE
     )
 set(PROJECT_INCLUDES_PUBLIC
     include/network/IPV4EndPoint.h
     include/network/IPV4Socket.h
+    include/network/IPV4TCPSocket.h
+    include/network/IPV4UDPSocket.h
     include/network/IPV6EndPoint.h
     include/network/IPV6Socket.h
+    include/network/IPV6TCPSocket.h
+    include/network/IPV6UDPSocket.h
     )
 
 display_list("Package                           : " ${PROJECT_NAME} )

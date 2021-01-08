@@ -18,7 +18,7 @@ std::string Serialize(const network::IPV4Socket & value, int width)
 namespace network {
 
 static const size_t BufferSize = 4096;
-static constexpr SocketFamily IPV4SocketFamily = SocketFamily::Internet;
+static constexpr SocketFamily IPV4SocketFamily = SocketFamily::InternetV4;
 
 IPV4Socket::IPV4Socket()
     : Socket()
@@ -67,7 +67,7 @@ void IPV4Socket::Bind(const IPV4Address & ipAddress)
     Bind(ipAddress, 0);
 }
 
-void IPV4Socket::Bind(const IPV4Address & ipAddress, uint16_t port)
+void IPV4Socket::Bind(const IPV4Address & ipAddress, std::uint16_t port)
 {
     SCOPEDTRACE("", [&]{
         return 
@@ -171,7 +171,7 @@ void IPV4Socket::SendTo(const IPV4EndPoint & ipEndPoint, const std::vector<uint8
     SendTo(ipEndPoint.IPAddress(), ipEndPoint.Port(), data, bytesToSend);
 }
 
-void IPV4Socket::SendTo(const IPV4Address & ipAddress, uint16_t port, const std::vector<uint8_t> & data, size_t bytesToSend)
+void IPV4Socket::SendTo(const IPV4Address & ipAddress, std::uint16_t port, const std::vector<uint8_t> & data, size_t bytesToSend)
 {
     SCOPEDTRACE("", [&]{
         return 
@@ -192,7 +192,7 @@ void IPV4Socket::SendTo(const IPV4EndPoint & ipEndPoint,const uint8_t * data, si
     SendTo(ipEndPoint.IPAddress(), ipEndPoint.Port(), data, bytesToSend);
 }
 
-void IPV4Socket::SendTo(const IPV4Address & ipAddress, uint16_t port, const uint8_t * data, size_t bytesToSend)
+void IPV4Socket::SendTo(const IPV4Address & ipAddress, std::uint16_t port, const uint8_t * data, size_t bytesToSend)
 {
     SCOPEDTRACE("", [&]{
         return 
@@ -221,7 +221,7 @@ std::vector<uint8_t> IPV4Socket::ReceiveFrom(IPV4EndPoint & ipEndPoint)
     return std::vector<uint8_t>(&buffer[0], &buffer[numBytes]);
 }
 
-std::vector<uint8_t> IPV4Socket::ReceiveFrom(IPV4Address & ipAddress, uint16_t & port)
+std::vector<uint8_t> IPV4Socket::ReceiveFrom(IPV4Address & ipAddress, std::uint16_t & port)
 {
     size_t numBytes {};
     SCOPEDTRACE("", [&]{
@@ -245,14 +245,14 @@ size_t IPV4Socket::ReceiveFrom(IPV4EndPoint & ipEndPoint, uint8_t * data, size_t
             " numBytes="+ serialization::Serialize(numBytes, 0);
     });
     IPV4Address ipAddress;
-    uint16_t port;
+    std::uint16_t port;
     numBytes = ReceiveFrom(ipAddress, port, data, bufferSize);
     ipEndPoint = IPV4EndPoint(ipAddress, port);
 
     return numBytes;
 }
 
-size_t IPV4Socket::ReceiveFrom(IPV4Address & ipAddress, uint16_t & port, uint8_t * data, size_t bufferSize)
+size_t IPV4Socket::ReceiveFrom(IPV4Address & ipAddress, std::uint16_t & port, uint8_t * data, size_t bufferSize)
 {
     size_t numBytes {};
     SCOPEDTRACE("", [&]{

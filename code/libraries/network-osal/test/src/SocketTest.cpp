@@ -31,9 +31,9 @@ TEST_F(SocketTest, Construct)
 
 TEST_F(SocketTest, ConstructAndOpen)
 {
-    Socket target(SocketFamily::Internet, SocketType::Stream);
+    Socket target(SocketFamily::InternetV4, SocketType::Stream);
     EXPECT_TRUE(target.IsOpen());
-    EXPECT_EQ(SocketFamily::Internet, target.Family());
+    EXPECT_EQ(SocketFamily::InternetV4, target.Family());
     EXPECT_EQ(SocketType::Stream, target.Type());
 }
 
@@ -46,9 +46,9 @@ TEST_F(SocketTest, ConstructCopy)
     EXPECT_TRUE(target.IsOpen());
     EXPECT_EQ(handle, newSocket.GetHandle());
     EXPECT_TRUE(newSocket.IsOpen());
-    EXPECT_EQ(SocketFamily::Internet, target.Family());
+    EXPECT_EQ(SocketFamily::InternetV4, target.Family());
     EXPECT_EQ(SocketType::Datagram, target.Type());
-    EXPECT_EQ(SocketFamily::Internet, newSocket.Family());
+    EXPECT_EQ(SocketFamily::InternetV4, newSocket.Family());
     EXPECT_EQ(SocketType::Datagram, newSocket.Type());
 
     // Do not close twice
@@ -67,7 +67,7 @@ TEST_F(SocketTest, ConstructMove)
     EXPECT_TRUE(newSocket.IsOpen());
     EXPECT_EQ(SocketFamily::Any, target.Family());
     EXPECT_EQ(SocketType::None, target.Type());
-    EXPECT_EQ(SocketFamily::Internet, newSocket.Family());
+    EXPECT_EQ(SocketFamily::InternetV4, newSocket.Family());
     EXPECT_EQ(SocketType::Datagram, newSocket.Type());
 }
 
@@ -84,7 +84,7 @@ TEST_F(SocketTest, AssignMove)
     EXPECT_TRUE(newSocket.IsOpen());
     EXPECT_EQ(SocketFamily::Any, target.Family());
     EXPECT_EQ(SocketType::None, target.Type());
-    EXPECT_EQ(SocketFamily::Internet, newSocket.Family());
+    EXPECT_EQ(SocketFamily::InternetV4, newSocket.Family());
     EXPECT_EQ(SocketType::Datagram, newSocket.Type());
 }
 
@@ -104,27 +104,27 @@ TEST_F(SocketTest, GetSetHandle)
 
 TEST_F(SocketTest, Open)
 {
-    Socket target(SocketFamily::Internet, SocketType::Stream);
+    Socket target(SocketFamily::InternetV4, SocketType::Stream);
     EXPECT_TRUE(target.IsOpen());
-    EXPECT_EQ(SocketFamily::Internet, target.Family());
+    EXPECT_EQ(SocketFamily::InternetV4, target.Family());
     EXPECT_EQ(SocketType::Stream, target.Type());
 }
 
 TEST_F(SocketTest, OpenAndReOpen)
 {
-    Socket target(SocketFamily::Internet, SocketType::Stream);
+    Socket target(SocketFamily::InternetV4, SocketType::Stream);
     EXPECT_TRUE(target.IsOpen());
-    EXPECT_EQ(SocketFamily::Internet, target.Family());
+    EXPECT_EQ(SocketFamily::InternetV4, target.Family());
     EXPECT_EQ(SocketType::Stream, target.Type());
-    target.Open(SocketFamily::Internet, SocketType::Datagram);
+    target.Open(SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_TRUE(target.IsOpen());
-    EXPECT_EQ(SocketFamily::Internet, target.Family());
+    EXPECT_EQ(SocketFamily::InternetV4, target.Family());
     EXPECT_EQ(SocketType::Datagram, target.Type());
 }
 
 TEST_F(SocketTest, Close)
 {
-    Socket target(SocketFamily::Internet, SocketType::Stream);
+    Socket target(SocketFamily::InternetV4, SocketType::Stream);
     EXPECT_TRUE(target.IsOpen());
     target.Close();
     EXPECT_FALSE(target.IsOpen());
@@ -134,7 +134,7 @@ TEST_F(SocketTest, Close)
 
 TEST_F(SocketTest, GetOptionWithLevel)
 {
-    Socket target(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value;
     target.GetSocketOptionWithLevel(SocketOptionLevel::Socket, SocketOption::Broadcast, &value, &size);
@@ -143,7 +143,7 @@ TEST_F(SocketTest, GetOptionWithLevel)
 
 TEST_F(SocketTest, SetOptionWithLevel)
 {
-    Socket target(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value = 1;
@@ -155,7 +155,7 @@ TEST_F(SocketTest, SetOptionWithLevel)
 
 TEST_F(SocketTest, GetOption)
 {
-    Socket target(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value;
     target.GetSocketOption(SocketOption::Broadcast, &value, &size);
@@ -164,7 +164,7 @@ TEST_F(SocketTest, GetOption)
 
 TEST_F(SocketTest, SetOption)
 {
-    Socket target(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value = 1;
@@ -176,13 +176,13 @@ TEST_F(SocketTest, SetOption)
 
 TEST_F(SocketTest, GetSocketOptionBool)
 {
-    Socket target(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
 }
 
 TEST_F(SocketTest, SetSocketOptionBool)
 {
-    Socket target(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
     target.SetSocketOptionBool(SocketOption::Broadcast, true);
     EXPECT_TRUE(target.GetSocketOptionBool(SocketOption::Broadcast));
@@ -190,14 +190,14 @@ TEST_F(SocketTest, SetSocketOptionBool)
 
 TEST_F(SocketTest, GetSocketOptionInt)
 {
-    Socket target(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_EQ(0, target.GetSocketOptionInt(SocketOption::Broadcast));
 }
 
 TEST_F(SocketTest, SetSocketOptionInt)
 {
     int enableBroadcast = 1;
-    Socket target(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_FALSE(target.GetSocketOptionInt(SocketOption::Broadcast));
     target.SetSocketOptionInt(SocketOption::Broadcast, enableBroadcast);
     EXPECT_EQ(enableBroadcast, target.GetSocketOptionInt(SocketOption::Broadcast));
@@ -205,13 +205,13 @@ TEST_F(SocketTest, SetSocketOptionInt)
 
 TEST_F(SocketTest, GetBroadcastOption)
 {
-    Socket target(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_FALSE(target.GetBroadcastOption());
 }
 
 TEST_F(SocketTest, SetBroadcastOption)
 {
-    Socket target(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_FALSE(target.GetBroadcastOption());
     target.SetBroadcastOption(true);
     EXPECT_TRUE(target.GetBroadcastOption());
@@ -219,13 +219,13 @@ TEST_F(SocketTest, SetBroadcastOption)
 
 TEST_F(SocketTest, GetBlockingMode)
 {
-    Socket target(SocketFamily::Internet, SocketType::Stream);
+    Socket target(SocketFamily::InternetV4, SocketType::Stream);
     EXPECT_TRUE(target.GetBlockingMode());
 }
 
 TEST_F(SocketTest, SetBlockingMode)
 {
-    Socket target(SocketFamily::Internet, SocketType::Stream);
+    Socket target(SocketFamily::InternetV4, SocketType::Stream);
     EXPECT_TRUE(target.GetBlockingMode());
     target.SetBlockingMode(false);
     EXPECT_FALSE(target.GetBlockingMode());
@@ -235,13 +235,13 @@ TEST_F(SocketTest, SetBlockingMode)
 
 TEST_F(SocketTest, GetReuseAddress)
 {
-    Socket target(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_FALSE(target.GetReuseAddress());
 }
 
 TEST_F(SocketTest, SetReuseAddress)
 {
-    Socket target(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_FALSE(target.GetReuseAddress());
     target.SetReuseAddress(true);
     EXPECT_TRUE(target.GetReuseAddress());
@@ -251,14 +251,14 @@ TEST_F(SocketTest, SetReuseAddress)
 
 TEST_F(SocketTest, GetReceiveTimeout)
 {
-    Socket target(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     std::chrono::milliseconds timeout(0);
     EXPECT_EQ(timeout, target.GetReceiveTimeout());
 }
 
 TEST_F(SocketTest, SetReceiveTimeout)
 {
-    Socket target(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     std::chrono::milliseconds timeout(0);
     std::chrono::milliseconds timeoutNew(1000);
     EXPECT_EQ(timeout, target.GetReceiveTimeout());
@@ -270,14 +270,14 @@ TEST_F(SocketTest, SetReceiveTimeout)
 
 TEST_F(SocketTest, GetSendTimeout)
 {
-    Socket target(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     std::chrono::milliseconds timeout(0);
     EXPECT_EQ(timeout, target.GetSendTimeout());
 }
 
 TEST_F(SocketTest, SetSendTimeout)
 {
-    Socket target(SocketFamily::Internet, SocketType::Datagram);
+    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
     std::chrono::milliseconds timeout(0);
     std::chrono::milliseconds timeoutNew(1000);
     EXPECT_EQ(timeout, target.GetSendTimeout());

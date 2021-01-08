@@ -118,7 +118,6 @@ enum class SocketFamily
 {
     Any = AF_UNSPEC,
     Unix = AF_UNIX,
-    Internet = AF_INET,
     InternetV4 = AF_INET,
     InternetV6 = AF_INET6,
     IPX = AF_IPX,
@@ -190,7 +189,6 @@ enum class SocketFamily
 {
     Any = AF_UNSPEC,
     Unix = AF_UNIX,
-    Internet = AF_INET,
     InternetV4 = AF_INET,
     InternetV6 = AF_INET6,
     IPX = AF_IPX,

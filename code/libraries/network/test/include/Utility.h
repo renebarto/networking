@@ -29,6 +29,6 @@ public:
     }
 };
 
-extern const std::uint16_t TestPort = 22222;
+extern const std::uint16_t TestPort;
 
 } // namespace network
