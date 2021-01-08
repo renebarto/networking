@@ -1,28 +1,58 @@
 #pragma once
 
-namespace network {
+#include <cstring>
+#include <string>
 
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_LINUX_RPI)
 
+#include <cerrno>
+
 #elif defined(PLATFORM_WINDOWS)
 
-// int inet_aton(const char *cp, struct in_addr *inp);
-
-// in_addr_t inet_addr(const char *cp);
-
-// in_addr_t inet_network(const char *cp);
-
-// char *inet_ntoa(struct in_addr in);
-
-// struct in_addr inet_makeaddr(int net, int host);
-
-// in_addr_t inet_lnaof(struct in_addr in);
-
-// in_addr_t inet_netof(struct in_addr in);
+#pragma warning(disable: 5039)
+#include <winsock2.h>
+#include <iphlpapi.h>
+#pragma warning(default: 5039)
 
 #else
 
 #error Unsupported platform
+
+#endif
+
+namespace network {
+
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_LINUX_RPI)
+
+inline int GetError()
+{
+    return errno;
+}
+
+inline std::string GetErrorString(int errorCode)
+{
+    return std::strerror(errorCode);
+}
+
+#elif defined(PLATFORM_WINDOWS)
+
+inline int GetError()
+{
+    return WSAGetLastError();
+}
+
+inline std::string GetErrorString(int errorCode)
+{
+    char * text {};
+    FormatMessageA(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
+        nullptr, static_cast<DWORD>(errorCode),
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        reinterpret_cast<LPSTR>(&text), DWORD {}, nullptr);
+    std::string result(text);
+    LocalFree(text);
+    return result;
+}
 
 #endif
 
