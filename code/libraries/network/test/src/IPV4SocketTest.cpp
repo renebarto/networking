@@ -295,7 +295,7 @@ TEST_F(IPV4SocketTest, SetSendTimeout)
 bool IPV4SocketTCPAcceptThread()
 {
     bool accepted {};
-    SCOPEDTRACE("TCP Accept Send Recv thread", [&]{
+    SCOPEDTRACE([] () { return "TCP Accept Send Recv thread"; }, [&]{
         return serialization::Serialize(accepted);
     });
     IPV4Socket acceptorSocket(SocketType::Stream);
@@ -340,7 +340,7 @@ TEST_F(IPV4SocketTest, ConnectAcceptSendReceiveTCP)
 bool IPV4SocketUDPServerThread()
 {
     bool ok {};
-    SCOPEDTRACE("UDP Send Recv thread", [&]{
+    SCOPEDTRACE([] () { return "UDP Send Recv thread"; }, [&]{
         return serialization::Serialize(ok);
     });
     IPV4Socket serverSocket(SocketType::Datagram);

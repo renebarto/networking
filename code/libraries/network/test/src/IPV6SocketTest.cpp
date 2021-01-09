@@ -295,7 +295,7 @@ TEST_F(IPV6SocketTest, SetSendTimeout)
 bool IPV6SocketTCPAcceptThread()
 {
     bool accepted {};
-    SCOPEDTRACE("TCP Accept Send Recv thread", [&]{
+    SCOPEDTRACE([] () { return "TCP Accept Send Recv thread"; }, [&]{
         return serialization::Serialize(accepted);
     });
     IPV6Socket acceptorSocket(SocketType::Stream);
@@ -342,7 +342,7 @@ bool IPV6SocketUDPServerThread()
     bool ok {};
     try
     {
-        SCOPEDTRACE("UDP Send Recv thread", [&]{
+        SCOPEDTRACE([] () { return "UDP Send Recv thread"; }, [&]{
             return serialization::Serialize(ok);
         });
         IPV6Socket serverSocket(SocketType::Datagram);

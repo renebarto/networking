@@ -273,7 +273,7 @@ TEST_F(IPV4UDPSocketTest, SetSendTimeout)
 bool IPV4UDPSocketUDPServerThread()
 {
     bool ok {};
-    SCOPEDTRACE("UDP Send Recv thread", [&]{
+    SCOPEDTRACE([] () { return "UDP Send Recv thread"; }, [&]{
         return serialization::Serialize(ok);
     });
     IPV4UDPSocket serverSocket;

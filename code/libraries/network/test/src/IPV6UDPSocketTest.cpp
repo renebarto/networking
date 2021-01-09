@@ -272,7 +272,7 @@ bool IPV6UDPSocketUDPServerThread()
     bool ok {};
     try
     {
-        SCOPEDTRACE("UDP Send Recv thread", [&]{
+        SCOPEDTRACE([] () { return "UDP Send Recv thread"; }, [&]{
             return serialization::Serialize(ok);
         });
         IPV6UDPSocket serverSocket;

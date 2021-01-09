@@ -259,7 +259,7 @@ TEST_F(IPV6TCPSocketTest, SetSendTimeout)
 bool IPV6TCPSocketTCPAcceptThread()
 {
     bool accepted {};
-    SCOPEDTRACE("TCP Accept Send Recv thread", [&]{
+    SCOPEDTRACE([] () { return "TCP Accept Send Recv thread"; }, [&]{
         return serialization::Serialize(accepted);
     });
     IPV6TCPSocket acceptorSocket;

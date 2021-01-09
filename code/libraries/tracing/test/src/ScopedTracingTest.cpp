@@ -25,7 +25,7 @@ TEST(ScopedTracingTest, IfNothingEnabledNothingHappens)
         TraceFunc, 
         [](TraceCategory /*category*/) { return false; });
     {
-        ScopedTracing trace("MyFile", 123, "MyFunction", "Hello World", [](){ return "This is the end"; });
+        ScopedTracing trace("MyFile", 123, "MyFunction", [](){ return "This is the begin"; }, [](){ return "This is the end"; });
     }
     EXPECT_EQ("", traceOutput);
 }
@@ -37,10 +37,10 @@ TEST(ScopedTracingTest, IfEnabledEntryAndExitMessageWritten)
         TraceFunc, 
         [](TraceCategory /*category*/) { return true; });
     {
-        ScopedTracing trace("MyFile", 123, "MyFunction", "Hello World", [](){ return "This is the end"; });
+        ScopedTracing trace("MyFile", 123, "MyFunction", [](){ return "This is the begin"; }, [](){ return "This is the end"; });
     }
     EXPECT_EQ(
-        "FuncBeg|MyFile:123|MyFunction|Hello World\n"
+        "FuncBeg|MyFile:123|MyFunction|This is the begin\n"
         "FuncEnd|MyFile:123|MyFunction|This is the end\n", traceOutput);
 }
 
@@ -51,10 +51,10 @@ TEST(ScopedTracingTest, IfExitFunctionIsNullEmptyStringIsWritten)
         TraceFunc, 
         [](TraceCategory /*category*/) { return true; });
     {
-        ScopedTracing trace("MyFile", 123, "MyFunction", "Hello World", nullptr);
+        ScopedTracing trace("MyFile", 123, "MyFunction", nullptr, nullptr);
     }
     EXPECT_EQ(
-        "FuncBeg|MyFile:123|MyFunction|Hello World\n"
+        "FuncBeg|MyFile:123|MyFunction|\n"
         "FuncEnd|MyFile:123|MyFunction|\n", traceOutput);
 }
 

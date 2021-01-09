@@ -16,7 +16,7 @@ public:
     {
         tracing::Tracing::SetTracingFunctions(
             nullptr, 
-            [](tracing::TraceCategory /*category*/) { return false; });
+            [](tracing::TraceCategory /*category*/) { return true; });
     }
 };
 
@@ -324,7 +324,7 @@ static const std::uint16_t TestPort = 22222;
 bool TCPAcceptThread()
 {
     bool accepted {};
-    SCOPEDTRACE("TCP Accept Send Recv thread", [&]{
+    SCOPEDTRACE([] () { return "TCP Accept Send Recv thread"; }, [&]{
         return serialization::Serialize(accepted);
     });
     Socket acceptorSocket(SocketFamily::InternetV4, SocketType::Stream);
@@ -373,7 +373,7 @@ TEST_F(SocketTest, ConnectAcceptSendReceiveTCP)
 bool UDPServerThread()
 {
     bool ok {};
-    SCOPEDTRACE("UDP Send Recv thread", [&]{
+    SCOPEDTRACE([] () { return "UDP Send Recv thread"; }, [&]{
         return serialization::Serialize(ok);
     });
     Socket serverSocket(SocketFamily::InternetV4, SocketType::Datagram);

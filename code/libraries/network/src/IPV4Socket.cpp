@@ -50,7 +50,7 @@ IPV4Socket & IPV4Socket::operator = (IPV4Socket && other)
 
 void IPV4Socket::Open(SocketType socketType, SocketProtocol protocol)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "socketType="+ serialization::Serialize(socketType, 0) +
             " protocol="+ serialization::Serialize(protocol, 0);
@@ -60,7 +60,7 @@ void IPV4Socket::Open(SocketType socketType, SocketProtocol protocol)
     
 void IPV4Socket::Bind(const IPV4Address & ipAddress)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipAddress="+ serialization::Serialize(ipAddress, 0);
     });
@@ -69,7 +69,7 @@ void IPV4Socket::Bind(const IPV4Address & ipAddress)
 
 void IPV4Socket::Bind(const IPV4Address & ipAddress, std::uint16_t port)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipAddress="+ serialization::Serialize(ipAddress, 0) +
             " port="+ serialization::Serialize(port, 0);
@@ -84,7 +84,7 @@ void IPV4Socket::Bind(const IPV4Address & ipAddress, std::uint16_t port)
 
 void IPV4Socket::Bind(uint16_t port)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "port="+ serialization::Serialize(port, 0);
     });
@@ -93,7 +93,7 @@ void IPV4Socket::Bind(uint16_t port)
 
 void IPV4Socket::Bind(const IPV4EndPoint & ipEndPoint)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipEndPoint="+ serialization::Serialize(ipEndPoint, 0);
     });
@@ -103,7 +103,7 @@ void IPV4Socket::Bind(const IPV4EndPoint & ipEndPoint)
 bool IPV4Socket::Connect(const IPV4EndPoint & serverAddress, SocketTimeout timeout)
 {
     bool result {};
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "serverAddress="+ serialization::Serialize(serverAddress, 0) +
             " timeout="+ serialization::Serialize(timeout, 0) +
@@ -117,7 +117,7 @@ bool IPV4Socket::Connect(const IPV4EndPoint & serverAddress, SocketTimeout timeo
 bool IPV4Socket::Accept(IPV4Socket & connectionSocket, IPV4EndPoint & clientAddress, SocketTimeout timeout)
 {
     bool result {};
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "connectionSocket="+ serialization::Serialize(connectionSocket, 0) +
             "clientAddress="+ serialization::Serialize(clientAddress, 0) +
@@ -137,7 +137,7 @@ bool IPV4Socket::Accept(IPV4Socket & connectionSocket, IPV4EndPoint & clientAddr
 
 void IPV4Socket::GetLocalAddress(IPV4EndPoint & ipEndPoint)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipEndPoint="+ serialization::Serialize(ipEndPoint, 0);
     });
@@ -150,7 +150,7 @@ void IPV4Socket::GetLocalAddress(IPV4EndPoint & ipEndPoint)
 
 void IPV4Socket::GetRemoteAddress(IPV4EndPoint & ipEndPoint)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipEndPoint="+ serialization::Serialize(ipEndPoint, 0);
     });
@@ -163,7 +163,7 @@ void IPV4Socket::GetRemoteAddress(IPV4EndPoint & ipEndPoint)
 
 void IPV4Socket::SendTo(const IPV4EndPoint & ipEndPoint, const std::vector<uint8_t> & data, size_t bytesToSend)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipEndPoint="+ serialization::Serialize(ipEndPoint, 0) + 
             " bytesToSend="+ serialization::Serialize(bytesToSend, 0);
@@ -173,7 +173,7 @@ void IPV4Socket::SendTo(const IPV4EndPoint & ipEndPoint, const std::vector<uint8
 
 void IPV4Socket::SendTo(const IPV4Address & ipAddress, std::uint16_t port, const std::vector<uint8_t> & data, size_t bytesToSend)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipAddress="+ serialization::Serialize(ipAddress, 0) + 
             " port="+ serialization::Serialize(port, 0) + 
@@ -184,7 +184,7 @@ void IPV4Socket::SendTo(const IPV4Address & ipAddress, std::uint16_t port, const
 
 void IPV4Socket::SendTo(const IPV4EndPoint & ipEndPoint,const uint8_t * data, size_t bytesToSend)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipEndPoint="+ serialization::Serialize(ipEndPoint, 0) + 
             " bytesToSend="+ serialization::Serialize(bytesToSend, 0);
@@ -194,7 +194,7 @@ void IPV4Socket::SendTo(const IPV4EndPoint & ipEndPoint,const uint8_t * data, si
 
 void IPV4Socket::SendTo(const IPV4Address & ipAddress, std::uint16_t port, const uint8_t * data, size_t bytesToSend)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipAddress="+ serialization::Serialize(ipAddress, 0) + 
             " port="+ serialization::Serialize(port, 0) + 
@@ -211,7 +211,7 @@ void IPV4Socket::SendTo(const IPV4Address & ipAddress, std::uint16_t port, const
 std::vector<uint8_t> IPV4Socket::ReceiveFrom(IPV4EndPoint & ipEndPoint)
 {
     size_t numBytes {};
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipEndPoint="+ serialization::Serialize(ipEndPoint, 0) + 
             " numBytes="+ serialization::Serialize(numBytes, 0);
@@ -224,7 +224,7 @@ std::vector<uint8_t> IPV4Socket::ReceiveFrom(IPV4EndPoint & ipEndPoint)
 std::vector<uint8_t> IPV4Socket::ReceiveFrom(IPV4Address & ipAddress, std::uint16_t & port)
 {
     size_t numBytes {};
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipAddress="+ serialization::Serialize(ipAddress, 0) + 
             " port="+ serialization::Serialize(port, 0) + 
@@ -239,7 +239,7 @@ size_t IPV4Socket::ReceiveFrom(IPV4EndPoint & ipEndPoint, uint8_t * data, size_t
 {
     size_t numBytes {};
     std::vector<uint8_t> result;
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipEndPoint="+ serialization::Serialize(ipEndPoint, 0) + 
             " numBytes="+ serialization::Serialize(numBytes, 0);
@@ -255,7 +255,7 @@ size_t IPV4Socket::ReceiveFrom(IPV4EndPoint & ipEndPoint, uint8_t * data, size_t
 size_t IPV4Socket::ReceiveFrom(IPV4Address & ipAddress, std::uint16_t & port, uint8_t * data, size_t bufferSize)
 {
     size_t numBytes {};
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipAddress="+ serialization::Serialize(ipAddress, 0) + 
             " port="+ serialization::Serialize(port, 0) + 

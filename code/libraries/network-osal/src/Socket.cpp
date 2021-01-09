@@ -38,7 +38,9 @@ public:
         , m_initialized(false)
     {
         int errorCode {};
-        SCOPEDTRACE("Initialize socket library", [&]{
+        SCOPEDTRACE([] () { 
+            return "Initialize socket library"; 
+        }, [&]{
             return serialization::Serialize(errorCode);
         });
         errorCode = WSAStartup(MAKEWORD(2, 2), &m_data);
@@ -50,7 +52,9 @@ public:
     ~SocketInitializer()
     {
         int errorCode {};
-        SCOPEDTRACE("Uninitialize socket library", [&]{
+        SCOPEDTRACE([] () { 
+            return "Uninitialize socket library"; 
+        }, [&]{
             return serialization::Serialize(errorCode);
         });
         if (m_initialized)
@@ -77,7 +81,7 @@ Socket::Socket()
     , m_isBlocking(true)
 #endif
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return serialization::Serialize(static_cast<int>(GetHandle()), 0);
     });
 }
@@ -90,7 +94,9 @@ Socket::Socket(SocketFamily socketFamily, SocketType socketType)
     , m_isBlocking(true)
 #endif
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE([&]{
+        return utility::FormatString(std::string("socketFamily={}, socketType={}"), socketFamily, socketType);
+    }, [&]{
         return serialization::Serialize(static_cast<int>(GetHandle()), 0);
     });
     Open(socketFamily, socketType);
@@ -104,7 +110,9 @@ Socket::Socket(const Socket & other)
     , m_isBlocking(true)
 #endif
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE([&]{
+        return utility::FormatString(std::string("socketFamily={}, socketType={}"), other.m_socketFamily, other.m_socketType);
+    }, [&]{
         return serialization::Serialize(static_cast<int>(GetHandle()), 0);
     });
 }
@@ -117,7 +125,9 @@ Socket::Socket(Socket && other)
     , m_isBlocking(other.m_isBlocking)
 #endif
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE([&]{
+        return utility::FormatString(std::string("socketFamily={}, socketType={}"), other.m_socketFamily, other.m_socketType);
+    }, [&]{
         return serialization::Serialize(static_cast<int>(GetHandle()), 0);
     });
     other.m_handle = InvalidHandleValue;
@@ -127,16 +137,16 @@ Socket::Socket(Socket && other)
 
 Socket::~Socket()
 {
-    SCOPEDTRACE("", [&]{
-        return serialization::Serialize(static_cast<int>(GetHandle()), 0);
-    });
+    SCOPEDTRACE(nullptr, nullptr);
     Close();
 }
 
 Socket &
 Socket::operator = (Socket && other)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE([&]{
+        return utility::FormatString(std::string("socketFamily={}, socketType={}"), other.m_socketFamily, other.m_socketType);
+    }, [&]{
         return serialization::Serialize(static_cast<int>(GetHandle()), 0);
     });
     if (this != & other)
@@ -158,7 +168,7 @@ Socket::operator = (Socket && other)
 SocketHandle
 Socket::GetHandle() const
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return serialization::Serialize(static_cast<int>(m_handle), 0);
     });
     return m_handle;
@@ -167,20 +177,22 @@ Socket::GetHandle() const
 void
 Socket::SetHandle(SocketHandle handle)
 {
-    SCOPEDTRACE("", [&]{
-        return serialization::Serialize(static_cast<int>(GetHandle()), 0);
-    });
+    SCOPEDTRACE([&]{
+        return serialization::Serialize(static_cast<int>(handle), 0);
+    }, nullptr);
     m_handle = handle;
 }
 
 void
 Socket::Open(SocketFamily socketFamily, SocketType socketType, SocketProtocol protocol)
 {
-    SCOPEDTRACE("", [&]{
-        return 
-            "socketFamily=" + serialization::Serialize(socketFamily, 0) + 
-            " socketType=" + serialization::Serialize(socketType, 0) +
-            " protocol=" + serialization::Serialize(protocol, 0);
+    SCOPEDTRACE([&]{
+        return utility::FormatString(std::string("socketFamily={}, socketType={}, protocol={}"), 
+            serialization::Serialize(socketFamily, 0), 
+            serialization::Serialize(socketType, 0),
+            serialization::Serialize(protocol, 0));
+    }, [&]{
+        return serialization::Serialize(static_cast<int>(GetHandle()), 0);
     });
     Close();
     Lock lock(m_mutex);
@@ -202,9 +214,7 @@ Socket::Open(SocketFamily socketFamily, SocketType socketType, SocketProtocol pr
 void
 Socket::Close()
 {
-    SCOPEDTRACE("", [&]{
-        return serialization::Serialize(static_cast<int>(GetHandle()), 0);
-    });
+    SCOPEDTRACE(nullptr, nullptr);
     Lock lock(m_mutex);
     int result = 0;
     if (m_handle != InvalidHandleValue)
@@ -230,7 +240,7 @@ bool
 Socket::IsOpen()
 {
     bool result {};
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return serialization::Serialize(result);
     });
     result = (m_handle != InvalidHandleValue);
@@ -239,7 +249,7 @@ Socket::IsOpen()
 
 void Socket::SetSocketOptionWithLevel(SocketOptionLevel level, SocketOption socketOption, const void * optionValue, socklen_t optionLength)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "level=" + serialization::Serialize(level, 0) +
             " socketOption=" + serialization::Serialize(socketOption, 0) + 
@@ -261,7 +271,7 @@ void Socket::SetSocketOptionWithLevel(SocketOptionLevel level, SocketOption sock
 
 void Socket::GetSocketOptionWithLevel(SocketOptionLevel level, SocketOption socketOption, void * optionValue, socklen_t * optionLength)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "level=" + serialization::Serialize(level, 0) +
             " socketOption=" + serialization::Serialize(socketOption, 0) + 
@@ -283,7 +293,7 @@ void Socket::GetSocketOptionWithLevel(SocketOptionLevel level, SocketOption sock
 
 void Socket::SetSocketOption(SocketOption socketOption, const void * optionValue, socklen_t optionLength)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "socketOption=" + serialization::Serialize(socketOption, 0) + 
             " optionValue=" + serialization::Serialize(optionValue, 0) + 
@@ -294,7 +304,7 @@ void Socket::SetSocketOption(SocketOption socketOption, const void * optionValue
 
 void Socket::GetSocketOption(SocketOption socketOption, void * optionValue, socklen_t * optionLength)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "socketOption=" + serialization::Serialize(socketOption, 0) + 
             " optionValue=" + serialization::Serialize(optionValue, 0) + 
@@ -305,7 +315,7 @@ void Socket::GetSocketOption(SocketOption socketOption, void * optionValue, sock
 
 void Socket::SetSocketOptionBool(SocketOption socketOption, bool value)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return serialization::Serialize(value);
     });
     int optionValue = value ? 1 : 0;
@@ -315,7 +325,7 @@ void Socket::SetSocketOptionBool(SocketOption socketOption, bool value)
 bool Socket::GetSocketOptionBool(SocketOption socketOption)
 {
     bool result {};
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return serialization::Serialize(result);
     });
     int optionValue;
@@ -327,7 +337,7 @@ bool Socket::GetSocketOptionBool(SocketOption socketOption)
 
 void Socket::SetSocketOptionInt(SocketOption socketOption, int optionValue)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return serialization::Serialize(optionValue);
     });
     SetSocketOption(socketOption, &optionValue, sizeof(optionValue));
@@ -336,7 +346,7 @@ void Socket::SetSocketOptionInt(SocketOption socketOption, int optionValue)
 int Socket::GetSocketOptionInt(SocketOption socketOption)
 {
     int optionValue;
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return serialization::Serialize(optionValue);
     });
     socklen_t optionLength = sizeof(optionValue);
@@ -346,7 +356,7 @@ int Socket::GetSocketOptionInt(SocketOption socketOption)
 
 void Socket::SetBroadcastOption(bool value)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return serialization::Serialize(value);
     });
     SetSocketOptionBool(SocketOption::Broadcast, value);
@@ -355,7 +365,7 @@ void Socket::SetBroadcastOption(bool value)
 bool Socket::GetBroadcastOption()
 {
     bool result;
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return serialization::Serialize(result);
     });
     result = GetSocketOptionBool(SocketOption::Broadcast);
@@ -364,7 +374,7 @@ bool Socket::GetBroadcastOption()
 
 void Socket::SetBlockingMode(bool value)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return serialization::Serialize(value);
     });
 #if defined(PLATFORM_LINUX)
@@ -398,7 +408,7 @@ void Socket::SetBlockingMode(bool value)
 bool Socket::GetBlockingMode()
 {
     bool result;
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return serialization::Serialize(result);
     });
 #if defined(PLATFORM_LINUX)
@@ -418,7 +428,7 @@ bool Socket::GetBlockingMode()
 
 void Socket::SetReuseAddress(bool value)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return serialization::Serialize(value);
     });
     SetSocketOptionBool(SocketOption::ReuseAddress, value);
@@ -427,7 +437,7 @@ void Socket::SetReuseAddress(bool value)
 bool Socket::GetReuseAddress()
 {
     bool result;
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return serialization::Serialize(result);
     });
     result = GetSocketOptionBool(SocketOption::ReuseAddress);
@@ -436,7 +446,7 @@ bool Socket::GetReuseAddress()
 
 void Socket::SetReceiveTimeout(std::chrono::milliseconds timeout)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return serialization::Serialize(timeout.count(), 0);
     });
     timeval tv;
@@ -449,7 +459,7 @@ void Socket::SetReceiveTimeout(std::chrono::milliseconds timeout)
 std::chrono::milliseconds Socket::GetReceiveTimeout()
 {
     std::chrono::milliseconds result;
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return serialization::Serialize(result.count(), 0);
     });
     timeval tv;
@@ -462,7 +472,7 @@ std::chrono::milliseconds Socket::GetReceiveTimeout()
 
 void Socket::SetSendTimeout(std::chrono::milliseconds timeout)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return serialization::Serialize(timeout.count(), 0);
     });
     timeval tv;
@@ -475,7 +485,7 @@ void Socket::SetSendTimeout(std::chrono::milliseconds timeout)
 std::chrono::milliseconds Socket::GetSendTimeout()
 {
     std::chrono::milliseconds result;
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return serialization::Serialize(result.count(), 0);
     });
     timeval tv;
@@ -489,7 +499,7 @@ std::chrono::milliseconds Socket::GetSendTimeout()
 void Socket::Bind(const sockaddr * address, socklen_t addressLength)
 {
     int result {};
-    SCOPEDTRACE("Bind", [&]{
+    SCOPEDTRACE([] () { return "Bind"; }, [&]{
         return serialization::Serialize(result != -1);
     });
     result = ::bind(this->GetHandle(), address, addressLength);
@@ -504,7 +514,7 @@ void Socket::Bind(const sockaddr * address, socklen_t addressLength)
 bool Socket::Connect(sockaddr const * serverAddress, socklen_t serverAddressLength, SocketTimeout timeout)
 {
     int result {};
-    SCOPEDTRACE("Connect", [&]{
+    SCOPEDTRACE([] () { return "Connect"; }, [&]{
         return serialization::Serialize(result != -1);
     });
 
@@ -610,7 +620,7 @@ bool Socket::Connect(sockaddr const * serverAddress, socklen_t serverAddressLeng
 void Socket::Listen(int numListeners)
 {
     int result {};
-    SCOPEDTRACE("Listen", [&]{
+    SCOPEDTRACE([] () { return "Listen"; }, [&]{
         return serialization::Serialize(result != -1);
     });
     result = ::listen(GetHandle(), numListeners);
@@ -626,7 +636,7 @@ bool Socket::Accept(Socket & connectionSocket, sockaddr * clientAddress, socklen
 {
     SocketHandle result = 0;
 
-    SCOPEDTRACE("Accept", [&]{
+    SCOPEDTRACE([] () { return "Accept"; }, [&]{
         return serialization::Serialize(result != -1);
     });
     Lock lock(m_mutex);
@@ -688,7 +698,7 @@ bool Socket::Accept(Socket & connectionSocket, sockaddr * clientAddress, socklen
 void Socket::GetLocalAddress(sockaddr * address, socklen_t * addressLength)
 {
     int result = 0;
-    SCOPEDTRACE("GetLocalAddress", [&]{
+    SCOPEDTRACE([] () { return "GetLocalAddress"; }, [&]{
         return serialization::Serialize(result != -1);
     });
     result = ::getsockname(this->GetHandle(), address, addressLength);
@@ -703,7 +713,7 @@ void Socket::GetLocalAddress(sockaddr * address, socklen_t * addressLength)
 void Socket::GetRemoteAddress(sockaddr * address, socklen_t * addressLength)
 {
     int result = 0;
-    SCOPEDTRACE("GetRemoteAddress", [&]{
+    SCOPEDTRACE([] () { return "GetRemoteAddress"; }, [&]{
         return serialization::Serialize(result != -1);
     });
     result = ::getpeername(this->GetHandle(), address, addressLength);
@@ -718,7 +728,7 @@ void Socket::GetRemoteAddress(sockaddr * address, socklen_t * addressLength)
 std::size_t Socket::Receive(std::uint8_t * data, std::size_t bufferSize, int flags)
 {
     std::size_t numBytes = 0;
-    SCOPEDTRACE("Receive", [&]{
+    SCOPEDTRACE([] () { return "Receive"; }, [&]{
         return serialization::Serialize(numBytes);
     });
     try
@@ -752,7 +762,7 @@ std::size_t Socket::Receive(std::uint8_t * data, std::size_t bufferSize, int fla
 bool Socket::Send(const std::uint8_t * data, std::size_t bytesToSend, int flags)
 {
     bool result {};
-    SCOPEDTRACE("Send", [&]{
+    SCOPEDTRACE([] () { return "Send"; }, [&]{
         return serialization::Serialize(result);
     });
     int numBytesLeftToSend = static_cast<int>(bytesToSend);
@@ -787,7 +797,7 @@ bool Socket::Send(const std::uint8_t * data, std::size_t bytesToSend, int flags)
 std::size_t Socket::ReceiveFrom(sockaddr * address, socklen_t * addressLength, std::uint8_t * data, std::size_t bufferSize)
 {
     std::size_t numBytes = 0;
-    SCOPEDTRACE("Receive", [&]{
+    SCOPEDTRACE([] () { return "Receive"; }, [&]{
         return serialization::Serialize(numBytes);
     });
     int result = ::recvfrom(GetHandle(), reinterpret_cast<char *>(data), static_cast<int>(bufferSize), 0, address, addressLength);
@@ -809,7 +819,7 @@ std::size_t Socket::ReceiveFrom(sockaddr * address, socklen_t * addressLength, s
 void Socket::SendTo(const sockaddr * address, socklen_t addressLength, const std::uint8_t *data, std::size_t bytesToSend)
 {
     int result {};
-    SCOPEDTRACE("Send", [&]{
+    SCOPEDTRACE([] () { return "Send"; }, [&]{
         return serialization::Serialize(result != -1);
     });
     result = ::sendto(GetHandle(), reinterpret_cast<const char *>(data), static_cast<int>(bytesToSend), 0, address, addressLength);

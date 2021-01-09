@@ -50,7 +50,7 @@ IPV6Socket & IPV6Socket::operator = (IPV6Socket && other)
 
 void IPV6Socket::Open(SocketType socketType, SocketProtocol protocol)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "socketType="+ serialization::Serialize(socketType, 0) +
             " protocol="+ serialization::Serialize(protocol, 0);
@@ -60,7 +60,7 @@ void IPV6Socket::Open(SocketType socketType, SocketProtocol protocol)
     
 void IPV6Socket::Bind(const IPV6Address & ipAddress)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipAddress="+ serialization::Serialize(ipAddress, 0);
     });
@@ -70,7 +70,7 @@ void IPV6Socket::Bind(const IPV6Address & ipAddress)
 void IPV6Socket::Bind(const IPV6Address & ipAddress, std::uint16_t port, 
                       std::uint32_t flowInfo, std::uint32_t scopeID)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipAddress="+ serialization::Serialize(ipAddress, 0) +
             " port="+ serialization::Serialize(port, 0) +
@@ -90,7 +90,7 @@ void IPV6Socket::Bind(const IPV6Address & ipAddress, std::uint16_t port,
 
 void IPV6Socket::Bind(std::uint16_t port)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "port="+ serialization::Serialize(port, 0);
     });
@@ -99,7 +99,7 @@ void IPV6Socket::Bind(std::uint16_t port)
 
 void IPV6Socket::Bind(const IPV6EndPoint & ipEndPoint)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipEndPoint="+ serialization::Serialize(ipEndPoint, 0);
     });
@@ -109,7 +109,7 @@ void IPV6Socket::Bind(const IPV6EndPoint & ipEndPoint)
 bool IPV6Socket::Connect(const IPV6EndPoint & serverAddress, SocketTimeout timeout)
 {
     bool result {};
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "serverAddress="+ serialization::Serialize(serverAddress, 0) +
             " timeout="+ serialization::Serialize(timeout, 0) +
@@ -123,7 +123,7 @@ bool IPV6Socket::Connect(const IPV6EndPoint & serverAddress, SocketTimeout timeo
 bool IPV6Socket::Accept(IPV6Socket & connectionSocket, IPV6EndPoint & clientAddress, SocketTimeout timeout)
 {
     bool result {};
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "connectionSocket="+ serialization::Serialize(connectionSocket, 0) +
             "clientAddress="+ serialization::Serialize(clientAddress, 0) +
@@ -143,7 +143,7 @@ bool IPV6Socket::Accept(IPV6Socket & connectionSocket, IPV6EndPoint & clientAddr
 
 void IPV6Socket::GetLocalAddress(IPV6EndPoint & ipEndPoint)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipEndPoint="+ serialization::Serialize(ipEndPoint, 0);
     });
@@ -158,7 +158,7 @@ void IPV6Socket::GetLocalAddress(IPV6EndPoint & ipEndPoint)
 
 void IPV6Socket::GetRemoteAddress(IPV6EndPoint & ipEndPoint)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipEndPoint="+ serialization::Serialize(ipEndPoint, 0);
     });
@@ -173,7 +173,7 @@ void IPV6Socket::GetRemoteAddress(IPV6EndPoint & ipEndPoint)
 
 void IPV6Socket::SendTo(const IPV6EndPoint & ipEndPoint, const std::vector<uint8_t> & data, size_t bytesToSend)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipEndPoint="+ serialization::Serialize(ipEndPoint, 0) + 
             " bytesToSend="+ serialization::Serialize(bytesToSend, 0);
@@ -186,7 +186,7 @@ void IPV6Socket::SendTo(const IPV6Address & ipAddress, std::uint16_t port,
                         std::uint32_t flowInfo, std::uint32_t scopeID,
                         const std::vector<uint8_t> & data, size_t bytesToSend)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipAddress="+ serialization::Serialize(ipAddress, 0) + 
             " port="+ serialization::Serialize(port, 0) +
@@ -199,7 +199,7 @@ void IPV6Socket::SendTo(const IPV6Address & ipAddress, std::uint16_t port,
 
 void IPV6Socket::SendTo(const IPV6EndPoint & ipEndPoint,const uint8_t * data, size_t bytesToSend)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipEndPoint="+ serialization::Serialize(ipEndPoint, 0) + 
             " bytesToSend="+ serialization::Serialize(bytesToSend, 0);
@@ -212,7 +212,7 @@ void IPV6Socket::SendTo(const IPV6Address & ipAddress, std::uint16_t port,
                         std::uint32_t flowInfo, std::uint32_t scopeID,
                         const uint8_t * data, size_t bytesToSend)
 {
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipAddress="+ serialization::Serialize(ipAddress, 0) + 
             " port="+ serialization::Serialize(port, 0) +
@@ -234,7 +234,7 @@ void IPV6Socket::SendTo(const IPV6Address & ipAddress, std::uint16_t port,
 std::vector<uint8_t> IPV6Socket::ReceiveFrom(IPV6EndPoint & ipEndPoint)
 {
     size_t numBytes {};
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipEndPoint="+ serialization::Serialize(ipEndPoint, 0) + 
             " numBytes="+ serialization::Serialize(numBytes, 0);
@@ -248,7 +248,7 @@ std::vector<uint8_t> IPV6Socket::ReceiveFrom(IPV6Address & ipAddress, std::uint1
                                              std::uint32_t & flowInfo, std::uint32_t & scopeID)
 {
     size_t numBytes {};
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipAddress="+ serialization::Serialize(ipAddress, 0) + 
             " port="+ serialization::Serialize(port, 0) +
@@ -265,7 +265,7 @@ size_t IPV6Socket::ReceiveFrom(IPV6EndPoint & ipEndPoint, uint8_t * data, size_t
 {
     size_t numBytes {};
     std::vector<uint8_t> result;
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipEndPoint="+ serialization::Serialize(ipEndPoint, 0) + 
             " numBytes="+ serialization::Serialize(numBytes, 0);
@@ -285,7 +285,7 @@ size_t IPV6Socket::ReceiveFrom(IPV6Address & ipAddress, std::uint16_t & port,
                                uint8_t * data, size_t bufferSize)
 {
     size_t numBytes {};
-    SCOPEDTRACE("", [&]{
+    SCOPEDTRACE(nullptr, [&]{
         return 
             "ipAddress="+ serialization::Serialize(ipAddress, 0) + 
             " port="+ serialization::Serialize(port, 0) +

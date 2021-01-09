@@ -12,7 +12,7 @@ Thread::Thread()
     , m_name()
     , m_state(ThreadState::NotStarted)
 {
-    SCOPEDTRACE("", nullptr);
+    SCOPEDTRACE(nullptr, nullptr);
 }
 
 Thread::Thread(const std::string & name)
@@ -21,7 +21,7 @@ Thread::Thread(const std::string & name)
     , m_name(name.substr(0, std::min(name.length(), size_t {15})))
     , m_state(ThreadState::NotStarted)
 {
-    SCOPEDTRACE(utility::FormatString(std::string("name={0}"), m_name), nullptr);
+    SCOPEDTRACE([&] () { return utility::FormatString(std::string("name={0}"), m_name); }, nullptr);
 }
 
 Thread::Thread(ThreadFunction threadFunc)
@@ -30,7 +30,7 @@ Thread::Thread(ThreadFunction threadFunc)
     , m_name()
     , m_state(ThreadState::NotStarted)
 {
-    SCOPEDTRACE("", nullptr);
+    SCOPEDTRACE(nullptr, nullptr);
     Create(threadFunc);
 }
 
@@ -40,26 +40,26 @@ Thread::Thread(ThreadFunction threadFunc, const std::string & name)
     , m_name(name.substr(0, std::min(name.length(), size_t {15})))
     , m_state(ThreadState::NotStarted)
 {
-    SCOPEDTRACE(utility::FormatString(std::string("name={0}"), m_name), nullptr);
+    SCOPEDTRACE([&] () { return utility::FormatString(std::string("name={0}"), m_name); }, nullptr);
     Create(threadFunc);
 }
 
 Thread::~Thread()
 {
-    SCOPEDTRACE("", nullptr);
+    SCOPEDTRACE(nullptr, nullptr);
     Cleanup();
 }
 
 void Thread::Create(ThreadFunction threadFunc)
 {
-    SCOPEDTRACE("", nullptr);
+    SCOPEDTRACE(nullptr, nullptr);
 
     Destroy();
 
     Lock lock(m_threadMutex);
     try
     {
-        SCOPEDTRACE("Start thread", nullptr);
+        SCOPEDTRACE([] () { return "Start thread"; }, nullptr);
         std::packaged_task<void()> task(std::bind(threadFunc));
 
         m_threadResult = task.get_future();
@@ -78,7 +78,7 @@ void Thread::Create(ThreadFunction threadFunc)
 
 void Thread::Destroy()
 {
-    SCOPEDTRACE("", nullptr);
+    SCOPEDTRACE(nullptr, nullptr);
 
     Lock lock(m_threadMutex);
     if (IsAlive())
@@ -91,7 +91,7 @@ void Thread::Destroy()
 bool Thread::IsAlive()
 {
     bool result;
-    SCOPEDTRACE("", [&](){ return utility::FormatString(std::string("result={}"), result); });
+    SCOPEDTRACE(nullptr, [&](){ return utility::FormatString(std::string("result={}"), result); });
 
     Lock lock(m_threadMutex);
  
@@ -103,7 +103,7 @@ bool Thread::IsAlive()
 bool Thread::IsRunning()
 {
     bool result;
-    SCOPEDTRACE("", [&](){ return utility::FormatString(std::string("result={}"), result); });
+    SCOPEDTRACE(nullptr, [&](){ return utility::FormatString(std::string("result={}"), result); });
 
     Lock lock(m_threadMutex);
 
@@ -115,7 +115,7 @@ bool Thread::IsRunning()
 bool Thread::IsFinished()
 {
     bool result;
-    SCOPEDTRACE("", [&](){ return utility::FormatString(std::string("result={}"), result); });
+    SCOPEDTRACE(nullptr, [&](){ return utility::FormatString(std::string("result={}"), result); });
 
     Lock lock(m_threadMutex);
 
@@ -127,7 +127,7 @@ bool Thread::IsFinished()
 bool Thread::HasDied()
 {
     bool result;
-    SCOPEDTRACE("", [&](){ return utility::FormatString(std::string("result={}"), result); });
+    SCOPEDTRACE(nullptr, [&](){ return utility::FormatString(std::string("result={}"), result); });
 
     Lock lock(m_threadMutex);
 
@@ -138,28 +138,28 @@ bool Thread::HasDied()
 
 const std::string & Thread::GetName() const
 {
-    SCOPEDTRACE("", [&](){ return utility::FormatString(std::string("result={}"), m_name); });
+    SCOPEDTRACE(nullptr, [&](){ return utility::FormatString(std::string("result={}"), m_name); });
 
     return m_name;
 }
 
 void Thread::SetName(const std::string & name)
 {
-    SCOPEDTRACE(utility::FormatString(std::string("name={}"), name), nullptr);
+    SCOPEDTRACE([&] () { return utility::FormatString(std::string("name={}"), name); }, nullptr);
     m_name = name.substr(0, std::min(name.length(), size_t {15}));
     SetThreadName(m_thread, m_name);
 }
 
 void Thread::WaitForDeath()
 {
-    SCOPEDTRACE("", nullptr);
+    SCOPEDTRACE(nullptr, nullptr);
 
     if (!IsAlive())
         return;
     Lock lock(m_threadMutex);
     if (!IsThreadSelf(m_thread))
     {
-        SCOPEDTRACE("Wait for thread to die", nullptr);
+        SCOPEDTRACE([] () { return "Wait for thread to die"; }, nullptr);
         m_thread.join();
         m_state = ThreadState::Finished;
     }
@@ -167,7 +167,7 @@ void Thread::WaitForDeath()
 
 void Thread::Cleanup()
 {
-    SCOPEDTRACE("", nullptr);
+    SCOPEDTRACE(nullptr, nullptr);
 
     Destroy();
     Lock lock(m_threadMutex);
@@ -177,7 +177,7 @@ void Thread::Cleanup()
 Priority Thread::GetPriority()
 {
     Priority priority {};
-    SCOPEDTRACE("", [&]() { return utility::FormatString(std::string("result={}"), static_cast<int>(priority)); });
+    SCOPEDTRACE(nullptr, [&]() { return utility::FormatString(std::string("result={}"), static_cast<int>(priority)); });
 
     priority = GetPriority(m_thread);
     return priority;
@@ -185,7 +185,7 @@ Priority Thread::GetPriority()
 
 void Thread::SetPriority(Priority priority)
 {
-    SCOPEDTRACE(utility::FormatString(std::string("priority={}"), static_cast<int>(priority)), nullptr);
+    SCOPEDTRACE([&] () { return utility::FormatString(std::string("priority={}"), static_cast<int>(priority)); }, nullptr);
     SetPriority(m_thread, priority);
 }
 
