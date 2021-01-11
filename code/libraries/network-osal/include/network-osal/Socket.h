@@ -83,3 +83,14 @@ operator <<(std::ostream & stream, const Socket & value)
 }
 
 } // namespace network
+
+struct sockaddr;
+
+namespace serialization {
+
+std::string Serialize(const network::Socket & value, int width);
+std::string Serialize(const sockaddr * value, int size);
+std::string Serialize(sockaddr * value, int size);
+std::string Serialize(const sockaddr * value, int * size);
+
+} // namespace serialization

@@ -16,7 +16,7 @@ public:
     {
         tracing::Tracing::SetTracingFunctions(
             nullptr, 
-            [](tracing::TraceCategory /*category*/) { return true; });
+            [](tracing::TraceCategory /*category*/) { return false; });
     }
 };
 
@@ -440,33 +440,34 @@ TEST_F(SocketTest, SendReceiveUDPConnectionless)
     EXPECT_TRUE(accepted);
 }
 
-// TEST_F(SocketTest, Ping)
-// {
-//     tracing::Tracing::SetTracingFunctions(
-//         nullptr, 
-//         [](tracing::TraceCategory /*category*/) { return true; });
+TEST_F(SocketTest, SerializeSocket)
+{
+    Socket target;
 
-//     Socket clientSocket(SocketFamily::InternetV4, SocketType::Raw);
-//     int ttl = 64;
-//     clientSocket.SetSocketOptionInt(static_cast<SocketOption>(IPSocketOption::TTL), ttl);
+    EXPECT_EQ("-1", serialization::Serialize(target, 0));
 
-//     sockaddr_in serverAddress {};
-//     FillAddress(serverAddress, TestPort, IPV4Address::LocalHost.GetUInt32());
+    SocketHandle handle = 1234;
+    target.SetHandle(handle);
+    EXPECT_EQ("1234", serialization::Serialize(target, 0));
 
-//     BoolReturnThread serverThread(UDPServerThread);
-//     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-//     const std::size_t BufferSize = 10;
-//     std::uint8_t bufferOut[BufferSize] = { 'H', 'e', 'l', 'l', 'o', 'W', 'o', 'r', 'l', 'd'};
-//     std::uint8_t bufferIn[BufferSize];
-//     clientSocket.SendTo(reinterpret_cast<const sockaddr *>(&serverAddress), sizeof(serverAddress), bufferOut, BufferSize);
-//     sockaddr_in peerAddress {};
-//     socklen_t peerAddressSize = sizeof(peerAddress);
-//     std::size_t bytesReceived = clientSocket.ReceiveFrom(reinterpret_cast<sockaddr *>(&peerAddress), &peerAddressSize, bufferIn, BufferSize);
-//     EXPECT_EQ(BufferSize, bytesReceived);
-//     EXPECT_TRUE(std::equal(std::begin(bufferIn), std::end(bufferIn), std::begin(bufferOut)));
-//     serverThread.WaitForDeath();
-//     bool accepted = serverThread.GetResult();
-//     EXPECT_TRUE(accepted);
-// }
+    target.SetHandle(InvalidHandleValue);
+}
+
+TEST_F(SocketTest, SerializeSockAddrSize)
+{
+    sockaddr_in address {};
+    address.sin_family = AF_INET;
+
+    EXPECT_EQ("addressFamily=2, size=16", serialization::Serialize(reinterpret_cast<sockaddr *>(&address), sizeof(address)));
+}
+
+TEST_F(SocketTest, SerializeSockAddrSizePtr)
+{
+    sockaddr_in address {};
+    address.sin_family = AF_INET;
+    socklen_t addressSize = sizeof(address);
+
+    EXPECT_EQ("addressFamily=2, size=16", serialization::Serialize(reinterpret_cast<sockaddr *>(&address), &addressSize));
+}
 
 } // namespace network
