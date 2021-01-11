@@ -209,11 +209,63 @@ TEST(SerializationTest, SerializeCharPtrWideQuoted)
     EXPECT_EQ(expected, Serialize(value, 0, true));
 }
 
+TEST(SerializationTest, SerializeVoidPtrNull)
+{
+    const void * value = nullptr;
+    std::string expected = "null";
+    EXPECT_EQ(expected, Serialize(value, 0));
+}
+
 TEST(SerializationTest, SerializeVoidPtr)
 {
     const void * value = reinterpret_cast<const void *>(0x123456789ABCDEF0llu);
     std::string expected = "0x123456789ABCDEF0";
     EXPECT_EQ(expected, Serialize(value, 0));
+}
+
+TEST(SerializationTest, SerializeUInt8PtrNull)
+{
+    const std::uint8_t * value = nullptr;
+    std::string expected = "null";
+    EXPECT_EQ(expected, Serialize(value, std::size_t {0}));
+}
+
+TEST(SerializationTest, SerializeUInt8PtrZeroLength)
+{
+    const std::uint8_t value[] { 0x00 };
+    std::string expected = "";
+    EXPECT_EQ(expected, Serialize(value, std::size_t {0}));
+}
+
+TEST(SerializationTest, SerializeUInt8PtrOneByte)
+{
+    const std::uint8_t value[] { 0x41 };
+    std::string expected = "41                                               A                              \n";
+    EXPECT_EQ(expected, Serialize(value, sizeof(value)));
+}
+
+TEST(SerializationTest, SerializeUInt8PtrFifteenBytes)
+{
+    const std::uint8_t value[] { 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F };
+    std::string expected = "41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F     A B C D E F G H I J K L M N O  \n";
+    EXPECT_EQ(expected, Serialize(value, sizeof(value)));
+}
+
+TEST(SerializationTest, SerializeUInt8PtrSixteenBytes)
+{
+    const std::uint8_t value[] { 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50 };
+    std::string expected = "41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F 50  A B C D E F G H I J K L M N O P\n";
+    EXPECT_EQ(expected, Serialize(value, sizeof(value)));
+}
+
+TEST(SerializationTest, SerializeUInt8PtrThirtyTwoBytesWithNonPrintables)
+{
+    const std::uint8_t value[] { 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50,
+                                 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20 };
+    std::string expected = 
+        "41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F 50  A B C D E F G H I J K L M N O P\n"
+        "11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20  . . . . . . . . . . . . . . .  \n";
+    EXPECT_EQ(expected, Serialize(value, sizeof(value)));
 }
 
 } // namespace serialization

@@ -367,9 +367,60 @@ std::string Serialize(const void * value, int width)
 {
     std::ostringstream stream;
 
-    stream << "0x" + Serialize(reinterpret_cast<uint64_t>(value), width, 16);
+    if (value != nullptr)
+        stream << "0x" + Serialize(reinterpret_cast<uint64_t>(value), width, 16);
+    else
+        stream << "null";
 
     return utility::Align(stream.str(), width);
+}
+
+std::string Serialize(void * value, int width)
+{
+    return Serialize(const_cast<const void *>(value), width);
+}
+
+std::string SerializeData(const std::uint8_t * value, std::size_t size)
+{
+    std::ostringstream stream;
+
+    if (value != nullptr)
+    {
+        const std::size_t LineDisplayBytes = 16;
+        const std::size_t MaxDisplayBytes = 32;
+        std::size_t displayBytes = (size < MaxDisplayBytes) ? size : MaxDisplayBytes;
+        for (std::size_t i = 0; i < displayBytes; i += LineDisplayBytes)
+        {
+            for (std::size_t j = 0; j < LineDisplayBytes; ++j)
+            {
+                if (j != 0)
+                    stream << " ";
+                if ((i + j) < displayBytes)
+                    stream << Serialize(value[i + j], 2, 16);
+                else
+                    stream << "  ";
+            }
+            stream << "  ";
+            for (std::size_t j = 0; j < LineDisplayBytes; ++j)
+            {
+                if (j != 0)
+                    stream << " ";
+                if ((i + j) < displayBytes)
+                {
+                    auto ch = value[i + j];
+                    stream << ((std::isprint(ch) ? static_cast<char>(ch) : '.'));
+                }
+                else
+                {
+                    stream << " ";
+                }
+            }
+            stream << std::endl;
+        }
+    }
+    else
+        stream << "null";
+    return stream.str();
 }
 
 } // namespace serialization
