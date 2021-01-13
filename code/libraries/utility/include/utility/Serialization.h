@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <string>
+#include "utility/Endian.h"
 #include "utility/StringFunctions.h"
 
 namespace serialization {
@@ -46,13 +47,40 @@ std::string Serialize(T t, int width)
     return utility::Align(stream.str(), width);
 }
 
-// template<typename T>
-// std::string Serialize(T t)
-// {
-//     std::ostringstream stream;
-//     stream << t;
-//     return stream.str();
-// }
+// Binary Serialization
+
+void AppendOrReplace(std::vector<std::uint8_t> & buffer, std::size_t & offset, const void * data, std::size_t length);
+
+template <typename T>
+typename std::enable_if<!std::is_enum<T>::value, void>::type
+SerializeBinary(T value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness /*endianness = utility::Endianness::LittleEndian*/)
+{
+    AppendOrReplace(buffer, offset, &value, sizeof(value));
+}
+
+void SerializeBinary(bool value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
+void SerializeBinary(std::int8_t value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
+void SerializeBinary(std::uint8_t value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
+void SerializeBinary(std::int16_t value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
+void SerializeBinary(std::uint16_t value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
+void SerializeBinary(std::int32_t value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
+void SerializeBinary(std::uint32_t value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
+void SerializeBinary(std::int64_t value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
+void SerializeBinary(std::uint64_t value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
+void SerializeBinary(float value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
+void SerializeBinary(double value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
+void SerializeBinary(long double value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
+void SerializeBinary(const std::string & value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
+void SerializeBinary(const std::wstring & value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
+void SerializeBinary(const char * value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
+void SerializeBinary(const wchar_t * value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
+template<typename EnumType>
+typename std::enable_if<std::is_enum<EnumType>::value, void>::type
+SerializeBinary(const EnumType & value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian)
+{
+    SerializeBinary(static_cast<std::underlying_type<EnumType>::type>(value), buffer, offset, endianness);
+}
+
 
 template<class T>
 class IStringSerializer

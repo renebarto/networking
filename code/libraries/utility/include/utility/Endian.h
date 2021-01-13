@@ -22,6 +22,15 @@ inline Endianness PlatformEndianness()
 }
 
 template<typename T>
+T ToEndianness(T value, Endianness endianness)
+{
+    T platformByteOrderValue = value;
+    if (PlatformEndianness() != endianness)
+        platformByteOrderValue = osal::SwapBytes(value);
+    return platformByteOrderValue;
+}
+
+template<typename T>
 T FromNetworkByteOrder(T value)
 {
     T platformByteOrderValue = value;

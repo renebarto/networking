@@ -244,4 +244,164 @@ bool Deserialize(const std::string & text, std::wstring & value)
     return true;
 }
 
+bool Extract(const std::vector<std::uint8_t> & buffer, std::size_t & offset, void * data, std::size_t length)
+{
+    if ((buffer.size() - offset) < length)
+        return false;
+    std::uint8_t * bytePtr = reinterpret_cast<std::uint8_t *>(data);
+    std::copy_n(&buffer[offset], length, bytePtr);
+    offset += length;
+    return true;
+}
+
+bool DeserializeBinary(bool & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness /*endianness*/)
+{
+    std::uint8_t data {};
+    if (!Extract(buffer, offset, &data, sizeof(data)))
+        return false;
+    value = (data == 0x00) ? false : true;
+    return true;
+}
+
+bool DeserializeBinary(std::int8_t & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness /*endianness*/)
+{
+    std::uint8_t data {};
+    if (!Extract(buffer, offset, &data, sizeof(data)))
+        return false;
+    value = static_cast<std::int8_t>(data);
+    return true;
+}
+
+bool DeserializeBinary(std::uint8_t & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness /*endianness*/)
+{
+    if (!Extract(buffer, offset, &value, sizeof(value)))
+        return false;
+    return true;
+}
+
+bool DeserializeBinary(std::int16_t & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
+{
+    std::int16_t data {};
+    std::uint8_t * bytePtr = reinterpret_cast<std::uint8_t *>(&data);
+    if (!Extract(buffer, offset, bytePtr, sizeof(data)))
+        return false;
+    value = utility::ToEndianness(data, endianness);
+    return true;
+}
+
+bool DeserializeBinary(std::uint16_t & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
+{
+    std::uint16_t data {};
+    std::uint8_t * bytePtr = reinterpret_cast<std::uint8_t *>(&data);
+    if (!Extract(buffer, offset, bytePtr, sizeof(data)))
+        return false;
+    value = utility::ToEndianness(data, endianness);
+    return true;
+}
+
+bool DeserializeBinary(std::int32_t & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
+{
+    std::int32_t data {};
+    std::uint8_t * bytePtr = reinterpret_cast<std::uint8_t *>(&data);
+    if (!Extract(buffer, offset, bytePtr, sizeof(data)))
+        return false;
+    value = utility::ToEndianness(data, endianness);
+    return true;
+}
+
+bool DeserializeBinary(std::uint32_t & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
+{
+    std::uint32_t data {};
+    std::uint8_t * bytePtr = reinterpret_cast<std::uint8_t *>(&data);
+    if (!Extract(buffer, offset, bytePtr, sizeof(data)))
+        return false;
+    value = utility::ToEndianness(data, endianness);
+    return true;
+}
+
+bool DeserializeBinary(std::int64_t & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
+{
+    std::int64_t data {};
+    std::uint8_t * bytePtr = reinterpret_cast<std::uint8_t *>(&data);
+    if (!Extract(buffer, offset, bytePtr, sizeof(data)))
+        return false;
+    value = utility::ToEndianness(data, endianness);
+    return true;
+}
+
+bool DeserializeBinary(std::uint64_t & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
+{
+    std::uint64_t data {};
+    std::uint8_t * bytePtr = reinterpret_cast<std::uint8_t *>(&data);
+    if (!Extract(buffer, offset, bytePtr, sizeof(data)))
+        return false;
+    value = utility::ToEndianness(data, endianness);
+    return true;
+}
+
+bool DeserializeBinary(float & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
+{
+    float data {};
+    std::uint8_t * bytePtr = reinterpret_cast<std::uint8_t *>(&data);
+    if (!Extract(buffer, offset, bytePtr, sizeof(data)))
+        return false;
+    auto convertedValue = utility::ToEndianness(*reinterpret_cast<std::uint32_t *>(&data), endianness);
+    value = *reinterpret_cast<float *>(&convertedValue);
+    return true;
+}
+
+bool DeserializeBinary(double & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
+{
+    double data {};
+    std::uint8_t * bytePtr = reinterpret_cast<std::uint8_t *>(&data);
+    if (!Extract(buffer, offset, bytePtr, sizeof(data)))
+        return false;
+    auto convertedValue = utility::ToEndianness(*reinterpret_cast<std::uint64_t *>(&data), endianness);
+    value = *reinterpret_cast<double *>(&convertedValue);
+    return true;
+}
+
+bool DeserializeBinary(long double & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
+{
+    std::uint8_t data[16] {};
+    if (!Extract(buffer, offset, data, sizeof(data)))
+        return false;
+    if (endianness != utility::PlatformEndianness())
+    {
+        std::reverse(std::begin(data), std::end(data));
+    }
+    value = *reinterpret_cast<long double *>(data);
+    return true;
+}
+
+bool DeserializeBinary(std::string & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
+{
+    std::size_t length {};
+    if (!DeserializeBinary(length, buffer, offset, endianness))
+        return false;
+    for (size_t i = 0; i < length; ++i)
+    {
+        char ch;
+        if (!DeserializeBinary(ch, buffer, offset, endianness))
+            return false;
+        value += ch;
+    }
+    return true;
+}
+
+bool DeserializeBinary(std::wstring & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
+{
+    std::size_t length {};
+    if (!DeserializeBinary(length, buffer, offset, endianness))
+        return false;
+    for (size_t i = 0; i < length; ++i)
+    {
+        std::uint16_t ch;
+        if (!DeserializeBinary(ch, buffer, offset, endianness))
+            return false;
+        value += static_cast<wchar_t>(ch);
+    }
+    return true;
+}
+
 } // namespace serialization
