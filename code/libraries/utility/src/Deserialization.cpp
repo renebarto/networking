@@ -1,5 +1,6 @@
 #include "utility/Deserialization.h"
 
+#include <algorithm>
 #include <climits>
 #include <cfloat>
 #include <cstring>
@@ -396,10 +397,20 @@ bool DeserializeBinary(std::wstring & value, const std::vector<std::uint8_t> & b
         return false;
     for (size_t i = 0; i < length; ++i)
     {
-        std::uint16_t ch;
-        if (!DeserializeBinary(ch, buffer, offset, endianness))
-            return false;
-        value += static_cast<wchar_t>(ch);
+        if (sizeof(wchar_t) == 2)
+        {
+            std::uint16_t ch;
+            if (!DeserializeBinary(ch, buffer, offset, endianness))
+                return false;
+            value += static_cast<wchar_t>(ch);
+        }
+        else
+        {
+            std::uint32_t ch;
+            if (!DeserializeBinary(ch, buffer, offset, endianness))
+                return false;
+            value += static_cast<wchar_t>(ch);
+        }
     }
     return true;
 }

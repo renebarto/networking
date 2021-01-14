@@ -1,10 +1,13 @@
 #include "utility/Serialization.h"
 
+#include <algorithm>
 #include <bitset>
+#include <cstring>
 #include <iomanip>
 #include <sstream>
 #include "osal/StringConversion.h"
 #include "utility/Assert.h"
+#include "utility/TypeCast.h"
 
 namespace serialization {
 
@@ -368,7 +371,9 @@ std::string Serialize(const void * value, int width)
     std::ostringstream stream;
 
     if (value != nullptr)
-        stream << "0x" + Serialize(reinterpret_cast<uint64_t>(value), width, 16);
+    {
+        stream << "0x" + Serialize(CastPointerToInteger(value), width, 16);
+    }
     else
         stream << "null";
 
@@ -524,7 +529,7 @@ void SerializeBinary(const std::string & value, std::vector<std::uint8_t> & buff
     SerializeBinary(value.length(), buffer, offset, endianness);
     for (auto ch : value)
     {
-        SerializeBinary(static_cast<uint8_t>(ch), buffer, offset, endianness);
+        SerializeBinary(CastToInteger(ch), buffer, offset, endianness);
     }
 }
 
@@ -533,7 +538,7 @@ void SerializeBinary(const std::wstring & value, std::vector<std::uint8_t> & buf
     SerializeBinary(value.length(), buffer, offset, endianness);
     for (auto ch : value)
     {
-        SerializeBinary(static_cast<uint16_t>(ch), buffer, offset, endianness);
+        SerializeBinary(CastToInteger(ch), buffer, offset, endianness);
     }
 }
 
@@ -543,7 +548,7 @@ void SerializeBinary(const char * value, std::vector<std::uint8_t> & buffer, std
     SerializeBinary(length, buffer, offset, endianness);
     for (std::size_t i = 0; i < length; ++i)
     {
-        SerializeBinary(static_cast<uint8_t>(value[i]), buffer, offset, endianness);
+        SerializeBinary(CastToInteger(value[i]), buffer, offset, endianness);
     }
 }
 
@@ -553,7 +558,7 @@ void SerializeBinary(const wchar_t * value, std::vector<std::uint8_t> & buffer, 
     SerializeBinary(length, buffer, offset, endianness);
     for (std::size_t i = 0; i < length; ++i)
     {
-        SerializeBinary(static_cast<uint16_t>(value[i]), buffer, offset, endianness);
+        SerializeBinary(CastToInteger(value[i]), buffer, offset, endianness);
     }
 }
 

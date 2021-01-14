@@ -78,7 +78,7 @@ template<typename EnumType>
 typename std::enable_if<std::is_enum<EnumType>::value, void>::type
 SerializeBinary(const EnumType & value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian)
 {
-    SerializeBinary(static_cast<std::underlying_type<EnumType>::type>(value), buffer, offset, endianness);
+    SerializeBinary(static_cast<typename std::underlying_type<EnumType>::type>(value), buffer, offset, endianness);
 }
 
 

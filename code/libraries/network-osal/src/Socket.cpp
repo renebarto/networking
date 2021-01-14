@@ -932,19 +932,19 @@ std::string Serialize(const network::Socket & value, int width)
     return Serialize(static_cast<int>(value.GetHandle()), width);
 }
 
-std::string Serialize(const sockaddr * value, int size)
+std::string Serialize(const sockaddr * value, socklen_t size)
 {
     if (value == nullptr)
         return "null";
     return utility::FormatString(std::string("addressFamily={}, size={}"), value->sa_family, size);
 }
 
-std::string Serialize(sockaddr * value, int size)
+std::string Serialize(sockaddr * value, socklen_t size)
 {
     return Serialize(const_cast<const sockaddr *>(value), size);
 }
 
-std::string Serialize(const sockaddr * value, int * size)
+std::string Serialize(const sockaddr * value, socklen_t * size)
 {
     if (value == nullptr)
         return "null";

@@ -82,7 +82,7 @@ template<typename EnumType>
 typename std::enable_if<std::is_enum<EnumType>::value, bool>::type
 DeserializeBinary(EnumType & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian)
 {
-    std::underlying_type<EnumType>::type data {};
+    typename std::underlying_type<EnumType>::type data {};
     if (!DeserializeBinary(data, buffer, offset, endianness))
         return false;
     value = static_cast<EnumType>(data);

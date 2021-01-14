@@ -143,7 +143,7 @@ void Interfaces::ExtractInterfaceInfo(void * info, const std::string & interface
             bool hasDestinationAddress = ((interface->ifa_flags & IFF_POINTOPOINT) != 0);
             if (!HaveInterface(name))
             {
-                m_interfacesMap.emplace(name, Interface(name, isUp));
+                m_interfacesMap.emplace(name, Interface(name, isUp, isLoopback));
             }
             Interface & nic = m_interfacesMap[name];
             std::vector<AddressInfo> & addresses = nic.Addresses();

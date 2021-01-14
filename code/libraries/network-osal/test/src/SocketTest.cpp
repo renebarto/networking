@@ -444,7 +444,7 @@ TEST_F(SocketTest, SerializeSocket)
 {
     Socket target;
 
-    EXPECT_EQ("-1", serialization::Serialize(target, 0));
+    EXPECT_EQ("-1", serialization::Serialize(target, socklen_t {0}));
 
     SocketHandle handle = 1234;
     target.SetHandle(handle);
@@ -458,7 +458,7 @@ TEST_F(SocketTest, SerializeSockAddrSize)
     sockaddr_in address {};
     address.sin_family = AF_INET;
 
-    EXPECT_EQ("addressFamily=2, size=16", serialization::Serialize(reinterpret_cast<sockaddr *>(&address), sizeof(address)));
+    EXPECT_EQ("addressFamily=2, size=16", serialization::Serialize(reinterpret_cast<sockaddr *>(&address), static_cast<socklen_t>(sizeof(address))));
 }
 
 TEST_F(SocketTest, SerializeSockAddrSizePtr)

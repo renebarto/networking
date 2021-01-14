@@ -69,6 +69,7 @@ set(PROJECT_INCLUDES_PUBLIC
     include/utility/Serialization.h
     include/utility/StringFunctions.h
     include/utility/TriBool.h
+    include/utility/TypeCast.h
     )
 
 display_list("Package                           : " ${PROJECT_NAME} )
