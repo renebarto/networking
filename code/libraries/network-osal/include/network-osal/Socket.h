@@ -3,6 +3,11 @@
 #include "network-osal/SocketDefinitions.h"
 
 #include <mutex>
+
+#if defined(PLATFORM_LINUX)
+#include <sys/socket.h>
+#endif
+
 #include "utility/Serialization.h"
 
 namespace network {
@@ -89,8 +94,8 @@ struct sockaddr;
 namespace serialization {
 
 std::string Serialize(const network::Socket & value, int width);
-std::string Serialize(const sockaddr * value, int size);
-std::string Serialize(sockaddr * value, int size);
-std::string Serialize(const sockaddr * value, int * size);
+std::string Serialize(const sockaddr * value, socklen_t size);
+std::string Serialize(sockaddr * value, socklen_t size);
+std::string Serialize(const sockaddr * value, socklen_t * size);
 
 } // namespace serialization
