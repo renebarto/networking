@@ -69,9 +69,11 @@ template<> inline std::uint64_t SwapBytes<std::uint64_t>(std::uint64_t value)
 #endif
 }
 
+#if !defined (PLATFORM_LINUX)
 template<> inline unsigned long SwapBytes<unsigned long>(unsigned long value)
 {
     return SwapBytes<std::uint32_t>(value);
 }
+#endif
 
 } // namespace osal
