@@ -14,8 +14,8 @@
 #include "utility/Assert.h"
 #include "utility/Endian.h"
 #include "utility/GenericError.h"
-#include "network/Ethernet.h"
-#include "network/IPV4Address.h"
+#include "network-osal/Ethernet.h"
+#include "network-osal/IPV4Address.h"
 #include "pcap-interface.h"
 #include "pcap-interfaces.h"
 
@@ -84,8 +84,8 @@ void PrintIPHeader(const std::uint8_t * buffer, std::size_t size)
     console << "000A | Header Checksum     : " << headerChecksum << " (0x" << serialization::Serialize(headerChecksum, 4, 16) << ")" << std::endl;
     if (version == 4)
     {
-        network::IPV4Address sourceAddress(utility::FromNetworkByteOrder(ipHeader->saddr));
-        network::IPV4Address destAddress(utility::FromNetworkByteOrder(ipHeader->daddr));
+        network::IPV4Address sourceAddress(in_addr { utility::FromNetworkByteOrder(ipHeader->saddr) });
+        network::IPV4Address destAddress(in_addr { utility::FromNetworkByteOrder(ipHeader->daddr) });
         console << "000C | Source address      : " << sourceAddress << std::endl;
         console << "0010 | Destination address : " << destAddress << std::endl;
     }

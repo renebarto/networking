@@ -71,14 +71,14 @@ static void ConvertAddressInfo(const struct sockaddr * address, network::Address
                     {
                         ASSERT(llAddress->sll_halen == 6);
                         network::MACAddress addr(llAddress->sll_addr, llAddress->sll_ifindex);
-                        addressTuple = network::AddressTuple(addr);
+                        addressTuple = network::AddressTuple(addr, llAddress->sll_ifindex);
                     }
                     break;
                 case ARPHRD_LOOPBACK:
                     {
                         ASSERT(llAddress->sll_halen == 6);
                         network::MACAddress addr(llAddress->sll_addr, llAddress->sll_ifindex);
-                        addressTuple = network::AddressTuple(addr);
+                        addressTuple = network::AddressTuple(addr, llAddress->sll_ifindex);
                     }
                     break;
                 default:
@@ -89,14 +89,14 @@ static void ConvertAddressInfo(const struct sockaddr * address, network::Address
     case AF_INET:
         {
             auto ipV4Address = reinterpret_cast<const struct sockaddr_in *>(address);
-            network::IPV4Address addr(ipV4Address->sin_addr.s_addr);
+            network::IPV4Address addr(ipV4Address->sin_addr);
             addressTuple = network::AddressTuple(addr);
         }
         break;
     case AF_INET6:
         {
             auto ipV6Address = reinterpret_cast<const struct sockaddr_in6 *>(address);
-            network::IPV6Address addr(ipV6Address->sin6_addr.s6_addr);
+            network::IPV6Address addr(ipV6Address->sin6_addr);
             addressTuple = network::AddressTuple(addr);
         }
         break;

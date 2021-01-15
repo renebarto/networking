@@ -3,7 +3,7 @@
 #include <array>
 #include <string>
 #include <vector>
-#include "network/AddressTuple.h"
+#include "network-osal/AddressTuple.h"
 
 namespace packetcapture
 {
