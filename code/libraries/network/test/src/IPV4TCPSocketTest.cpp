@@ -118,72 +118,75 @@ TEST_F(IPV4TCPSocketTest, Close)
 TEST_F(IPV4TCPSocketTest, GetOptionWithLevel)
 {
     IPV4TCPSocket target;
-    socklen_t size = static_cast<socklen_t>(sizeof(int));
-    int value;
+    linger value { };
+    socklen_t size = static_cast<socklen_t>(sizeof(value));
     target.GetSocketOptionWithLevel(SocketOptionLevel::Socket, SocketOption::Linger, &value, &size);
-    EXPECT_FALSE(value != 0);
+    EXPECT_EQ(0, value.l_onoff);
+    EXPECT_EQ(0, value.l_linger);
 }
 
 TEST_F(IPV4TCPSocketTest, SetOptionWithLevel)
 {
     IPV4TCPSocket target;
-    EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Linger));
-    socklen_t size = static_cast<socklen_t>(sizeof(int));
-    int value = 1;
-    int actual;
+    linger value { 1, 0 };
+    socklen_t size = static_cast<socklen_t>(sizeof(value));
+    linger actual;
     target.SetSocketOptionWithLevel(SocketOptionLevel::Socket, SocketOption::Linger, &value, size);
     target.GetSocketOptionWithLevel(SocketOptionLevel::Socket, SocketOption::Linger, &actual, &size);
-    EXPECT_EQ(value, actual);
+    EXPECT_EQ(value.l_onoff, actual.l_onoff);
+    EXPECT_EQ(value.l_linger, actual.l_linger);
 }
 
 TEST_F(IPV4TCPSocketTest, GetOption)
 {
     IPV4TCPSocket target;
-    socklen_t size = static_cast<socklen_t>(sizeof(int));
-    int value;
+    linger value { };
+    socklen_t size = static_cast<socklen_t>(sizeof(value));
     target.GetSocketOption(SocketOption::Linger, &value, &size);
-    EXPECT_FALSE(value != 0);
+    EXPECT_EQ(0, value.l_onoff);
+    EXPECT_EQ(0, value.l_linger);
 }
 
 TEST_F(IPV4TCPSocketTest, SetOption)
 {
     IPV4TCPSocket target;
-    EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Linger));
-    socklen_t size = static_cast<socklen_t>(sizeof(int));
-    int value = 1;
-    int actual;
+    linger value { 1, 0 };
+    socklen_t size = static_cast<socklen_t>(sizeof(value));
+    linger actual;
     target.SetSocketOption(SocketOption::Linger, &value, size);
     target.GetSocketOption(SocketOption::Linger, &actual, &size);
-    EXPECT_EQ(value, actual);
+    EXPECT_EQ(value.l_onoff, actual.l_onoff);
+    EXPECT_EQ(value.l_linger, actual.l_linger);
 }
 
 TEST_F(IPV4TCPSocketTest, GetSocketOptionBool)
 {
     IPV4TCPSocket target;
-    EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Linger));
+    EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::KeepAlive));
 }
 
 TEST_F(IPV4TCPSocketTest, SetSocketOptionBool)
 {
     IPV4TCPSocket target;
-    EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Linger));
-    target.SetSocketOptionBool(SocketOption::Linger, true);
-    EXPECT_TRUE(target.GetSocketOptionBool(SocketOption::Linger));
+    EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::KeepAlive));
+    target.SetSocketOptionBool(SocketOption::KeepAlive, true);
+    EXPECT_TRUE(target.GetSocketOptionBool(SocketOption::KeepAlive));
 }
 
 TEST_F(IPV4TCPSocketTest, GetSocketOptionInt)
 {
     IPV4TCPSocket target;
-    EXPECT_EQ(0, target.GetSocketOptionInt(SocketOption::Linger));
+    EXPECT_NE(0, target.GetSocketOptionInt(SocketOption::ReceiveBuffer));
 }
 
 TEST_F(IPV4TCPSocketTest, SetSocketOptionInt)
 {
-    int enableLinger = 1;
     IPV4TCPSocket target;
-    EXPECT_FALSE(target.GetSocketOptionInt(SocketOption::Linger));
-    target.SetSocketOptionInt(SocketOption::Linger, enableLinger);
-    EXPECT_EQ(enableLinger, target.GetSocketOptionInt(SocketOption::Linger));
+    // Must be larger than 2304
+    int receiveBufferSize = 4096;
+    EXPECT_NE(0, target.GetSocketOptionInt(SocketOption::ReceiveBuffer));
+    target.SetSocketOptionInt(SocketOption::ReceiveBuffer, receiveBufferSize);
+    EXPECT_LE(receiveBufferSize, target.GetSocketOptionInt(SocketOption::ReceiveBuffer));
 }
 
 TEST_F(IPV4TCPSocketTest, GetBlockingMode)
@@ -273,6 +276,8 @@ bool IPV4TCPSocketTCPAcceptThread()
     std::uint8_t buffer[BufferSize];
     std::size_t bytesReceived = newSocket.Receive(buffer, BufferSize, 0);
     newSocket.Send(buffer, bytesReceived, 0);
+    // Wait for client to close connection, otherwise we'll end up in TIME_WAIT status
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     return accepted;
 }
@@ -295,6 +300,8 @@ TEST_F(IPV4TCPSocketTest, ConnectAcceptSendReceiveTCP)
         std::size_t bytesReceived = clientSocket.Receive(bufferIn, BufferSize, 0);
         EXPECT_EQ(BufferSize, bytesReceived);
         EXPECT_TRUE(std::equal(std::begin(bufferIn), std::end(bufferIn), std::begin(bufferOut)));
+        // Make sure to close client before server ends, otherwise we'll end up in TIME_WAIT status
+        clientSocket.Close();
     }
     acceptorThread.WaitForDeath();
     bool accepted = acceptorThread.GetResult();

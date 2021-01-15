@@ -309,6 +309,8 @@ bool IPV6SocketTCPAcceptThread()
     std::uint8_t buffer[BufferSize];
     std::size_t bytesReceived = newSocket.Receive(buffer, BufferSize, 0);
     newSocket.Send(buffer, bytesReceived, 0);
+    // Wait for client to close connection, otherwise we'll end up in TIME_WAIT status
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     return accepted;
 }
@@ -331,6 +333,8 @@ TEST_F(IPV6SocketTest, ConnectAcceptSendReceiveTCP)
         std::size_t bytesReceived = clientSocket.Receive(bufferIn, BufferSize, 0);
         EXPECT_EQ(BufferSize, bytesReceived);
         EXPECT_TRUE(std::equal(std::begin(bufferIn), std::end(bufferIn), std::begin(bufferOut)));
+        // Make sure to close client before server ends, otherwise we'll end up in TIME_WAIT status
+        clientSocket.Close();
     }
     acceptorThread.WaitForDeath();
     bool accepted = acceptorThread.GetResult();
