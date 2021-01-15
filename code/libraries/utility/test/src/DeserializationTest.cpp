@@ -387,7 +387,7 @@ TEST(DeserializationTest, DeserializeBinaryLongDoubleLittleEndian)
 {
     long double value {};
     std::vector<std::uint8_t> buffer;
-#if defined(PLATFORM_LINUX) && !defined(PLATFORM_RPI)
+#if defined(PLATFORM_LINUX) && !defined(PLATFORM_LINUX_RPI)
     buffer = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 
                0xFE, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 #else
@@ -404,7 +404,7 @@ TEST(DeserializationTest, DeserializeBinaryLongDoubleBigEndian)
 {
     long double value {};
     std::vector<std::uint8_t> buffer;
-#if defined(PLATFORM_LINUX) && !defined(PLATFORM_RPI)
+#if defined(PLATFORM_LINUX) && !defined(PLATFORM_LINUX_RPI)
     buffer = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3F, 0xFE, 
                0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 #else

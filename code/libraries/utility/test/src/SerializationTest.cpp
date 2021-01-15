@@ -496,7 +496,7 @@ TEST(SerializationTest, SerializeBinaryLongDoubleLittleEndian)
     SerializeBinary(value, buffer, offset, utility::Endianness::LittleEndian);
     EXPECT_EQ(std::size_t {16}, offset);
     EXPECT_EQ(offset, buffer.size());
-#if defined(PLATFORM_LINUX) && !defined(PLATFORM_RPI)
+#if defined(PLATFORM_LINUX) && !defined(PLATFORM_LINUX_RPI)
     EXPECT_EQ(std::vector<std::uint8_t>({ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 
                                           0xFE, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }), buffer);
 #else
@@ -513,7 +513,7 @@ TEST(SerializationTest, SerializeBinaryLongDoubleBigEndian)
     SerializeBinary(value, buffer, offset, utility::Endianness::BigEndian);
     EXPECT_EQ(std::size_t {16}, offset);
     EXPECT_EQ(offset, buffer.size());
-#if defined(PLATFORM_LINUX) && !defined(PLATFORM_RPI)
+#if defined(PLATFORM_LINUX) && !defined(PLATFORM_LINUX_RPI)
     EXPECT_EQ(std::vector<std::uint8_t>({ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3F, 0xFE, 
                                           0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }), buffer);
 #else
