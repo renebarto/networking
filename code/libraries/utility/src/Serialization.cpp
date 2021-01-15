@@ -520,6 +520,19 @@ void SerializeBinary(long double value, std::vector<std::uint8_t> & buffer, std:
     {
         std::reverse(std::begin(convertedValue), std::end(convertedValue));
     }
+#if defined(PLATFORM_LINUX) && !defined(PLATFORM_RPI)
+    // For Linux (Debian etc.) long double is implemented as 80 bit floating point, but serialized to 128 bit, with 6 bytes of garbage at the end
+    // (or begin for Big Endian). So we clear these 6 bytes.
+    if (endianness == utility::Endianness::LittleEndian)
+    {
+        std::fill_n(&convertedValue[10], 6, 0);
+    }   
+    else
+    {
+        std::fill_n(std::begin(convertedValue), 6, 0);
+    }     
+#endif
+    
     const std::uint8_t * data = convertedValue;
     AppendOrReplace(buffer, offset, data, sizeof(convertedValue));
 }
