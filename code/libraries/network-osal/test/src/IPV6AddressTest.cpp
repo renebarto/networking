@@ -156,9 +156,9 @@ TEST(IPV6AddressTest, ConvertAddress)
     in6_addr actual;
     in6_addr expected;
     std::uint8_t address[] {255, 254, 253, 252, 251, 250, 249, 248, 247, 246, 245, 244, 243, 242, 241, 240};
-    std::copy(std::begin(address), std::begin(address), std::begin(expected.s6_addr));
+    std::copy(std::begin(address), std::end(address), std::begin(expected.s6_addr));
     actual = ipAddress.ConvertAddress();
-    EXPECT_TRUE(std::equal(std::begin(expected.s6_addr), std::end(expected.s6_addr), std::end(actual.s6_addr)));
+    EXPECT_TRUE(std::equal(std::begin(expected.s6_addr), std::end(expected.s6_addr), std::begin(actual.s6_addr)));
 }
 
 TEST(IPV6AddressTest, OperatorEqual)
