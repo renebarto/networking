@@ -48,13 +48,22 @@ set(PROJECT_LIBS
     )
 
 set(PROJECT_SOURCES 
+    src/LogCategory.cpp
+    src/Logging.cpp
     src/ScopedTracing.cpp
+    src/TraceCategory.cpp
+    src/TraceHelpers.cpp
     src/Tracing.cpp
     )
 set(PROJECT_INCLUDES_PRIVATE
     )
 set(PROJECT_INCLUDES_PUBLIC
+    include/tracing/CategorySet.h
+    include/tracing/LogCategory.h
+    include/tracing/Logging.h
     include/tracing/ScopedTracing.h
+    include/tracing/TraceCategory.h
+    include/tracing/TraceHelpers.h
     include/tracing/Tracing.h
     )
 

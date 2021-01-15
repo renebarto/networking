@@ -1,7 +1,5 @@
 #include "GoogleTest.h"
 
-#include "utility/Error.h"
-#include "utility/GenericError.h"
 #include "tracing/Tracing.h"
 
 namespace tracing {
@@ -21,7 +19,7 @@ TEST(TracingTest, IfTracingFunctionsSetButNothingEnabledNothingHappens)
             traceOutput = stream.str();
         }, 
         [](TraceCategory /*category*/) { return false; });
-    Tracing::Trace(TraceCategory::Debug, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Startup, "MyFile", 123, "MyFunction", "Hello World");
     EXPECT_EQ("", traceOutput);
 }
 
@@ -40,8 +38,8 @@ TEST(TracingTest, IfTracingFunctionsSetAndCategoryEnabledTraceIsWritten)
             traceOutput += stream.str();
         }, 
         [](TraceCategory /*category*/) { return true; });
-    Tracing::Trace(TraceCategory::Debug, "MyFile", 123, "MyFunction", "Hello World");
-    EXPECT_EQ("Debug|MyFile:123|MyFunction|Hello World\n", traceOutput);
+    Tracing::Trace(TraceCategory::Startup, "MyFile", 123, "MyFunction", "Hello World");
+    EXPECT_EQ("Start|MyFile:123|MyFunction|Hello World\n", traceOutput);
 }
 
 TEST(TracingTest, TracingOnlyForEnabledCategory)
@@ -58,10 +56,10 @@ TEST(TracingTest, TracingOnlyForEnabledCategory)
             stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
             traceOutput = stream.str();
         }, 
-        [](TraceCategory category) { return category == TraceCategory::Information; });
-    Tracing::Trace(TraceCategory::Debug, "MyFile", 123, "MyFunction", "Hello World");
-    Tracing::Trace(TraceCategory::Information, "MyFile", 123, "MyFunction", "Hello World");
-    EXPECT_EQ("Info|MyFile:123|MyFunction|Hello World\n", traceOutput);
+        [](TraceCategory category) { return category == TraceCategory::Startup; });
+    Tracing::Trace(TraceCategory::Startup, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Shutdown, "MyFile", 123, "MyFunction", "Hello World");
+    EXPECT_EQ("Start|MyFile:123|MyFunction|Hello World\n", traceOutput);
 }
 
 TEST(TracingTest, TracingCategories)
@@ -80,23 +78,21 @@ TEST(TracingTest, TracingCategories)
         }, 
         [](TraceCategory /*category*/) { return true; });
 
-    Tracing::Trace(TraceCategory::FunctionBegin, "MyFile", 123, "MyFunction", "Hello World");
-    Tracing::Trace(TraceCategory::FunctionEnd, "MyFile", 123, "MyFunction", "Hello World");
-    Tracing::Trace(TraceCategory::Information, "MyFile", 123, "MyFunction", "Hello World");
-    Tracing::Trace(TraceCategory::Log, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::FunctionEnter, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::FunctionLeave, "MyFile", 123, "MyFunction", "Hello World");
     Tracing::Trace(TraceCategory::Startup, "MyFile", 123, "MyFunction", "Hello World");
     Tracing::Trace(TraceCategory::Shutdown, "MyFile", 123, "MyFunction", "Hello World");
-    Tracing::Trace(TraceCategory::Debug, "MyFile", 123, "MyFunction", "Hello World");
-    Tracing::Trace(TraceCategory::Error, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Log, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Message, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Data, "MyFile", 123, "MyFunction", "Hello World");
     EXPECT_EQ(
-        "FuncBeg|MyFile:123|MyFunction|Hello World\n"
-        "FuncEnd|MyFile:123|MyFunction|Hello World\n"
-        "Info|MyFile:123|MyFunction|Hello World\n"
-        "Log|MyFile:123|MyFunction|Hello World\n"
-        "Startup|MyFile:123|MyFunction|Hello World\n"
-        "Shutdown|MyFile:123|MyFunction|Hello World\n"
-        "Debug|MyFile:123|MyFunction|Hello World\n"
-        "Error|MyFile:123|MyFunction|Hello World\n", traceOutput);
+        "Enter|MyFile:123|MyFunction|Hello World\n"
+        "Leave|MyFile:123|MyFunction|Hello World\n"
+        "Start|MyFile:123|MyFunction|Hello World\n"
+        "Shtdn|MyFile:123|MyFunction|Hello World\n"
+        "Log  |MyFile:123|MyFunction|Hello World\n"
+        "Messg|MyFile:123|MyFunction|Hello World\n"
+        "Data |MyFile:123|MyFunction|Hello World\n", traceOutput);
 }
 
 TEST(TracingTest, TracingWithFormat)
@@ -113,90 +109,12 @@ TEST(TracingTest, TracingWithFormat)
             stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
             traceOutput = stream.str();
         }, 
-        [](TraceCategory category) { return category == TraceCategory::Information; });
-    Tracing::Trace(TraceCategory::Information, "MyFile", 123, "MyFunction", "{0} {1} (C) {2,4:D}", "Hello", "World", 2020);
-    EXPECT_EQ("Info|MyFile:123|MyFunction|Hello World (C) 2020\n", traceOutput);
+        [](TraceCategory category) { return category == TraceCategory::Message; });
+    Tracing::Trace(TraceCategory::Message, "MyFile", 123, "MyFunction", "{0} {1} (C) {2,4:D}", "Hello", "World", 2020);
+    EXPECT_EQ("Messg|MyFile:123|MyFunction|Hello World (C) 2020\n", traceOutput);
 }
 
-TEST(TracingTest, TracerTrace)
-{
-    utility::Error error(2, strerror(2), "Fake error");
-    std::string traceOutput;
-    Tracing::SetTracingFunctions(
-        [&](TraceCategory category,
-            const std::string & fileName, 
-            int line, 
-            const std::string & functionName, 
-            const std::string & msg)
-        {
-            std::ostringstream stream;
-            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
-            traceOutput += stream.str();
-        }, 
-        [](TraceCategory /*category*/) { return true; });
-
-    Tracer::Trace("MyFile", 123, "MyFunction", error);
-    EXPECT_EQ(
-        "Error|MyFile:123|MyFunction|Error code: 2 (02): No such file or directory Fake error\n", traceOutput);
-}
-
-TEST(TracingTest, TracerTraceUnknownError)
-{
-    utility::Error error(-1, "", "Fake error");
-    std::string traceOutput;
-    Tracing::SetTracingFunctions(
-        [&](TraceCategory category,
-            const std::string & fileName, 
-            int line, 
-            const std::string & functionName, 
-            const std::string & msg)
-        {
-            std::ostringstream stream;
-            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
-            traceOutput += stream.str();
-        }, 
-        [](TraceCategory /*category*/) { return true; });
-
-    Tracer::Trace("MyFile", 123, "MyFunction", error);
-    EXPECT_EQ(
-        "Error|MyFile:123|MyFunction|Error code: Unknown: Fake error\n", traceOutput);
-}
-
-TEST(TracingTest, TracerThrowError)
-{
-    utility::Error error(2, strerror(2), "Fake error");
-    std::string traceOutput;
-
-    try
-    {
-        Tracer::Throw("MyFile", 123, "MyFunction", error);
-    }
-    catch (std::exception & e)
-    {
-        traceOutput = e.what();        
-    }
-    EXPECT_EQ(
-        "Error MyFile:123(MyFunction): Fake error: Error code: 2 (02): No such file or directory", traceOutput);
-}
-
-TEST(TracingTest, TracerThrowGenericError)
-{
-    utility::GenericError error("Fake error");
-    std::string traceOutput;
-
-    try
-    {
-        Tracer::Throw("MyFile", 123, "MyFunction", error);
-    }
-    catch (std::exception & e)
-    {
-        traceOutput = e.what();        
-    }
-    EXPECT_EQ(
-        "Error MyFile:123(MyFunction): Fake error", traceOutput);
-}
-
-TEST(TracingTest, TraceDebugString)
+TEST(TracingTest, TraceFuncEnterString)
 {
     std::string traceOutput;
     Tracing::SetTracingFunctions(
@@ -212,12 +130,12 @@ TEST(TracingTest, TraceDebugString)
         }, 
         [](TraceCategory /*category*/) { return true; });
 
-    TraceDebug("MyFile", 123, "MyFunction", "Hello World");
+    TraceFuncEnter("MyFile", 123, "MyFunction", "Hello World");
     EXPECT_EQ(
-        "Debug|MyFile:123|MyFunction|Hello World\n", traceOutput);
+        "Enter|MyFile:123|MyFunction|Hello World\n", traceOutput);
 }
 
-TEST(TracingTest, TraceDebugFormatted)
+TEST(TracingTest, TraceFuncEnterFormatted)
 {
     std::string traceOutput;
     Tracing::SetTracingFunctions(
@@ -233,12 +151,12 @@ TEST(TracingTest, TraceDebugFormatted)
         }, 
         [](TraceCategory /*category*/) { return true; });
 
-    TraceDebug("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
+    TraceFuncEnter("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
     EXPECT_EQ(
-        "Debug|MyFile:123|MyFunction|Hello World\n", traceOutput);
+        "Enter|MyFile:123|MyFunction|Hello World\n", traceOutput);
 }
 
-TEST(TracingTest, TraceInfoString)
+TEST(TracingTest, TraceFuncLeaveString)
 {
     std::string traceOutput;
     Tracing::SetTracingFunctions(
@@ -254,12 +172,12 @@ TEST(TracingTest, TraceInfoString)
         }, 
         [](TraceCategory /*category*/) { return true; });
 
-    TraceInfo("MyFile", 123, "MyFunction", "Hello World");
+    TraceFuncLeave("MyFile", 123, "MyFunction", "Hello World");
     EXPECT_EQ(
-        "Info|MyFile:123|MyFunction|Hello World\n", traceOutput);
+        "Leave|MyFile:123|MyFunction|Hello World\n", traceOutput);
 }
 
-TEST(TracingTest, TraceInfoFormatted)
+TEST(TracingTest, TraceFuncLeaveFormatted)
 {
     std::string traceOutput;
     Tracing::SetTracingFunctions(
@@ -275,12 +193,12 @@ TEST(TracingTest, TraceInfoFormatted)
         }, 
         [](TraceCategory /*category*/) { return true; });
 
-    TraceInfo("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
+    TraceFuncLeave("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
     EXPECT_EQ(
-        "Info|MyFile:123|MyFunction|Hello World\n", traceOutput);
+        "Leave|MyFile:123|MyFunction|Hello World\n", traceOutput);
 }
 
-TEST(TracingTest, TraceErrorString)
+TEST(TracingTest, TraceStartup)
 {
     std::string traceOutput;
     Tracing::SetTracingFunctions(
@@ -296,12 +214,12 @@ TEST(TracingTest, TraceErrorString)
         }, 
         [](TraceCategory /*category*/) { return true; });
 
-    TraceError("MyFile", 123, "MyFunction", "Hello World");
+    TraceStartup("MyFile", 123, "MyFunction", "Hello World");
     EXPECT_EQ(
-        "Error|MyFile:123|MyFunction|Hello World\n", traceOutput);
+        "Start|MyFile:123|MyFunction|Hello World\n", traceOutput);
 }
 
-TEST(TracingTest, TraceErrorFormatted)
+TEST(TracingTest, TraceShutdown)
 {
     std::string traceOutput;
     Tracing::SetTracingFunctions(
@@ -317,9 +235,9 @@ TEST(TracingTest, TraceErrorFormatted)
         }, 
         [](TraceCategory /*category*/) { return true; });
 
-    TraceError("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
+    TraceShutdown("MyFile", 123, "MyFunction", "Hello World");
     EXPECT_EQ(
-        "Error|MyFile:123|MyFunction|Hello World\n", traceOutput);
+        "Shtdn|MyFile:123|MyFunction|Hello World\n", traceOutput);
 }
 
 TEST(TracingTest, TraceToConsole)
@@ -328,7 +246,8 @@ TEST(TracingTest, TraceToConsole)
         nullptr, 
         [](TraceCategory /*category*/) { return true; });
 
-    TraceError("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
+    TraceStartup("MyFile", 123, "MyFunction", "Starting");
+    TraceShutdown("MyFile", 123, "MyFunction", "Stopping");
 }
 
 } // namespace tracing

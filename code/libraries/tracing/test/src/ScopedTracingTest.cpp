@@ -40,8 +40,8 @@ TEST(ScopedTracingTest, IfEnabledEntryAndExitMessageWritten)
         ScopedTracing trace("MyFile", 123, "MyFunction", [](){ return "This is the begin"; }, [](){ return "This is the end"; });
     }
     EXPECT_EQ(
-        "FuncBeg|MyFile:123|MyFunction|This is the begin\n"
-        "FuncEnd|MyFile:123|MyFunction|This is the end\n", traceOutput);
+        "Enter|MyFile:123|MyFunction|This is the begin\n"
+        "Leave|MyFile:123|MyFunction|This is the end\n", traceOutput);
 }
 
 TEST(ScopedTracingTest, IfExitFunctionIsNullEmptyStringIsWritten)
@@ -54,8 +54,8 @@ TEST(ScopedTracingTest, IfExitFunctionIsNullEmptyStringIsWritten)
         ScopedTracing trace("MyFile", 123, "MyFunction", nullptr, nullptr);
     }
     EXPECT_EQ(
-        "FuncBeg|MyFile:123|MyFunction|\n"
-        "FuncEnd|MyFile:123|MyFunction|\n", traceOutput);
+        "Enter|MyFile:123|MyFunction|\n"
+        "Leave|MyFile:123|MyFunction|\n", traceOutput);
 }
 
 } // namespace tracing

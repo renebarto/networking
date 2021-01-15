@@ -8,14 +8,14 @@ ScopedTracing::ScopedTracing(const std::string & path, int line, const std::stri
     , m_functionName(functionName)
     , m_exitFunction(exitFunction)
 {
-    if (Tracing::IsTraceCategoryEnabled(TraceCategory::FunctionBegin) && Tracing::IsTraceCategoryEnabled(TraceCategory::FunctionEnd))
-        Tracing::Trace(TraceCategory::FunctionBegin, path, line, functionName, entryFunction ? entryFunction() : "");
+    if (Tracing::IsTraceCategoryEnabled(TraceCategory::FunctionEnter) && Tracing::IsTraceCategoryEnabled(TraceCategory::FunctionLeave))
+        Tracing::Trace(TraceCategory::FunctionEnter, path, line, functionName, entryFunction ? entryFunction() : "");
 }
 
 ScopedTracing::~ScopedTracing()
 {
-    if (Tracing::IsTraceCategoryEnabled(TraceCategory::FunctionBegin) && Tracing::IsTraceCategoryEnabled(TraceCategory::FunctionEnd))
-        Tracing::Trace(TraceCategory::FunctionEnd, m_path, m_line, m_functionName, m_exitFunction ? m_exitFunction() : "");
+    if (Tracing::IsTraceCategoryEnabled(TraceCategory::FunctionEnter) && Tracing::IsTraceCategoryEnabled(TraceCategory::FunctionLeave))
+        Tracing::Trace(TraceCategory::FunctionLeave, m_path, m_line, m_functionName, m_exitFunction ? m_exitFunction() : "");
 }
 
 

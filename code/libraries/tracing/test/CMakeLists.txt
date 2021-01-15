@@ -53,7 +53,12 @@ set(PROJECT_LIBS
     )
 
 set(PROJECT_SOURCES 
+    src/CategorySetTest.cpp
+    src/LogCategoryTest.cpp
+    src/LoggingTest.cpp
     src/ScopedTracingTest.cpp
+    src/TraceCategoryTest.cpp
+    src/TraceHelpersTest.cpp
     src/TracingTest.cpp
     )
 

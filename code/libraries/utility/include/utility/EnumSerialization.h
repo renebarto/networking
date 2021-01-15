@@ -35,6 +35,8 @@ public:
         }
         return true;
     }
+    static std::vector<EnumType> GetKeys() { return ConversionMap.GetKeys(); }
+    
 private:
     static const utility::BidirectionalMap<EnumType, std::string> ConversionMap;
 };

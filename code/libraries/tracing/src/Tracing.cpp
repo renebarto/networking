@@ -1,12 +1,10 @@
 #include "tracing/Tracing.h"
 
-#include <algorithm>
-#include <iostream>
 #include <iomanip>
 #include "osal/Console.h"
-#include "utility/EnumSerialization.h"
 #include "utility/Error.h"
 #include "utility/GenericError.h"
+#include "tracing/TraceHelpers.h"
 
 namespace tracing {
 
@@ -38,28 +36,20 @@ bool Tracing::IsTraceCategoryEnabled(TraceCategory category)
     }
 }
 
-osal::ConsoleColor GetColorForCategory(TraceCategory category)
+static osal::ConsoleColor GetColorForCategory(TraceCategory category)
 {
     switch (category)
     {
-        case TraceCategory::FunctionBegin:  return osal::ConsoleColor::Yellow;
-        case TraceCategory::FunctionEnd:    return osal::ConsoleColor::Yellow;
-        case TraceCategory::Information:    return osal::ConsoleColor::Cyan;
-        case TraceCategory::Log:            return osal::ConsoleColor::Magenta;
+        case TraceCategory::FunctionEnter:  return osal::ConsoleColor::Yellow;
+        case TraceCategory::FunctionLeave:  return osal::ConsoleColor::Yellow;
         case TraceCategory::Startup:        return osal::ConsoleColor::Green;
         case TraceCategory::Shutdown:       return osal::ConsoleColor::Green;
-        case TraceCategory::Debug:          return osal::ConsoleColor::White;
-        case TraceCategory::Error:          return osal::ConsoleColor::Red;
+        case TraceCategory::Log:            return osal::ConsoleColor::Magenta;
+        case TraceCategory::Message:        return osal::ConsoleColor::White;
+        case TraceCategory::Data:           return osal::ConsoleColor::Cyan;
 
         default: return osal::ConsoleColor::Default;
     }
-}
-
-std::string ExtractFileName(const std::string & path)
-{
-    std::string convertedPath = path;
-    std::replace(convertedPath.begin(), convertedPath.end(), '\\', '/');
-    return convertedPath.substr(convertedPath.rfind("/") + 1u);
 }
 
 void Tracing::Trace(TraceCategory category, const std::string & path, int line, const std::string & functionName, const std::string & msg)
@@ -80,72 +70,4 @@ void Tracing::Trace(TraceCategory category, const std::string & path, int line, 
     }
 }
 
-void Tracer::Trace(const std::string & path, int line, const std::string & functionName, const utility::Error & error)
-{
-    auto errorCode = error.ErrorCode();
-    if (errorCode != -1)
-    {
-        Tracing::Trace(TraceCategory::Error, path, line, functionName, "Error code: {}", utility::Serialize(error));
-    }
-    else
-    {
-        Tracing::Trace(TraceCategory::Error, path, line, functionName, "Error code: Unknown: {}", error.Message());
-    }
-}
-
-void Tracer::Trace(const std::string & path, int line, const std::string & functionName, const utility::GenericError & error)
-{
-    Tracing::Trace(TraceCategory::Error, path, line, functionName, utility::Serialize(error));
-}
-
-void Tracer::Fatal(const std::string & path, int line, const std::string & functionName, const utility::Error & error)
-{
-    Trace(path, line, functionName, error);
-    exit(1);
-}
-
-void Tracer::Fatal(const std::string & path, int line, const std::string & functionName, const utility::GenericError & error)
-{
-    Trace(path, line, functionName, error);
-    exit(1);
-}
-
-void Tracer::Throw(const std::string & path, int line, const std::string & functionName, const utility::Error & error)
-{
-    std::ostringstream stream;
-    stream 
-        << TraceCategory::Error << " " << ExtractFileName(path) << ":" << line << "(" << functionName << "): " << error.Message() << ": Error code: "
-        << std::dec << error.ErrorCode() << " (" << std::hex << std::setw(2) << std::setfill('0') << error.ErrorCode() << "): "
-        << error.ErrorString();
-    throw std::runtime_error(stream.str());
-}
-
-void Tracer::Throw(const std::string & path, int line, const std::string & functionName, const utility::GenericError & error)
-{
-    std::ostringstream stream;
-    stream << TraceCategory::Error << " " << ExtractFileName(path) << ":" << line << "(" << functionName << "): " << error;
-    throw std::runtime_error(stream.str());
-}
-
-std::ostream & operator << (std::ostream & stream, const TraceCategory & value)
-{
-    return stream << serialization::Serialize(value, "????");
-}
-
 } // namespace tracing
-
-namespace serialization {
-
-template<>
-const utility::BidirectionalMap<tracing::TraceCategory, std::string> EnumSerializationMap<tracing::TraceCategory>::ConversionMap = {
-    { tracing::TraceCategory::FunctionBegin, "FuncBeg"},
-    { tracing::TraceCategory::FunctionEnd, "FuncEnd"},
-    { tracing::TraceCategory::Information, "Info"},
-    { tracing::TraceCategory::Log, "Log"},
-    { tracing::TraceCategory::Startup, "Startup"},
-    { tracing::TraceCategory::Shutdown, "Shutdown"},
-    { tracing::TraceCategory::Debug, "Debug"},
-    { tracing::TraceCategory::Error, "Error"}
-};
-
-} // namespace serialization
