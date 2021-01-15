@@ -240,6 +240,90 @@ TEST(TracingTest, TraceShutdown)
         "Shtdn|MyFile:123|MyFunction|Hello World\n", traceOutput);
 }
 
+TEST(TracingTest, TraceMessageString)
+{
+    std::string traceOutput;
+    Tracing::SetTracingFunctions(
+        [&](TraceCategory category,
+            const std::string & fileName, 
+            int line, 
+            const std::string & functionName, 
+            const std::string & msg)
+        {
+            std::ostringstream stream;
+            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
+            traceOutput += stream.str();
+        }, 
+        [](TraceCategory /*category*/) { return true; });
+
+    TraceMessage("MyFile", 123, "MyFunction", "Hello World");
+    EXPECT_EQ(
+        "Messg|MyFile:123|MyFunction|Hello World\n", traceOutput);
+}
+
+TEST(TracingTest, TraceMessageFormatted)
+{
+    std::string traceOutput;
+    Tracing::SetTracingFunctions(
+        [&](TraceCategory category,
+            const std::string & fileName, 
+            int line, 
+            const std::string & functionName, 
+            const std::string & msg)
+        {
+            std::ostringstream stream;
+            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
+            traceOutput += stream.str();
+        }, 
+        [](TraceCategory /*category*/) { return true; });
+
+    TraceMessage("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
+    EXPECT_EQ(
+        "Messg|MyFile:123|MyFunction|Hello World\n", traceOutput);
+}
+
+TEST(TracingTest, TraceDataString)
+{
+    std::string traceOutput;
+    Tracing::SetTracingFunctions(
+        [&](TraceCategory category,
+            const std::string & fileName, 
+            int line, 
+            const std::string & functionName, 
+            const std::string & msg)
+        {
+            std::ostringstream stream;
+            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
+            traceOutput += stream.str();
+        }, 
+        [](TraceCategory /*category*/) { return true; });
+
+    TraceData("MyFile", 123, "MyFunction", "Hello World");
+    EXPECT_EQ(
+        "Data |MyFile:123|MyFunction|Hello World\n", traceOutput);
+}
+
+TEST(TracingTest, TraceDataFormatted)
+{
+    std::string traceOutput;
+    Tracing::SetTracingFunctions(
+        [&](TraceCategory category,
+            const std::string & fileName, 
+            int line, 
+            const std::string & functionName, 
+            const std::string & msg)
+        {
+            std::ostringstream stream;
+            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
+            traceOutput += stream.str();
+        }, 
+        [](TraceCategory /*category*/) { return true; });
+
+    TraceData("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
+    EXPECT_EQ(
+        "Data |MyFile:123|MyFunction|Hello World\n", traceOutput);
+}
+
 TEST(TracingTest, TraceToConsole)
 {
     Tracing::SetTracingFunctions(

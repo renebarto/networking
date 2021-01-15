@@ -46,7 +46,7 @@ public:
         ValuePtr operator *()
         {
             if (AtEnd())
-                tracing::Tracer::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Iterator outside scope"));
+                tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Iterator outside scope"));
 
             return *m_current;
         }
@@ -86,7 +86,7 @@ public:
         ValuePtr operator *()
         {
             if (AtEnd())
-                tracing::Tracer::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Iterator outside scope"));
+                tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Iterator outside scope"));
 
             return *m_current;
         }

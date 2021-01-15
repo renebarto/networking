@@ -30,6 +30,7 @@
 
 #include <vector>
 #include "osal/StringConversion.h"
+#include "tracing/Logging.h"
 #include "tracing/Tracing.h"
 #include "utility/Assert.h"
 #include "utility/Endian.h"
@@ -53,7 +54,7 @@ Interfaces::Interfaces()
     // Get all NICs
     if (getifaddrs(&interfaces) == -1)
     {
-        tracing::Tracer::Trace(__FILE__, __LINE__, __func__, utility::Error(errno, strerror(errno), "Cannot determine network interfaces"));
+        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errno, strerror(errno), "Cannot determine network interfaces"));
     }
     else
     {
@@ -70,7 +71,7 @@ Interfaces::Interfaces(const std::string & interfaceName)
     // Get all NICs
     if (getifaddrs(&interfaces) == -1)
     {
-        tracing::Tracer::Trace(__FILE__, __LINE__, __func__, utility::Error(errno, strerror(errno), "Cannot determine network interfaces"));
+        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errno, strerror(errno), "Cannot determine network interfaces"));
     }
     else
     {
@@ -204,7 +205,7 @@ Interfaces::Interfaces()
     if (result != NO_ERROR)
     {
         int errorCode = static_cast<int>(result);
-        tracing::Tracer::Trace(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Cannot determine network interfaces"));
+        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Cannot determine network interfaces"));
     }
     else
     {
@@ -239,7 +240,7 @@ Interfaces::Interfaces(const std::string & interfaceName)
     if (result != NO_ERROR)
     {
         int errorCode = static_cast<int>(result);
-        tracing::Tracer::Trace(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Cannot determine network interfaces"));
+        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Cannot determine network interfaces"));
     }
     else
     {
@@ -358,7 +359,7 @@ void Interfaces::ExtractInterfaceInfo(void * info, const std::string & interface
                 // tracing::Tracing::Trace(tracing::TraceCategory::Information, __FILE__, __LINE__, __func__, "Interface {} has MAC address {}", name, addressInfo);
             }
             
-            TraceInfo(__FILE__, __LINE__, __func__, "Device: {}", nic);
+            TraceMessage(__FILE__, __LINE__, __func__, "Device: {}", nic);
         }
         
         interface = interface->Next;
@@ -389,7 +390,7 @@ const Interface & Interfaces::GetInterface(const std::string & interfaceName) co
 {
     if (m_interfacesMap.find(interfaceName) == m_interfacesMap.end())
     {
-        tracing::Tracer::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Cannot find interface {}", interfaceName));
+        tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Cannot find interface {}", interfaceName));
     }
     return m_interfacesMap.at(interfaceName);
 }

@@ -48,10 +48,10 @@ protected:
         try
         {
             SetSignalMask();
-            TraceDebug(__FILE__, __LINE__, __func__, "WorkerThread " + GetName() + ": Thread starting");
+            TraceMessage(__FILE__, __LINE__, __func__, "WorkerThread " + GetName() + ": Thread starting");
             m_birthEvent.Set();
             Thread();
-            TraceDebug(__FILE__, __LINE__, __func__, "WorkerThread " + GetName() + ": Thread stopping");
+            TraceMessage(__FILE__, __LINE__, __func__, "WorkerThread " + GetName() + ": Thread stopping");
             m_state = ThreadState::Finished;
         }
         catch (const std::exception & /*e*/)

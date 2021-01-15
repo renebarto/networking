@@ -2,7 +2,7 @@
 
 #include "utility/Endian.h"
 #include "utility/GenericError.h"
-#include "tracing/Tracing.h"
+#include "tracing/Logging.h"
 
 namespace network {
 
@@ -153,7 +153,7 @@ IPV4EndPoint IPV4EndPoint::Parse(const std::string & text)
     IPV4EndPoint ipAddress;
     if (!TryParse(text, ipAddress))
     {
-        tracing::Tracer::Throw(__FILE__, __LINE__, __func__, 
+        tracing::Logging::Throw(__FILE__, __LINE__, __func__, 
             utility::GenericError("IPV4Address string representation must be formatted as ddd.ddd.ddd.ddd[:ddddd]"
                                   ", string is {}", text));
     }

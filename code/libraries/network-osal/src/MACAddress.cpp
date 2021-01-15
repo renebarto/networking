@@ -4,7 +4,7 @@
 #include <iomanip>
 #include "utility/Assert.h"
 #include "utility/GenericError.h"
-#include "tracing/Tracing.h"
+#include "tracing/Logging.h"
 
 namespace network {
 
@@ -51,7 +51,7 @@ MACAddress MACAddress::Parse(const std::string & text)
     MACAddress macAddress;
     if (!TryParse(text, macAddress))
     {
-        tracing::Tracer::Throw(__FILE__, __LINE__, __func__, 
+        tracing::Logging::Throw(__FILE__, __LINE__, __func__, 
             utility::GenericError("MACAddress string representation must be formatted as xx-xx-xx-xx-xx-xx, string is {}", text));
     }
     return macAddress;

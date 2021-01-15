@@ -3,7 +3,8 @@
 #include "network/IPV6UDPSocket.h"
 
 #include "tracing/ScopedTracing.h"
-#include "tracing/Tracing.h"
+#include "tracing/Logging.h"
+#include "utility/GenericError.h"
 #include "Utility.h"
 
 namespace network {
@@ -289,7 +290,7 @@ bool IPV6UDPSocketUDPServerThread()
     }
     catch (std::exception & e)
     {
-        tracing::Tracing::Trace(tracing::TraceCategory::Error, __FILE__, __LINE__, __func__, e.what());
+        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::GenericError(e.what()));
         throw;
     }
     return ok;

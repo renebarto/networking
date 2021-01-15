@@ -2,7 +2,7 @@
 
 #include "utility/Endian.h"
 #include "utility/GenericError.h"
-#include "tracing/Tracing.h"
+#include "tracing/Logging.h"
 
 namespace network {
 
@@ -194,7 +194,7 @@ IPV6EndPoint IPV6EndPoint::Parse(const std::string & text)
     IPV6EndPoint ipAddress;
     if (!TryParse(text, ipAddress))
     {
-        tracing::Tracer::Throw(__FILE__, __LINE__, __func__, 
+        tracing::Logging::Throw(__FILE__, __LINE__, __func__, 
             utility::GenericError("IPV6EndPoint string representation must be formatted as "
                   "[xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx]:ddddd (or a shortened format),  string is {}", text));
     }

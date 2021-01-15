@@ -47,6 +47,7 @@ set(PROJECT_LIBS
     )
 
 set(PROJECT_SOURCES 
+    src/Clock.cpp
     src/Console.cpp
     src/FileHandling.cpp
     src/Signal.cpp
@@ -56,6 +57,7 @@ set(PROJECT_SOURCES
 set(PROJECT_INCLUDES_PRIVATE
     )
 set(PROJECT_INCLUDES_PUBLIC
+    include/osal/Clock.h
     include/osal/Console.h
     include/osal/FileHandling.h
     include/osal/ManualEvent.h

@@ -64,7 +64,7 @@ public:
         KVPair operator *()
         {
             if (AtEnd())
-                tracing::Tracer::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Iterator outside scope"));
+                tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Iterator outside scope"));
 
             return KVPair(m_current->first, m_current->second);
         }
@@ -104,7 +104,7 @@ public:
         KVPair operator *()
         {
             if (AtEnd())
-                tracing::Tracer::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Iterator outside scope"));
+                tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Iterator outside scope"));
 
             return KVPair(m_current->first, m_current->second);
         }

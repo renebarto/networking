@@ -159,16 +159,9 @@ TEST_F(IPV4TCPSocketTest, SetOption)
     EXPECT_EQ(value.l_linger, actual.l_linger);
 }
 
-TEST_F(IPV4TCPSocketTest, GetSocketOptionBool)
+TEST_F(IPV4TCPSocketTest, GetSetSocketOptionBool)
 {
     IPV4TCPSocket target;
-    EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::KeepAlive));
-}
-
-TEST_F(IPV4TCPSocketTest, SetSocketOptionBool)
-{
-    IPV4TCPSocket target;
-    EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::KeepAlive));
     target.SetSocketOptionBool(SocketOption::KeepAlive, true);
     EXPECT_TRUE(target.GetSocketOptionBool(SocketOption::KeepAlive));
 }

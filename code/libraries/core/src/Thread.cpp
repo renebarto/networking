@@ -2,6 +2,7 @@
 
 #include "osal/Thread.h"
 
+#include "tracing/Logging.h"
 #include "tracing/ScopedTracing.h"
 
 namespace core {
@@ -70,7 +71,7 @@ void Thread::Create(ThreadFunction threadFunc)
     }
     catch (const std::exception & e)
     {
-        tracing::Tracing::Trace(tracing::TraceCategory::Error, __FILE__, __LINE__, __func__, e.what());
+        tracing::Logging::Log(tracing::LogCategory::Error, __FILE__, __LINE__, __func__, e.what());
         Cleanup();
         throw;
     }

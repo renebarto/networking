@@ -87,3 +87,24 @@ inline void TraceShutdown(const std::string & path, int line, const std::string 
 {
     tracing::Tracing::Trace(tracing::TraceCategory::Shutdown, path, line, functionName, message);
 }
+
+inline void TraceMessage(const std::string & path, int line, const std::string & functionName, const std::string & message)
+{
+    tracing::Tracing::Trace(tracing::TraceCategory::Message, path, line, functionName, message);
+}
+
+template <typename ... Args>
+void TraceMessage(const std::string & path, int line, const std::string & functionName, const std::string & format, Args const & ... args) noexcept
+{
+    tracing::Tracing::Trace(tracing::TraceCategory::Message, path, line, functionName, format, args ...);
+}
+inline void TraceData(const std::string & path, int line, const std::string & functionName, const std::string & message)
+{
+    tracing::Tracing::Trace(tracing::TraceCategory::Data, path, line, functionName, message);
+}
+
+template <typename ... Args>
+void TraceData(const std::string & path, int line, const std::string & functionName, const std::string & format, Args const & ... args) noexcept
+{
+    tracing::Tracing::Trace(tracing::TraceCategory::Data, path, line, functionName, format, args ...);
+}

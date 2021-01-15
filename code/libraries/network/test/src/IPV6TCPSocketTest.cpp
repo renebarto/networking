@@ -159,16 +159,9 @@ TEST_F(IPV6TCPSocketTest, SetOption)
     EXPECT_EQ(value.l_linger, actual.l_linger);
 }
 
-TEST_F(IPV6TCPSocketTest, GetSocketOptionBool)
+TEST_F(IPV6TCPSocketTest, GetSetSocketOptionBool)
 {
     IPV6TCPSocket target;
-    EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Linger));
-}
-
-TEST_F(IPV6TCPSocketTest, SetSocketOptionBool)
-{
-    IPV6TCPSocket target;
-    EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::KeepAlive));
     target.SetSocketOptionBool(SocketOption::KeepAlive, true);
     EXPECT_TRUE(target.GetSocketOptionBool(SocketOption::KeepAlive));
 }

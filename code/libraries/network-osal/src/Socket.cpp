@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <thread>
 #include "tracing/ScopedTracing.h"
-#include "tracing/Tracing.h"
+#include "tracing/Logging.h"
 #include "utility/Error.h"
 #include "network-osal/Network.h"
 
@@ -45,7 +45,7 @@ public:
         });
         errorCode = WSAStartup(MAKEWORD(2, 2), &m_data);
         if (errorCode != 0)
-            tracing::Tracer::Trace(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "socket() failed")); 
+            tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "socket() failed")); 
         else
             m_initialized = true;
     }
@@ -61,7 +61,7 @@ public:
         {
             errorCode = WSACleanup();
             if (errorCode != 0)
-                tracing::Tracer::Trace(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "socket() failed")); 
+                tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "socket() failed")); 
         }
     }
 private:
@@ -207,7 +207,7 @@ Socket::Open(SocketFamily socketFamily, SocketType socketType, SocketProtocol pr
     {
         int errorCode = GetError();
 
-        tracing::Tracer::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "socket() failed")); 
+        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "socket() failed")); 
     }
 }
 
@@ -232,7 +232,7 @@ Socket::Close()
     {
         int errorCode = GetError();
 
-        tracing::Tracer::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "close() failed")); 
+        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "close() failed")); 
     }
 }
 
@@ -269,7 +269,7 @@ void Socket::SetSocketOptionWithLevel(SocketOptionLevel level, SocketOption sock
     {
         int errorCode = GetError();
 
-        tracing::Tracer::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "setsockopt() failed"));
+        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "setsockopt() failed"));
     }
 }
 
@@ -296,7 +296,7 @@ void Socket::GetSocketOptionWithLevel(SocketOptionLevel level, SocketOption sock
     {
         int errorCode = GetError();
 
-        tracing::Tracer::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "getsockopt() failed"));
+        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "getsockopt() failed"));
     }
 }
 
@@ -410,14 +410,14 @@ void Socket::SetBlockingMode(bool value)
     {
         int errorCode = GetError();
 
-        tracing::Tracer::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "fcntl() failed"));
+        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "fcntl() failed"));
     }
     int errorCode = fcntl(this->GetHandle(), F_SETFL, value ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK));
     if (errorCode == -1)
     {
         int errorCode = GetError();
 
-        tracing::Tracer::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "fcntl() failed"));
+        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "fcntl() failed"));
     }
 #elif defined(PLATFORM_WINDOWS)
     unsigned long mode = value ? 0ul : 1ul;
@@ -426,7 +426,7 @@ void Socket::SetBlockingMode(bool value)
     {
         int errorCode = GetError();
 
-        tracing::Tracer::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "fcntl() failed"));
+        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "fcntl() failed"));
     }
     m_isBlocking = value;
 #endif
@@ -445,7 +445,7 @@ bool Socket::GetBlockingMode()
     {
         int errorCode = GetError();
 
-        tracing::Tracer::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "fcntl() failed"));
+        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "fcntl() failed"));
     }
     result = (flags & O_NONBLOCK) == 0;
 #elif defined(PLATFORM_WINDOWS)
@@ -546,7 +546,7 @@ void Socket::Bind(const sockaddr * address, socklen_t addressLength)
     {
         int errorCode = GetError();
 
-        tracing::Tracer::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "bind() failed"));
+        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "bind() failed"));
     }
 }
 
@@ -578,7 +578,7 @@ bool Socket::Connect(sockaddr const * serverAddress, socklen_t serverAddressLeng
     {
         int errorCode = GetError();
 
-        // tracing::Tracer::Trace(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() failed"));
+        // tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() failed"));
 
         if ((errorCode == EINPROGRESS) || (errorCode == EALREADY))
         {
@@ -591,7 +591,7 @@ bool Socket::Connect(sockaddr const * serverAddress, socklen_t serverAddressLeng
             {
                 errorCode = GetError();
 
-                // tracing::Tracer::Trace(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "poll() failed"));
+                // tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "poll() failed"));
             }
             else if (pollResult == 0)
             {
@@ -605,7 +605,7 @@ bool Socket::Connect(sockaddr const * serverAddress, socklen_t serverAddressLeng
             }
         }
         else if ((errorCode != EWOULDBLOCK) && (errorCode != EAGAIN))
-            tracing::Tracer::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() failed"));
+            tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() failed"));
     }
 #elif defined(PLATFORM_WINDOWS)
     SocketTimeout waitTime = 0;
@@ -619,7 +619,7 @@ bool Socket::Connect(sockaddr const * serverAddress, socklen_t serverAddressLeng
     {
         int errorCode = GetError();
 
-        // tracing::Tracer::Trace(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() failed"));
+        // tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() failed"));
 
         while ((waitTime > 0) && ((errorCode == EWOULDBLOCK) || (errorCode == WSAEINPROGRESS)))
         {
@@ -634,7 +634,7 @@ bool Socket::Connect(sockaddr const * serverAddress, socklen_t serverAddressLeng
             {
                 errorCode = GetError();
 
-                tracing::Tracer::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "select() failed"));
+                tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "select() failed"));
             }
             else if (result == 0)
             {
@@ -644,17 +644,17 @@ bool Socket::Connect(sockaddr const * serverAddress, socklen_t serverAddressLeng
             {
                 errorCode = GetError();
                 if (errorCode != 0)
-                    tracing::Tracer::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() failed"));
+                    tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() failed"));
             }
             if (FD_ISSET(GetHandle(), &writefds))
             {
-                tracing::Tracing::Trace(tracing::TraceCategory::Information, __FILE__, __LINE__, __func__, "connect() success");
+                TraceMessage(__FILE__, __LINE__, __func__, "connect() success");
                 errorCode = 0;
                 break;
             }
         }
         if (errorCode != 0)
-            tracing::Tracer::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() failed"));
+            tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() failed"));
     }
 #endif
 
@@ -677,7 +677,7 @@ void Socket::Listen(int numListeners)
     {
         int errorCode = GetError();
 
-        tracing::Tracer::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "listen() failed"));
+        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "listen() failed"));
     }
 }
 
@@ -720,7 +720,7 @@ bool Socket::Accept(Socket & connectionSocket, sockaddr * clientAddress, socklen
         {
             int errorCode = GetError();
 
-            // tracing::Tracer::Trace(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "accept() failed"));
+            // tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "accept() failed"));
 
             if (((errorCode == EWOULDBLOCK) || (errorCode == EAGAIN)) && (waitTime > 0))
             {
@@ -733,7 +733,7 @@ bool Socket::Accept(Socket & connectionSocket, sockaddr * clientAddress, socklen
                 break;
             }
             else
-                tracing::Tracer::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "accept() failed"));
+                tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "accept() failed"));
         }
     }
     while ((handle == -1) && (waitTime > 0));
@@ -741,7 +741,7 @@ bool Socket::Accept(Socket & connectionSocket, sockaddr * clientAddress, socklen
     SetBlockingMode(true);
     if (handle != -1)
     {
-        tracing::Tracing::Trace(tracing::TraceCategory::Information, __FILE__, __LINE__, __func__, "accept() success");
+        TraceMessage(__FILE__, __LINE__, __func__, "accept() success");
         connectionSocket.SetHandle(static_cast<SocketHandle>(handle));
     }
     else
@@ -769,7 +769,7 @@ void Socket::GetLocalAddress(sockaddr * address, socklen_t * addressLength)
     {
         int errorCode = GetError();
 
-        tracing::Tracer::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "getsockname() failed"));
+        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "getsockname() failed"));
     }
 }
 
@@ -790,7 +790,7 @@ void Socket::GetRemoteAddress(sockaddr * address, socklen_t * addressLength)
     {
         int errorCode = GetError();
 
-        tracing::Tracer::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "getpeername() failed"));
+        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "getpeername() failed"));
     }
 }
 
@@ -813,9 +813,9 @@ std::size_t Socket::Receive(std::uint8_t * data, std::size_t bufferSize, int fla
         {
             int errorCode = GetError();
 
-            tracing::Tracer::Trace(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "recv() failed"));
+            tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "recv() failed"));
             if ((errorCode != EINTR) && (errorCode != EWOULDBLOCK) && (errorCode != EAGAIN))
-                tracing::Tracer::Throw(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "recv() failed"));
+                tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "recv() failed"));
         } else if (result == 0)
         {
             Close();
@@ -855,7 +855,7 @@ bool Socket::Send(const std::uint8_t * data, std::size_t bytesToSend, int flags)
         {
             int errorCode = GetError();
 
-            tracing::Tracer::Trace(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "send() failed"));
+            tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "send() failed"));
 
             if ((errorCode == EPIPE) || (errorCode == ECONNRESET))
             {
@@ -863,7 +863,7 @@ bool Socket::Send(const std::uint8_t * data, std::size_t bytesToSend, int flags)
                 break;
             }
             
-            tracing::Tracer::Throw(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "send() failed"));
+            tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "send() failed"));
         } else
         {
             offset += numBytes;
@@ -892,10 +892,10 @@ std::size_t Socket::ReceiveFrom(sockaddr * address, socklen_t * addressLength, s
     {
         int errorCode = GetError();
 
-        tracing::Tracer::Trace(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "recvfrom() failed"));
+        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "recvfrom() failed"));
 
         if ((errorCode != EINTR) && (errorCode != EWOULDBLOCK) && (errorCode != EAGAIN))
-            tracing::Tracer::Throw(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "recv() failed"));
+            tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "recv() failed"));
         result = 0;
     }
 
@@ -919,7 +919,7 @@ void Socket::SendTo(const sockaddr * address, socklen_t addressLength, const std
     {
         int errorCode = GetError();
 
-        tracing::Tracer::Throw(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "sendto() failed"));
+        tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "sendto() failed"));
     }
 }
 

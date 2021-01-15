@@ -45,7 +45,7 @@ const Interface & Interfaces::GetInterface(const std::string & interfaceName) co
 {
     if (m_interfaces.find(interfaceName) == m_interfaces.end())
     {
-        tracing::Tracer::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Cannot find interface {}", interfaceName));
+        tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Cannot find interface {}", interfaceName));
     }
     return m_interfaces.at(interfaceName);
 }
