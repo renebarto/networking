@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <linux/if_packet.h>
 #include <linux/if_arp.h>
+#include "tracing/Logging.h"
 #include "tracing/Tracing.h"
 #include "utility/Assert.h"
 #include "utility/GenericError.h"
@@ -27,7 +28,7 @@ Interfaces::Interfaces()
     {
         std::string buffer;
         utility::Format(buffer, "Error finding devices: {}}", error_buffer);
-        tracing::Tracer::Trace(__FILE__, __LINE__, __func__, utility::GenericError(buffer));
+        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::GenericError(buffer));
     }
     else
     {
@@ -137,7 +138,7 @@ void Interfaces::ExtractInterfaceInfo()
             {
                 ConvertAddressInfo(address->dstaddr, addressInfo.destinationAddress);
             }
-            TraceInfo(__FILE__, __LINE__, __func__, serialization::Serialize(addressInfo, 0));
+            TraceMessage(__FILE__, __LINE__, __func__, serialization::Serialize(addressInfo, 0));
             addresses.push_back(addressInfo);
             address = address->next;
         }
@@ -150,7 +151,7 @@ void Interfaces::ExtractInterfaceInfo()
             m_interfaces[name] = Interface(name, description, isLoopback, addresses);
         }
         
-        TraceInfo(__FILE__, __LINE__, __func__, "Device: {} - {} ({})", interface->name, (interface->description ? interface->description : "no description"), (interface->flags & PCAP_IF_LOOPBACK ? "loopback" : ""));
+        TraceMessage(__FILE__, __LINE__, __func__, "Device: {} - {} ({})", interface->name, (interface->description ? interface->description : "no description"), (interface->flags & PCAP_IF_LOOPBACK ? "loopback" : ""));
         interface = interface->next;
     }
 

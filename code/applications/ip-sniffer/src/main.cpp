@@ -146,7 +146,7 @@ void parse_ethernet_header(const std::vector<std::uint8_t> & /*packet*/)
 
 int main(int /*argc*/, char * /*argv*/[])
 {
-    TraceInfo(__FILE__, __LINE__, __func__, "packet-sniffer");
+    TraceMessage(__FILE__, __LINE__, __func__, "packet-sniffer");
 //     // Create a AF_PACKET type raw socket to sniff at packets
 //     int s = socket(AF_PACKET, SOCK_RAW, ETH_P_ALL);
 //     if (s == -1)

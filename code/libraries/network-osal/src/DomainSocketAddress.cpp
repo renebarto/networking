@@ -7,7 +7,7 @@
 #include <sstream>
 #include "utility/Assert.h"
 #include "utility/GenericError.h"
-#include "tracing/Tracing.h"
+#include "tracing/Logging.h"
 
 namespace network {
 

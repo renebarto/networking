@@ -164,11 +164,11 @@ void Interfaces::ExtractInterfaceInfo(void * info, const std::string & interface
                 {
                     ConvertAddressInfo(interface->ifa_ifu.ifu_dstaddr, addressInfo.destinationAddress);
                 }
-                TraceInfo(__FILE__, __LINE__, __func__, serialization::Serialize(addressInfo, 0));
+                TraceMessage(__FILE__, __LINE__, __func__, serialization::Serialize(addressInfo, 0));
                 addresses.push_back(addressInfo);
             }
             
-            TraceInfo(__FILE__, __LINE__, __func__, "Device: {} ({})", name, (isUp ? "Up" : "Down"));
+            TraceMessage(__FILE__, __LINE__, __func__, "Device: {} ({})", name, (isUp ? "Up" : "Down"));
         }
         
         interface = interface->ifa_next;
