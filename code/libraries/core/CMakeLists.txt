@@ -49,6 +49,7 @@ set(PROJECT_LIBS
     )
 
 set(PROJECT_SOURCES 
+    src/Regex.cpp
     src/Thread.cpp
     )
 set(PROJECT_INCLUDES_PRIVATE
@@ -58,6 +59,7 @@ set(PROJECT_INCLUDES_PUBLIC
     include/core/Iterator.h
     include/core/Nullable.h
     include/core/Observable.h
+    include/core/Regex.h
     include/core/Thread.h
     include/core/WorkerThread.h
     )

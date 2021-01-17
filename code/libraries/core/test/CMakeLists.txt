@@ -56,6 +56,7 @@ set(PROJECT_SOURCES
     src/IteratorTest.cpp
     src/NullableTest.cpp
     src/ObservableTest.cpp
+    src/RegexTest.cpp
     src/ThreadTest.cpp
     src/WorkerThreadTest.cpp
     )
