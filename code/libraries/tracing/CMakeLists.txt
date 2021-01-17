@@ -1,6 +1,6 @@
 project(tracing
     VERSION ${MSI_NUMBER}
-    DESCRIPTION "Tracing funtionality"
+    DESCRIPTION "Tracing functionality"
     LANGUAGES CXX)
 
 message(STATUS "\n**********************************************************************************\n")

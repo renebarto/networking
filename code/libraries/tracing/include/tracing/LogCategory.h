@@ -14,6 +14,8 @@ enum class LogCategory : uint16_t
     Warning = 0x08,
     Error = 0x10,
     Fatal = 0x20,
+    None = 0x00,
+    All = 0x3F,
 };
 
 std::ostream & operator << (std::ostream & stream, const LogCategory & value);

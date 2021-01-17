@@ -22,11 +22,6 @@
 
 osal::Console console;
 
-bool TraceEnabled(tracing::TraceCategory /*category*/)
-{
-    return true;
-}
-
 void PrintData(const std::uint8_t * data , std::size_t size);
 
 void PrintEthernetHeader(const std::uint8_t * buffer, std::size_t size)

@@ -4,12 +4,14 @@
 #include "osal/Console.h"
 #include "utility/Error.h"
 #include "utility/GenericError.h"
+#include "tracing/Tracing.h"
 #include "tracing/TraceHelpers.h"
 
 namespace tracing {
 
 LogFunction Logging::m_logFunc = nullptr;
 IsLogCategoryEnabledFunction Logging::m_isLogCategoryEnabledFunc = nullptr;
+CategorySet<LogCategory> Logging::m_defaultLogFilter = LogCategory::Fatal | LogCategory::Error;
 FatalExitFunction Logging::m_fatalExitFunc = nullptr;
 Logging::Mutex Logging::m_logMutex;
 
@@ -19,10 +21,24 @@ Logging::~Logging() noexcept
 {
 }
 
-void Logging::SetLoggingFunctions(LogFunction logFunc, IsLogCategoryEnabledFunction enabledFunc)
+void Logging::SetLoggingFunction(LogFunction logFunc)
 {
     m_logFunc = logFunc;
+}
+
+void Logging::SetLoggingEnabledFunction(IsLogCategoryEnabledFunction enabledFunc)
+{
     m_isLogCategoryEnabledFunc = enabledFunc;
+}
+
+void SetDefaultLogFilter(const CategorySet<LogCategory> & defaultFilter)
+{
+    Logging::m_defaultLogFilter = defaultFilter;
+}
+
+CategorySet<LogCategory> GetDefaultLogFilter()
+{
+    return Logging::m_defaultLogFilter;
 }
 
 bool Logging::IsLogCategoryEnabled(LogCategory category)
@@ -33,7 +49,7 @@ bool Logging::IsLogCategoryEnabled(LogCategory category)
     }
     else
     {
-        return false;
+        return m_defaultLogFilter.is_set(category);
     }
 }
 
@@ -75,15 +91,20 @@ void Logging::Log(LogCategory category, const std::string & path, int line, cons
         return;
     Lock guard(m_logMutex);
     std::string fileName = ExtractFileName(path);
+    auto clock = osal::Clock();
     if (m_logFunc != nullptr)
     {
-        m_logFunc(category, fileName, line, functionName, msg);
+        m_logFunc(clock.CurrentTime(), category, fileName, line, functionName, msg);
     }
     else
     {
         s_logConsole << fgcolor(GetColorForCategory(category));
-        s_logConsole << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
+        s_logConsole << clock << "|" << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
         s_logConsole << fgcolor(osal::ConsoleColor::Default);
+    }
+    if (Tracing::IsTraceCategoryEnabled(TraceCategory::Log))
+    {
+        Tracing::Trace(TraceCategory::Log, path, line, functionName, serialization::Serialize(category) + "|" + msg);
     }
 }
 
@@ -129,7 +150,7 @@ void Logging::Throw(const std::string & path, int line, const std::string & func
 {
     std::ostringstream stream;
     stream 
-        << LogCategory::Error << " " << ExtractFileName(path) << ":" << line << "(" << functionName << "): " << error.Message() << ": Error code: "
+        << osal::Clock() << "|" << LogCategory::Error << " " << ExtractFileName(path) << ":" << line << " (" << functionName << "): " << error.Message() << ": Error code: "
         << std::dec << error.ErrorCode() << " (" << std::hex << std::setw(2) << std::setfill('0') << error.ErrorCode() << "): "
         << error.ErrorString();
     throw std::runtime_error(stream.str());
@@ -138,7 +159,7 @@ void Logging::Throw(const std::string & path, int line, const std::string & func
 void Logging::Throw(const std::string & path, int line, const std::string & functionName, const utility::GenericError & error)
 {
     std::ostringstream stream;
-    stream << LogCategory::Error << " " << ExtractFileName(path) << ":" << line << "(" << functionName << "): " << error;
+    stream << osal::Clock() << "|" << LogCategory::Error << " " << ExtractFileName(path) << ":" << line << " (" << functionName << "): " << error;
     throw std::runtime_error(stream.str());
 }
 

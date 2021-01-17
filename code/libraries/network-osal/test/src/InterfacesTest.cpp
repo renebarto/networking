@@ -8,11 +8,28 @@
 
 namespace network {
 
-TEST(InterfacesTest, HasAtLeastLocalLoopInterface)
+class InterfacesTest : public ::testing::Test
 {
-    tracing::Tracing::SetTracingFunctions(
-        nullptr, 
-        [](tracing::TraceCategory /*category*/) { return true; });
+public:
+    tracing::CategorySet<tracing::TraceCategory> m_savedTraceFilter;
+
+    InterfacesTest()
+        : m_savedTraceFilter()
+    {}
+
+    void SetUp() override
+    {
+        m_savedTraceFilter = tracing::GetDefaultTraceFilter();
+    }
+    void TearDown() override
+    {
+        tracing::SetDefaultTraceFilter(m_savedTraceFilter);
+    }
+};
+
+TEST_F(InterfacesTest, HasAtLeastLocalLoopInterface)
+{
+    tracing::SetDefaultTraceFilter(tracing::TraceCategory::All);
 
     Interfaces interfaces;
     std::string localLoopbackInterface;
@@ -32,7 +49,7 @@ TEST(InterfacesTest, HasAtLeastLocalLoopInterface)
     }
 }
 
-TEST(InterfacesTest, ConstructOnlyLocalLoopInterface)
+TEST_F(InterfacesTest, ConstructOnlyLocalLoopInterface)
 {
     Interfaces interfacesForLookup;
     std::string localLoopbackInterface;
@@ -54,7 +71,7 @@ TEST(InterfacesTest, ConstructOnlyLocalLoopInterface)
     }
 }
 
-TEST(InterfacesTest, GetAllInterfaces)
+TEST_F(InterfacesTest, GetAllInterfaces)
 {
     Interfaces interfaces;
     std::string localLoopbackInterface;
@@ -63,7 +80,7 @@ TEST(InterfacesTest, GetAllInterfaces)
     EXPECT_TRUE(allInterfaces.find(localLoopbackInterface) != allInterfaces.end());
 }
 
-TEST(InterfacesTest, GetLocalLoopbackInterfaces)
+TEST_F(InterfacesTest, GetLocalLoopbackInterfaces)
 {
     Interfaces interfaces;
     std::string localLoopbackInterface;
@@ -72,7 +89,7 @@ TEST(InterfacesTest, GetLocalLoopbackInterfaces)
     EXPECT_TRUE(localLoopbackInterfaces.find(localLoopbackInterface) != localLoopbackInterfaces.end());
 }
 
-TEST(InterfacesTest, GetIPV4Interfaces)
+TEST_F(InterfacesTest, GetIPV4Interfaces)
 {
     Interfaces interfaces;
     std::string localLoopbackInterface;
@@ -81,7 +98,7 @@ TEST(InterfacesTest, GetIPV4Interfaces)
     EXPECT_TRUE(ipV4Interfaces.find(localLoopbackInterface) != ipV4Interfaces.end());
 }
 
-TEST(InterfacesTest, GetIPV6Interfaces)
+TEST_F(InterfacesTest, GetIPV6Interfaces)
 {
     Interfaces interfaces;
     std::string localLoopbackInterface;

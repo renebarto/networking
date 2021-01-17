@@ -11,11 +11,19 @@ namespace network {
 class IPV4TCPSocketTest : public ::testing::Test
 {
 public:
+    tracing::CategorySet<tracing::TraceCategory> m_savedTraceFilter;
+
     IPV4TCPSocketTest()
+        : m_savedTraceFilter()
+    {}
+
+    void SetUp() override
     {
-        tracing::Tracing::SetTracingFunctions(
-            nullptr, 
-            [](tracing::TraceCategory /*category*/) { return false; });
+        m_savedTraceFilter = tracing::GetDefaultTraceFilter();
+    }
+    void TearDown() override
+    {
+        tracing::SetDefaultTraceFilter(m_savedTraceFilter);
     }
 };
 

@@ -3,7 +3,9 @@
 #include <functional>
 #include <mutex>
 #include <string>
+#include "osal/Clock.h"
 #include "utility/Format.h"
+#include "tracing/CategorySet.h"
 #include "tracing/LogCategory.h"
 
 namespace utility {
@@ -16,7 +18,8 @@ class GenericError;
 namespace tracing {
 
 using LogFunction = std::function<
-    void (LogCategory category,
+    void (osal::EpochTime timestamp,
+          LogCategory category,
           const std::string & fileName, 
           int line, 
           const std::string & functionName, 
@@ -25,14 +28,19 @@ using LogFunction = std::function<
 using IsLogCategoryEnabledFunction = std::function<bool(LogCategory category)>;
 using FatalExitFunction = std::function<void(int errorCode)>;
 
-bool DefaultLogFilter(LogCategory category);
+void SetDefaultLogFilter(const CategorySet<LogCategory> & defaultFilter);
+CategorySet<LogCategory> GetDefaultLogFilter();
 
 class Logging
 {
 private:
+    friend void SetDefaultLogFilter(const CategorySet<LogCategory> & defaultFilter);
+    friend CategorySet<LogCategory> GetDefaultLogFilter();
+
     static LogFunction m_logFunc;
     static IsLogCategoryEnabledFunction m_isLogCategoryEnabledFunc;
     static FatalExitFunction m_fatalExitFunc;
+    static CategorySet<LogCategory> m_defaultLogFilter;
 
     typedef std::recursive_mutex Mutex;
     typedef std::lock_guard<Mutex> Lock;
@@ -45,7 +53,8 @@ public:
     Logging() = default;
     virtual ~Logging() noexcept;
     
-    static void SetLoggingFunctions(LogFunction logFunc, IsLogCategoryEnabledFunction enabledFunc);
+    static void SetLoggingFunction(LogFunction logFunc);
+    static void SetLoggingEnabledFunction(IsLogCategoryEnabledFunction enabledFunc);
     static void SetFatalExitFunction(FatalExitFunction function);
     
     static bool IsLogCategoryEnabled(LogCategory category);

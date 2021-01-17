@@ -1,83 +1,98 @@
 #include "GoogleTest.h"
 
+#include "core/Regex.h"
 #include "tracing/Tracing.h"
 
 namespace tracing {
 
-TEST(TracingTest, IfTracingFunctionsSetButNothingEnabledNothingHappens)
+static const std::string TraceRegexTimeStamp = "\\d{4}-\\w{3}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}\\.\\d{6}\\|";
+
+class TracingTest : public ::testing::Test
 {
-    std::string traceOutput;
-    Tracing::SetTracingFunctions(
-        [&](TraceCategory category,
-            const std::string & fileName, 
-            int line, 
-            const std::string & functionName, 
-            const std::string & msg)
-        {
-            std::ostringstream stream;
-            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
-            traceOutput = stream.str();
-        }, 
-        [](TraceCategory /*category*/) { return false; });
+public:
+    std::string m_traceOutput;
+    CategorySet<TraceCategory> m_savedTraceFilter;
+
+    TracingTest()
+        : m_traceOutput()
+        , m_savedTraceFilter()
+    {}
+
+    virtual void SetUp() override
+    {
+        Tracing::SetTracingFunction(
+            std::bind(&TracingTest::TraceFunc, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, 
+                      std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+        m_savedTraceFilter = GetDefaultTraceFilter();
+    }
+    virtual void TearDown() override
+    {
+        Tracing::SetTracingFunction(nullptr);
+        SetDefaultTraceFilter(m_savedTraceFilter);
+    }
+
+    void TraceFunc(
+        osal::EpochTime timestamp,
+        TraceCategory category,
+        const std::string & fileName, 
+        int line, 
+        const std::string & functionName, 
+        const std::string & msg)
+    {
+        std::ostringstream stream;
+        stream << osal::Clock::ToString(timestamp) << "|" << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
+        m_traceOutput += stream.str();
+    }
+};
+
+TEST_F(TracingTest, IfTracingFunctionsSetButNothingEnabledNothingHappens)
+{
+    SetDefaultTraceFilter(TraceCategory::None);
     Tracing::Trace(TraceCategory::Startup, "MyFile", 123, "MyFunction", "Hello World");
-    EXPECT_EQ("", traceOutput);
+    EXPECT_EQ("", m_traceOutput);
 }
 
-TEST(TracingTest, IfTracingFunctionsSetAndCategoryEnabledTraceIsWritten)
+TEST_F(TracingTest, IfTracingFunctionsSetAndCategoryEnabledTraceIsWritten)
 {
-    std::string traceOutput;
-    Tracing::SetTracingFunctions(
-        [&](TraceCategory category,
-            const std::string & fileName, 
-            int line, 
-            const std::string & functionName, 
-            const std::string & msg)
-        {
-            std::ostringstream stream;
-            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
-            traceOutput += stream.str();
-        }, 
-        [](TraceCategory /*category*/) { return true; });
+    SetDefaultTraceFilter(TraceCategory::All);
     Tracing::Trace(TraceCategory::Startup, "MyFile", 123, "MyFunction", "Hello World");
-    EXPECT_EQ("Start|MyFile:123|MyFunction|Hello World\n", traceOutput);
+    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "Start\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
 }
 
-TEST(TracingTest, TracingOnlyForEnabledCategory)
+TEST_F(TracingTest, TracingOnlyForEnabledCategory)
 {
-    std::string traceOutput;
-    Tracing::SetTracingFunctions(
-        [&](TraceCategory category,
-            const std::string & fileName, 
-            int line, 
-            const std::string & functionName, 
-            const std::string & msg)
-        {
-            std::ostringstream stream;
-            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
-            traceOutput = stream.str();
-        }, 
-        [](TraceCategory category) { return category == TraceCategory::Startup; });
+    SetDefaultTraceFilter(TraceCategory::Startup);
     Tracing::Trace(TraceCategory::Startup, "MyFile", 123, "MyFunction", "Hello World");
     Tracing::Trace(TraceCategory::Shutdown, "MyFile", 123, "MyFunction", "Hello World");
-    EXPECT_EQ("Start|MyFile:123|MyFunction|Hello World\n", traceOutput);
+    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "Start\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
 }
 
-TEST(TracingTest, TracingCategories)
+TEST_F(TracingTest, IfNoTracingEnableFunctionSetOnlyDefaultCategoriesAreEnabled)
 {
-    std::string traceOutput;
-    Tracing::SetTracingFunctions(
-        [&](TraceCategory category,
-            const std::string & fileName, 
-            int line, 
-            const std::string & functionName, 
-            const std::string & msg)
-        {
-            std::ostringstream stream;
-            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
-            traceOutput += stream.str();
-        }, 
-        [](TraceCategory /*category*/) { return true; });
+    // Assumption: default only Startup and Shutdown enabled
+    Tracing::Trace(TraceCategory::Startup, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Shutdown, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Data, "MyFile", 123, "MyFunction", "Hello World");
+    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "Start\\|MyFile\\:123\\|MyFunction\\|Hello World\n" +
+        TraceRegexTimeStamp + "Shtdn\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
+}
 
+TEST_F(TracingTest, IfDefaultFilterIsChangedOnlySpecifiedCategoriesAreEnabled)
+{
+    SetDefaultTraceFilter(TraceCategory::Startup);
+    Tracing::Trace(TraceCategory::Startup, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Shutdown, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Data, "MyFile", 123, "MyFunction", "Hello World");
+    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "Start\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
+}
+
+TEST_F(TracingTest, TracingCategories)
+{
+    SetDefaultTraceFilter(TraceCategory::All);
     Tracing::Trace(TraceCategory::FunctionEnter, "MyFile", 123, "MyFunction", "Hello World");
     Tracing::Trace(TraceCategory::FunctionLeave, "MyFile", 123, "MyFunction", "Hello World");
     Tracing::Trace(TraceCategory::Startup, "MyFile", 123, "MyFunction", "Hello World");
@@ -85,251 +100,107 @@ TEST(TracingTest, TracingCategories)
     Tracing::Trace(TraceCategory::Log, "MyFile", 123, "MyFunction", "Hello World");
     Tracing::Trace(TraceCategory::Message, "MyFile", 123, "MyFunction", "Hello World");
     Tracing::Trace(TraceCategory::Data, "MyFile", 123, "MyFunction", "Hello World");
-    EXPECT_EQ(
-        "Enter|MyFile:123|MyFunction|Hello World\n"
-        "Leave|MyFile:123|MyFunction|Hello World\n"
-        "Start|MyFile:123|MyFunction|Hello World\n"
-        "Shtdn|MyFile:123|MyFunction|Hello World\n"
-        "Log  |MyFile:123|MyFunction|Hello World\n"
-        "Messg|MyFile:123|MyFunction|Hello World\n"
-        "Data |MyFile:123|MyFunction|Hello World\n", traceOutput);
+    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "Enter\\|MyFile\\:123\\|MyFunction\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Leave\\|MyFile\\:123\\|MyFunction\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Start\\|MyFile\\:123\\|MyFunction\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Shtdn\\|MyFile\\:123\\|MyFunction\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Log  \\|MyFile\\:123\\|MyFunction\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Messg\\|MyFile\\:123\\|MyFunction\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Data \\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
 }
 
-TEST(TracingTest, TracingWithFormat)
+TEST_F(TracingTest, TracingWithFormat)
 {
-    std::string traceOutput;
-    Tracing::SetTracingFunctions(
-        [&](TraceCategory category,
-            const std::string & fileName, 
-            int line, 
-            const std::string & functionName, 
-            const std::string & msg)
-        {
-            std::ostringstream stream;
-            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
-            traceOutput = stream.str();
-        }, 
-        [](TraceCategory category) { return category == TraceCategory::Message; });
+    SetDefaultTraceFilter(TraceCategory::Message);
     Tracing::Trace(TraceCategory::Message, "MyFile", 123, "MyFunction", "{0} {1} (C) {2,4:D}", "Hello", "World", 2020);
-    EXPECT_EQ("Messg|MyFile:123|MyFunction|Hello World (C) 2020\n", traceOutput);
+    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "Messg\\|MyFile\\:123\\|MyFunction\\|Hello World \\(C\\) 2020\n"));
 }
 
-TEST(TracingTest, TraceFuncEnterString)
+TEST_F(TracingTest, TraceFuncEnterString)
 {
-    std::string traceOutput;
-    Tracing::SetTracingFunctions(
-        [&](TraceCategory category,
-            const std::string & fileName, 
-            int line, 
-            const std::string & functionName, 
-            const std::string & msg)
-        {
-            std::ostringstream stream;
-            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
-            traceOutput += stream.str();
-        }, 
-        [](TraceCategory /*category*/) { return true; });
-
+    SetDefaultTraceFilter(TraceCategory::All);
     TraceFuncEnter("MyFile", 123, "MyFunction", "Hello World");
-    EXPECT_EQ(
-        "Enter|MyFile:123|MyFunction|Hello World\n", traceOutput);
+    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "Enter\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
 }
 
-TEST(TracingTest, TraceFuncEnterFormatted)
+TEST_F(TracingTest, TraceFuncEnterFormatted)
 {
-    std::string traceOutput;
-    Tracing::SetTracingFunctions(
-        [&](TraceCategory category,
-            const std::string & fileName, 
-            int line, 
-            const std::string & functionName, 
-            const std::string & msg)
-        {
-            std::ostringstream stream;
-            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
-            traceOutput += stream.str();
-        }, 
-        [](TraceCategory /*category*/) { return true; });
-
+    SetDefaultTraceFilter(TraceCategory::All);
     TraceFuncEnter("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
-    EXPECT_EQ(
-        "Enter|MyFile:123|MyFunction|Hello World\n", traceOutput);
+    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "Enter\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
 }
 
-TEST(TracingTest, TraceFuncLeaveString)
+TEST_F(TracingTest, TraceFuncLeaveString)
 {
-    std::string traceOutput;
-    Tracing::SetTracingFunctions(
-        [&](TraceCategory category,
-            const std::string & fileName, 
-            int line, 
-            const std::string & functionName, 
-            const std::string & msg)
-        {
-            std::ostringstream stream;
-            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
-            traceOutput += stream.str();
-        }, 
-        [](TraceCategory /*category*/) { return true; });
-
+    SetDefaultTraceFilter(TraceCategory::All);
     TraceFuncLeave("MyFile", 123, "MyFunction", "Hello World");
-    EXPECT_EQ(
-        "Leave|MyFile:123|MyFunction|Hello World\n", traceOutput);
+    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "Leave\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
 }
 
-TEST(TracingTest, TraceFuncLeaveFormatted)
+TEST_F(TracingTest, TraceFuncLeaveFormatted)
 {
-    std::string traceOutput;
-    Tracing::SetTracingFunctions(
-        [&](TraceCategory category,
-            const std::string & fileName, 
-            int line, 
-            const std::string & functionName, 
-            const std::string & msg)
-        {
-            std::ostringstream stream;
-            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
-            traceOutput += stream.str();
-        }, 
-        [](TraceCategory /*category*/) { return true; });
-
+    SetDefaultTraceFilter(TraceCategory::All);
     TraceFuncLeave("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
-    EXPECT_EQ(
-        "Leave|MyFile:123|MyFunction|Hello World\n", traceOutput);
+    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "Leave\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
 }
 
-TEST(TracingTest, TraceStartup)
+TEST_F(TracingTest, TraceStartup)
 {
-    std::string traceOutput;
-    Tracing::SetTracingFunctions(
-        [&](TraceCategory category,
-            const std::string & fileName, 
-            int line, 
-            const std::string & functionName, 
-            const std::string & msg)
-        {
-            std::ostringstream stream;
-            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
-            traceOutput += stream.str();
-        }, 
-        [](TraceCategory /*category*/) { return true; });
-
+    SetDefaultTraceFilter(TraceCategory::All);
     TraceStartup("MyFile", 123, "MyFunction", "Hello World");
-    EXPECT_EQ(
-        "Start|MyFile:123|MyFunction|Hello World\n", traceOutput);
+    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "Start\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
 }
 
-TEST(TracingTest, TraceShutdown)
+TEST_F(TracingTest, TraceShutdown)
 {
-    std::string traceOutput;
-    Tracing::SetTracingFunctions(
-        [&](TraceCategory category,
-            const std::string & fileName, 
-            int line, 
-            const std::string & functionName, 
-            const std::string & msg)
-        {
-            std::ostringstream stream;
-            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
-            traceOutput += stream.str();
-        }, 
-        [](TraceCategory /*category*/) { return true; });
-
+    SetDefaultTraceFilter(TraceCategory::All);
     TraceShutdown("MyFile", 123, "MyFunction", "Hello World");
-    EXPECT_EQ(
-        "Shtdn|MyFile:123|MyFunction|Hello World\n", traceOutput);
+    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "Shtdn\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
 }
 
-TEST(TracingTest, TraceMessageString)
+TEST_F(TracingTest, TraceMessageString)
 {
-    std::string traceOutput;
-    Tracing::SetTracingFunctions(
-        [&](TraceCategory category,
-            const std::string & fileName, 
-            int line, 
-            const std::string & functionName, 
-            const std::string & msg)
-        {
-            std::ostringstream stream;
-            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
-            traceOutput += stream.str();
-        }, 
-        [](TraceCategory /*category*/) { return true; });
-
+    SetDefaultTraceFilter(TraceCategory::All);
     TraceMessage("MyFile", 123, "MyFunction", "Hello World");
-    EXPECT_EQ(
-        "Messg|MyFile:123|MyFunction|Hello World\n", traceOutput);
+    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "Messg\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
 }
 
-TEST(TracingTest, TraceMessageFormatted)
+TEST_F(TracingTest, TraceMessageFormatted)
 {
-    std::string traceOutput;
-    Tracing::SetTracingFunctions(
-        [&](TraceCategory category,
-            const std::string & fileName, 
-            int line, 
-            const std::string & functionName, 
-            const std::string & msg)
-        {
-            std::ostringstream stream;
-            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
-            traceOutput += stream.str();
-        }, 
-        [](TraceCategory /*category*/) { return true; });
-
+    SetDefaultTraceFilter(TraceCategory::All);
     TraceMessage("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
-    EXPECT_EQ(
-        "Messg|MyFile:123|MyFunction|Hello World\n", traceOutput);
+    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "Messg\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
 }
 
-TEST(TracingTest, TraceDataString)
+TEST_F(TracingTest, TraceDataString)
 {
-    std::string traceOutput;
-    Tracing::SetTracingFunctions(
-        [&](TraceCategory category,
-            const std::string & fileName, 
-            int line, 
-            const std::string & functionName, 
-            const std::string & msg)
-        {
-            std::ostringstream stream;
-            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
-            traceOutput += stream.str();
-        }, 
-        [](TraceCategory /*category*/) { return true; });
-
+    SetDefaultTraceFilter(TraceCategory::All);
     TraceData("MyFile", 123, "MyFunction", "Hello World");
-    EXPECT_EQ(
-        "Data |MyFile:123|MyFunction|Hello World\n", traceOutput);
+    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "Data \\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
 }
 
-TEST(TracingTest, TraceDataFormatted)
+TEST_F(TracingTest, TraceDataFormatted)
 {
-    std::string traceOutput;
-    Tracing::SetTracingFunctions(
-        [&](TraceCategory category,
-            const std::string & fileName, 
-            int line, 
-            const std::string & functionName, 
-            const std::string & msg)
-        {
-            std::ostringstream stream;
-            stream << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
-            traceOutput += stream.str();
-        }, 
-        [](TraceCategory /*category*/) { return true; });
-
+    SetDefaultTraceFilter(TraceCategory::All);
     TraceData("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
-    EXPECT_EQ(
-        "Data |MyFile:123|MyFunction|Hello World\n", traceOutput);
+    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "Data \\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
 }
 
-TEST(TracingTest, TraceToConsole)
+TEST_F(TracingTest, TraceToConsole)
 {
-    Tracing::SetTracingFunctions(
-        nullptr, 
-        [](TraceCategory /*category*/) { return true; });
-
+    SetDefaultTraceFilter(TraceCategory::All);
     TraceStartup("MyFile", 123, "MyFunction", "Starting");
     TraceShutdown("MyFile", 123, "MyFunction", "Stopping");
 }

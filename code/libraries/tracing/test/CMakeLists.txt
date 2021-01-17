@@ -41,6 +41,7 @@ set(PROJECT_LINK_OPTIONS
 
 set(PROJECT_DEPENDENCIES
     tracing
+    core
     gtest
     gtest_main
     gmock

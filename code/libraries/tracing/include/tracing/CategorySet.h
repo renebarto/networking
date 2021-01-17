@@ -20,13 +20,7 @@ public:
     CategorySet(MaskType mask)
         : m_set()
     {
-        MaskType tmpMask = static_cast<MaskType>(1) << (sizeof(MaskType) * 8 - 1);
-        while (tmpMask != 0)
-        {
-            if ((mask & tmpMask) != 0)
-                set(static_cast<Category>(tmpMask));
-            tmpMask >>= 1;
-        }
+        set(static_cast<Category>(mask));
     }
 
     CategorySet(Category traceCategory)
@@ -42,7 +36,13 @@ public:
 
     void set(Category traceCategory)
     {
-        m_set.emplace(traceCategory);
+        MaskType tmpMask = static_cast<MaskType>(1) << (sizeof(MaskType) * 8 - 1);
+        while (tmpMask != 0)
+        {
+            if ((static_cast<MaskType>(traceCategory) & tmpMask) != 0)
+                m_set.emplace(static_cast<Category>(tmpMask));
+            tmpMask >>= 1;
+        }
     }
 
     void reset(Category traceCategory)
@@ -52,6 +52,7 @@ public:
 
     bool is_set(Category traceCategory) const
     {
+
         return m_set.find(traceCategory) != m_set.end();
     }
 

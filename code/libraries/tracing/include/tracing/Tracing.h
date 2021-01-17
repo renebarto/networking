@@ -3,7 +3,9 @@
 #include <functional>
 #include <mutex>
 #include <string>
+#include "osal/Clock.h"
 #include "utility/Format.h"
+#include "tracing/CategorySet.h"
 #include "tracing/TraceCategory.h"
 
 namespace utility {
@@ -16,7 +18,8 @@ class GenericError;
 namespace tracing {
 
 using TraceFunction = std::function<
-    void (TraceCategory category,
+    void (osal::EpochTime timestamp,
+          TraceCategory category,
           const std::string & fileName, 
           int line, 
           const std::string & functionName, 
@@ -24,13 +27,32 @@ using TraceFunction = std::function<
 
 using IsTraceCategoryEnabledFunction = std::function<bool(TraceCategory category)>;
 
+void SetDefaultTraceFilter(const CategorySet<TraceCategory> & defaultFilter);
+CategorySet<TraceCategory> GetDefaultTraceFilter();
+
 class Tracing
 {
+private:
+    friend void SetDefaultTraceFilter(const CategorySet<TraceCategory> & defaultFilter);
+    friend CategorySet<TraceCategory> GetDefaultTraceFilter();
+
+    static TraceFunction m_traceFunc;
+    static IsTraceCategoryEnabledFunction m_isTraceCategoryEnabledFunc;
+    static CategorySet<TraceCategory> m_defaultTraceFilter;
+
+    typedef std::recursive_mutex Mutex;
+    typedef std::lock_guard<Mutex> Lock;
+    static Mutex m_traceMutex;
+
+    std::string m_fileName;
+    std::string m_functionName;
+
 public:
     Tracing() = default;
     virtual ~Tracing() noexcept;
     
-    static void SetTracingFunctions(TraceFunction traceFunc, IsTraceCategoryEnabledFunction enabledFunc);
+    static void SetTracingFunction(TraceFunction traceFunc);
+    static void SetTracingEnabledFunction(IsTraceCategoryEnabledFunction enabledFunc);
     
     static bool IsTraceCategoryEnabled(TraceCategory category);
     static void Trace(TraceCategory category, const std::string & path, int line, const std::string & functionName, const std::string & message);
@@ -44,16 +66,6 @@ public:
             Trace(category, path, line, functionName, str);
         }
     }
-
-private:
-    static TraceFunction m_traceFunc;
-    static IsTraceCategoryEnabledFunction m_isTraceCategoryEnabledFunc;
-    typedef std::recursive_mutex Mutex;
-    typedef std::lock_guard<Mutex> Lock;
-    static Mutex m_traceMutex;
-
-    std::string m_fileName;
-    std::string m_functionName;
 };
 
 } // namespace tracing

@@ -38,11 +38,7 @@ public:
         , m_initialized(false)
     {
         int errorCode {};
-        SCOPEDTRACE([] () { 
-            return "Initialize socket library"; 
-        }, [&]{
-            return serialization::Serialize(errorCode, 0);
-        });
+        // Do not trace here, as tracing may not be initialized yet
         errorCode = WSAStartup(MAKEWORD(2, 2), &m_data);
         if (errorCode != 0)
             tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "socket() failed")); 
@@ -52,11 +48,6 @@ public:
     ~SocketInitializer()
     {
         int errorCode {};
-        SCOPEDTRACE([] () { 
-            return "Uninitialize socket library"; 
-        }, [&]{
-            return serialization::Serialize(errorCode, 0);
-        });
         if (m_initialized)
         {
             errorCode = WSACleanup();
