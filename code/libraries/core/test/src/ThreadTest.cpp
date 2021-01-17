@@ -13,23 +13,34 @@ static const std::string ThreadName = "MyThread";
 class ThreadTest : public ::testing::Test
 {
 public:
+    tracing::CategorySet<tracing::TraceCategory> m_savedTraceFilter;
+
+    ThreadTest()
+        : m_savedTraceFilter()
+    {}
+
     virtual void SetUp() override
     {
-        tracing::Tracing::SetTracingFunctions(
-            std::bind(&ThreadTest::TraceFunc, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5), 
-            std::bind(&ThreadTest::TraceEnabled, this, std::placeholders::_1));
+        tracing::Tracing::SetTracingFunction(
+            std::bind(&ThreadTest::TraceFunc, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, 
+                      std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
+        m_savedTraceFilter = tracing::GetDefaultTraceFilter();
     }
-    virtual void TearDown() override {}
-
-    void TraceFunc(tracing::TraceCategory category,
-          const std::string & fileName, 
-          int line, 
-          const std::string & functionName, 
-          const std::string & msg)
+    virtual void TearDown() override 
     {
-        std::cout << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
+        tracing::SetDefaultTraceFilter(m_savedTraceFilter);
     }
-    bool TraceEnabled(tracing::TraceCategory /*category*/) { return false; }
+
+    void TraceFunc(
+        osal::EpochTime timestamp,
+        tracing::TraceCategory category,
+        const std::string & fileName, 
+        int line, 
+        const std::string & functionName, 
+        const std::string & msg)
+    {
+        std::cout << osal::Clock::ToString(timestamp) << "|" << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
+    }
     static void TestThread()
     {
         std::this_thread::sleep_for(SLEEP);

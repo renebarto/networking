@@ -8,7 +8,7 @@
 
 namespace core {
 
-class WorkerThread : public Thread
+class WorkerThread : private Thread
 {
 public:
     WorkerThread() = delete;
@@ -40,6 +40,8 @@ public:
     }
 
     virtual void Thread() = 0;
+
+    using Thread::IsRunning;
 
 protected:
     osal::ManualEvent m_birthEvent;
