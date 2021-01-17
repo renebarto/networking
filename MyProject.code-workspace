@@ -101,7 +101,8 @@
             "unordered_set": "cpp",
             "string_view": "cpp",
             "optional": "cpp",
-            "memory_resource": "cpp"
+            "memory_resource": "cpp",
+            "regex": "cpp"
         }
     },
     "cmake.generator": ""
