@@ -10,7 +10,7 @@ private:
     network::IPV4EndPoint m_serverEndPoint;
 
 public:
-    HTTPClientSocket(const network::IPV4EndPoint & address);
+    HTTPClientSocket(network::ISocketAPI & api, const network::IPV4EndPoint & address);
     ~HTTPClientSocket();
 
     bool Connect();

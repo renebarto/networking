@@ -2,6 +2,7 @@
 
 #include "network/IPV6TCPSocket.h"
 
+#include "network-osal/SocketAPI.h"
 #include "tracing/ScopedTracing.h"
 #include "tracing/Tracing.h"
 #include "Utility.h"
@@ -29,7 +30,8 @@ public:
 
 TEST_F(IPV6TCPSocketTest, ConstructDefault)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     EXPECT_NE(InvalidHandleValue, target.GetHandle());
     EXPECT_TRUE(target.IsOpen());
     EXPECT_EQ(SocketFamily::InternetV6, target.Family());
@@ -38,7 +40,8 @@ TEST_F(IPV6TCPSocketTest, ConstructDefault)
 
 TEST_F(IPV6TCPSocketTest, ConstructCopy)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     auto handle = target.GetHandle();
     IPV6TCPSocket newSocket(target);
     EXPECT_EQ(handle, target.GetHandle());
@@ -56,7 +59,8 @@ TEST_F(IPV6TCPSocketTest, ConstructCopy)
 
 TEST_F(IPV6TCPSocketTest, ConstructMove)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     auto handle = target.GetHandle();
 
     IPV6TCPSocket newSocket(std::move(target));
@@ -72,10 +76,11 @@ TEST_F(IPV6TCPSocketTest, ConstructMove)
 
 TEST_F(IPV6TCPSocketTest, AssignMove)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     auto handle = target.GetHandle();
 
-    IPV6TCPSocket newSocket;
+    IPV6TCPSocket newSocket(api);
     newSocket = std::move(target);
     EXPECT_EQ(InvalidHandleValue, target.GetHandle());
     EXPECT_FALSE(target.IsOpen());
@@ -89,7 +94,8 @@ TEST_F(IPV6TCPSocketTest, AssignMove)
 
 TEST_F(IPV6TCPSocketTest, GetSetHandle)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     target.Close();
 
     SocketHandle handle = 1234;
@@ -104,7 +110,8 @@ TEST_F(IPV6TCPSocketTest, GetSetHandle)
 
 TEST_F(IPV6TCPSocketTest, Open)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     target.Close();
 
     target.Open();
@@ -115,7 +122,8 @@ TEST_F(IPV6TCPSocketTest, Open)
 
 TEST_F(IPV6TCPSocketTest, Close)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     EXPECT_TRUE(target.IsOpen());
     target.Close();
     EXPECT_FALSE(target.IsOpen());
@@ -125,7 +133,8 @@ TEST_F(IPV6TCPSocketTest, Close)
 
 TEST_F(IPV6TCPSocketTest, GetOptionWithLevel)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     linger value { };
     socklen_t size = static_cast<socklen_t>(sizeof(value));
     target.GetSocketOptionWithLevel(SocketOptionLevel::Socket, SocketOption::Linger, &value, &size);
@@ -135,7 +144,8 @@ TEST_F(IPV6TCPSocketTest, GetOptionWithLevel)
 
 TEST_F(IPV6TCPSocketTest, SetOptionWithLevel)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     linger value { 1, 0 };
     socklen_t size = static_cast<socklen_t>(sizeof(value));
     linger actual;
@@ -147,7 +157,8 @@ TEST_F(IPV6TCPSocketTest, SetOptionWithLevel)
 
 TEST_F(IPV6TCPSocketTest, GetOption)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     linger value { };
     socklen_t size = static_cast<socklen_t>(sizeof(value));
     target.GetSocketOption(SocketOption::Linger, &value, &size);
@@ -157,7 +168,8 @@ TEST_F(IPV6TCPSocketTest, GetOption)
 
 TEST_F(IPV6TCPSocketTest, SetOption)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     linger value { 1, 0 };
     socklen_t size = static_cast<socklen_t>(sizeof(value));
     linger actual;
@@ -169,20 +181,23 @@ TEST_F(IPV6TCPSocketTest, SetOption)
 
 TEST_F(IPV6TCPSocketTest, GetSetSocketOptionBool)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     target.SetSocketOptionBool(SocketOption::KeepAlive, true);
     EXPECT_TRUE(target.GetSocketOptionBool(SocketOption::KeepAlive));
 }
 
 TEST_F(IPV6TCPSocketTest, GetSocketOptionInt)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     EXPECT_NE(0, target.GetSocketOptionInt(SocketOption::ReceiveBuffer));
 }
 
 TEST_F(IPV6TCPSocketTest, SetSocketOptionInt)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     // Must be larger than 2304
     int receiveBufferSize = 4096;
     EXPECT_NE(0, target.GetSocketOptionInt(SocketOption::ReceiveBuffer));
@@ -192,13 +207,15 @@ TEST_F(IPV6TCPSocketTest, SetSocketOptionInt)
 
 TEST_F(IPV6TCPSocketTest, GetBlockingMode)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     EXPECT_TRUE(target.GetBlockingMode());
 }
 
 TEST_F(IPV6TCPSocketTest, SetBlockingMode)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     EXPECT_TRUE(target.GetBlockingMode());
     target.SetBlockingMode(false);
     EXPECT_FALSE(target.GetBlockingMode());
@@ -208,13 +225,15 @@ TEST_F(IPV6TCPSocketTest, SetBlockingMode)
 
 TEST_F(IPV6TCPSocketTest, GetReuseAddress)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     EXPECT_FALSE(target.GetReuseAddress());
 }
 
 TEST_F(IPV6TCPSocketTest, SetReuseAddress)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     EXPECT_FALSE(target.GetReuseAddress());
     target.SetReuseAddress(true);
     EXPECT_TRUE(target.GetReuseAddress());
@@ -224,14 +243,16 @@ TEST_F(IPV6TCPSocketTest, SetReuseAddress)
 
 TEST_F(IPV6TCPSocketTest, GetReceiveTimeout)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     std::chrono::milliseconds timeout(0);
     EXPECT_EQ(timeout, target.GetReceiveTimeout());
 }
 
 TEST_F(IPV6TCPSocketTest, SetReceiveTimeout)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     std::chrono::milliseconds timeout(0);
     std::chrono::milliseconds timeoutNew(1000);
     EXPECT_EQ(timeout, target.GetReceiveTimeout());
@@ -243,14 +264,16 @@ TEST_F(IPV6TCPSocketTest, SetReceiveTimeout)
 
 TEST_F(IPV6TCPSocketTest, GetSendTimeout)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     std::chrono::milliseconds timeout(0);
     EXPECT_EQ(timeout, target.GetSendTimeout());
 }
 
 TEST_F(IPV6TCPSocketTest, SetSendTimeout)
 {
-    IPV6TCPSocket target;
+    SocketAPI api;
+    IPV6TCPSocket target(api);
     std::chrono::milliseconds timeout(0);
     std::chrono::milliseconds timeoutNew(1000);
     EXPECT_EQ(timeout, target.GetSendTimeout());
@@ -262,15 +285,16 @@ TEST_F(IPV6TCPSocketTest, SetSendTimeout)
 
 bool IPV6TCPSocketTCPAcceptThread()
 {
+    SocketAPI api;
     bool accepted {};
     SCOPEDTRACE([] () { return "TCP Accept Send Recv thread"; }, [&]{
         return serialization::Serialize(accepted);
     });
-    IPV6TCPSocket acceptorSocket;
+    IPV6TCPSocket acceptorSocket(api);
 
     acceptorSocket.Bind(IPV6EndPoint(TestPort));
     acceptorSocket.Listen(1);
-    IPV6TCPSocket newSocket;
+    IPV6TCPSocket newSocket(api);
     IPV6EndPoint clientAddress;
     accepted = acceptorSocket.Accept(newSocket, clientAddress, 5000);
     const std::size_t BufferSize = 10;
@@ -285,7 +309,8 @@ bool IPV6TCPSocketTCPAcceptThread()
 
 TEST_F(IPV6TCPSocketTest, ConnectAcceptSendReceiveTCP)
 {
-    IPV6TCPSocket clientSocket;
+    SocketAPI api;
+    IPV6TCPSocket clientSocket(api);
     IPV6EndPoint serverAddress(IPV6Address::LocalHost, TestPort);
 
     BoolReturnThread acceptorThread(IPV6TCPSocketTCPAcceptThread);

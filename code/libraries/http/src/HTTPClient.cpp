@@ -5,12 +5,12 @@
 
 namespace http {
 
-HTTPClient::HTTPClient(const network::IPV4EndPoint & /*address*/)
+HTTPClient::HTTPClient(network::ISocketAPI & /*api*/, const network::IPV4EndPoint & /*address*/)
 {
 
 }
 
-HTTPClient::HTTPClient(const std::string & /*serverName*/, network::PortType /*port*/)
+HTTPClient::HTTPClient(network::ISocketAPI & /*api*/, const std::string & /*serverName*/, network::PortType /*port*/)
 {
 }
 

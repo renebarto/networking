@@ -8,7 +8,7 @@ class IPV6UDPSocket
     : private IPV6Socket
 {
 public:
-    IPV6UDPSocket();
+    IPV6UDPSocket(ISocketAPI & socketAPI);
     IPV6UDPSocket(const IPV6UDPSocket & other);
     IPV6UDPSocket(IPV6UDPSocket && other);
 

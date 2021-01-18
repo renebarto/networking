@@ -64,6 +64,7 @@ set(PROJECT_SOURCES
     src/MACAddress.cpp
     src/Network.cpp
     src/Socket.cpp
+    src/SocketAPI.cpp
     src/SocketDefinitions.cpp
     )
 set(PROJECT_INCLUDES_PRIVATE
@@ -79,6 +80,7 @@ set(PROJECT_INCLUDES_PUBLIC
     include/network-osal/MACAddress.h
     include/network-osal/Network.h
     include/network-osal/Socket.h
+    include/network-osal/SocketAPI.h
     include/network-osal/SocketDefinitions.h
     )
 

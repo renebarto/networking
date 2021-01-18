@@ -2,8 +2,8 @@
 
 namespace network {
 
-IPV4UDPSocket::IPV4UDPSocket()
-    : IPV4Socket(SocketType::Datagram)
+IPV4UDPSocket::IPV4UDPSocket(ISocketAPI & socketAPI)
+    : IPV4Socket(socketAPI, SocketType::Datagram)
 {    
 }
 

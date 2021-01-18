@@ -20,13 +20,13 @@ namespace network {
 static const size_t BufferSize = 4096;
 static constexpr SocketFamily IPV6SocketFamily = SocketFamily::InternetV6;
 
-IPV6Socket::IPV6Socket()
-    : Socket()
+IPV6Socket::IPV6Socket(ISocketAPI & socketAPI)
+    : Socket(socketAPI)
 {
 }
 
-IPV6Socket::IPV6Socket(SocketType socketType)
-    : Socket(IPV6SocketFamily, socketType)
+IPV6Socket::IPV6Socket(ISocketAPI & socketAPI, SocketType socketType)
+    : Socket(socketAPI, IPV6SocketFamily, socketType)
 {
 }
 

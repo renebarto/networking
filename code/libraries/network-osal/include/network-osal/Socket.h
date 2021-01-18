@@ -12,9 +12,12 @@
 
 namespace network {
 
+class ISocketAPI;
+
 class Socket
 {
 private:
+    ISocketAPI & m_socketAPI;
     SocketHandle m_handle;
     SocketFamily m_socketFamily;
     SocketType m_socketType;
@@ -26,8 +29,8 @@ private:
 #endif
 
 public:
-    Socket();
-	Socket(SocketFamily socketFamily, SocketType socketType);
+    Socket(ISocketAPI & socketAPI);
+	Socket(ISocketAPI & socketAPI, SocketFamily socketFamily, SocketType socketType);
 	Socket(const Socket & other);
 	Socket(Socket && other);
     virtual ~Socket();

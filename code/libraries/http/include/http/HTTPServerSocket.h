@@ -11,13 +11,15 @@ private:
     network::PortType m_port;
     int m_numListeners;
     SocketBlocking m_blockingMode;
+    bool m_isInitialized;
 
 public:
-    HTTPServerSocket(network::PortType port, int numListeners, SocketBlocking blockingMode);
+    HTTPServerSocket(network::ISocketAPI & api, network::PortType port, int numListeners, SocketBlocking blockingMode);
     ~HTTPServerSocket();
 
     bool Initialize();
     bool Uninitialize();
+    bool IsInitialized();
 
     bool Accept(network::IPV4TCPSocket & clientSocket);
 

@@ -4,8 +4,9 @@
 
 namespace http {
 
-HTTPServerThread::HTTPServerThread()
+HTTPServerThread::HTTPServerThread(network::ISocketAPI & api)
     : core::WorkerThread("HTTPServer")
+    , m_socketAPI(api)
     , m_port()
     , m_numListeners()
     , m_blockingMode()
@@ -24,11 +25,11 @@ bool HTTPServerThread::Start(network::PortType port, int numListeners, SocketBlo
 
 void HTTPServerThread::Thread()
 {
-    HTTPServerSocket serverSocket(m_port, m_numListeners, m_blockingMode);
+    HTTPServerSocket serverSocket(m_socketAPI, m_port, m_numListeners, m_blockingMode);
 }
 
-HTTPServer::HTTPServer()
-
+HTTPServer::HTTPServer(network::ISocketAPI & api)
+    : m_serverThread(api)
 {
 
 }

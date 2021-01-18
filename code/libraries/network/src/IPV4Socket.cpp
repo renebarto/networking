@@ -20,13 +20,13 @@ namespace network {
 static const size_t BufferSize = 4096;
 static constexpr SocketFamily IPV4SocketFamily = SocketFamily::InternetV4;
 
-IPV4Socket::IPV4Socket()
-    : Socket()
+IPV4Socket::IPV4Socket(ISocketAPI & socketAPI)
+    : Socket(socketAPI)
 {
 }
 
-IPV4Socket::IPV4Socket(SocketType socketType)
-    : Socket(IPV4SocketFamily, socketType)
+IPV4Socket::IPV4Socket(ISocketAPI & socketAPI, SocketType socketType)
+    : Socket(socketAPI, IPV4SocketFamily, socketType)
 {
 }
 

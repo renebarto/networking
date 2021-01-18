@@ -2,8 +2,8 @@
 
 namespace network {
 
-IPV4TCPSocket::IPV4TCPSocket()
-    : IPV4Socket(SocketType::Stream)
+IPV4TCPSocket::IPV4TCPSocket(ISocketAPI & socketAPI)
+    : IPV4Socket(socketAPI, SocketType::Stream)
 {    
 }
 

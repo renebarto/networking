@@ -1,12 +1,14 @@
 #include "GoogleTest.h"
 
+#include "network-osal/SocketAPI.h"
 #include "http/HTTPClient.h"
 
 namespace http {
 
 TEST(HTTPClientTest, ConstructDefault)
 {
-    HTTPClient client("localhost", 8080);
+    network::SocketAPI api;
+    HTTPClient client(api, "localhost", 8080);
     FAIL();
 }
 

@@ -2,8 +2,8 @@
 
 namespace http {
 
-HTTPClientSocket::HTTPClientSocket(const network::IPV4EndPoint & /*address*/)
-    : IPV4TCPSocket()
+HTTPClientSocket::HTTPClientSocket(network::ISocketAPI & api, const network::IPV4EndPoint & /*address*/)
+    : IPV4TCPSocket(api)
     , m_serverEndPoint()
 {
 }

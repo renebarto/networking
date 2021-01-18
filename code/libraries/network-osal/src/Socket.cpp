@@ -6,6 +6,7 @@
 #include "tracing/Logging.h"
 #include "utility/Error.h"
 #include "network-osal/Network.h"
+#include "network-osal/SocketAPI.h"
 
 #if defined(PLATFORM_LINUX)
 
@@ -64,8 +65,9 @@ static SocketInitializer winsockInitalizer;
 
 #endif
 
-Socket::Socket()
-    : m_handle(InvalidHandleValue)
+Socket::Socket(ISocketAPI & socketAPI)
+    : m_socketAPI(socketAPI)
+    , m_handle(InvalidHandleValue)
     , m_socketFamily(SocketFamily::Any)
     , m_socketType(SocketType::None)
 #if defined(PLATFORM_WINDOWS)
@@ -77,8 +79,9 @@ Socket::Socket()
     });
 }
 
-Socket::Socket(SocketFamily socketFamily, SocketType socketType)
-    : m_handle(InvalidHandleValue)
+Socket::Socket(ISocketAPI & socketAPI, SocketFamily socketFamily, SocketType socketType)
+    : m_socketAPI(socketAPI)
+    , m_handle(InvalidHandleValue)
     , m_socketFamily(socketFamily)
     , m_socketType(socketType)
 #if defined(PLATFORM_WINDOWS)
@@ -94,7 +97,8 @@ Socket::Socket(SocketFamily socketFamily, SocketType socketType)
 }
 
 Socket::Socket(const Socket & other)
-    : m_handle(other.m_handle)
+    : m_socketAPI(other.m_socketAPI)
+    , m_handle(other.m_handle)
     , m_socketFamily(other.m_socketFamily)
     , m_socketType(other.m_socketType)
 #if defined(PLATFORM_WINDOWS)
@@ -109,7 +113,8 @@ Socket::Socket(const Socket & other)
 }
 
 Socket::Socket(Socket && other)
-    : m_handle(other.m_handle)
+    : m_socketAPI(other.m_socketAPI)
+    , m_handle(other.m_handle)
     , m_socketFamily(other.m_socketFamily)
     , m_socketType(other.m_socketType)
 #if defined(PLATFORM_WINDOWS)
@@ -187,7 +192,7 @@ Socket::Open(SocketFamily socketFamily, SocketType socketType, SocketProtocol pr
     });
     Close();
     Lock lock(m_mutex);
-    SocketHandle result = socket(static_cast<int>(socketFamily), static_cast<int>(socketType), static_cast<int>(protocol));
+    SocketHandle result = m_socketAPI.Open(socketFamily, socketType, protocol);
     if (result != InvalidHandleValue)
     {
         m_handle = result;
@@ -210,11 +215,7 @@ Socket::Close()
     int result = 0;
     if (m_handle != InvalidHandleValue)
     {
-#if defined(PLATFORM_LINUX)
-        result = close(m_handle);
-#elif defined(PLATFORM_WINDOWS)
-        result = closesocket(m_handle);
-#endif
+        m_socketAPI.Close(m_handle);
         m_handle = InvalidHandleValue;
         m_socketFamily = {};
         m_socketType = {};
@@ -251,11 +252,7 @@ void Socket::SetSocketOptionWithLevel(SocketOptionLevel level, SocketOption sock
         return utility::FormatString(std::string("result={}"), 
             serialization::Serialize(result, 0));
     });
-#if defined(PLATFORM_LINUX)
-    result = setsockopt(this->GetHandle(), static_cast<int>(level), static_cast<int>(socketOption), optionValue, optionLength);
-#elif defined(PLATFORM_WINDOWS)
-    result = setsockopt(this->GetHandle(), static_cast<int>(level), static_cast<int>(socketOption), reinterpret_cast<const char *>(optionValue), optionLength);
-#endif
+    result = m_socketAPI.SetSocketOption(m_handle, level, socketOption, optionValue, optionLength);
     if (result == -1)
     {
         int errorCode = GetError();
@@ -278,11 +275,7 @@ void Socket::GetSocketOptionWithLevel(SocketOptionLevel level, SocketOption sock
             serialization::Serialize(result, 0),
             serialization::Serialize(*optionLength, 0));
     });
-#if defined(PLATFORM_LINUX)
-    result = getsockopt(this->GetHandle(), static_cast<int>(level), static_cast<int>(socketOption), optionValue, optionLength);
-#elif defined(PLATFORM_WINDOWS)
-    result = getsockopt(this->GetHandle(), static_cast<int>(level), static_cast<int>(socketOption), reinterpret_cast<char *>(optionValue), optionLength);
-#endif
+    result = m_socketAPI.GetSocketOption(m_handle, level, socketOption, optionValue, optionLength);
     if (result == -1)
     {
         int errorCode = GetError();
@@ -395,30 +388,14 @@ void Socket::SetBlockingMode(bool value)
         return utility::FormatString(std::string("value={}"), 
             serialization::Serialize(value, 0));
     }, nullptr);
-#if defined(PLATFORM_LINUX)
-    int flags = fcntl(this->GetHandle(), F_GETFL);
-    if (flags == -1)
+    int result = m_socketAPI.SetBlockingMode(m_handle, value);
+    if (result == -1)
     {
         int errorCode = GetError();
 
         tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "fcntl() failed"));
     }
-    int errorCode = fcntl(this->GetHandle(), F_SETFL, value ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK));
-    if (errorCode == -1)
-    {
-        int errorCode = GetError();
-
-        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "fcntl() failed"));
-    }
-#elif defined(PLATFORM_WINDOWS)
-    unsigned long mode = value ? 0ul : 1ul;
-    int result = ioctlsocket(this->GetHandle(), FIONBIO, &mode);
-    if (result == SOCKET_ERROR)
-    {
-        int errorCode = GetError();
-
-        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "fcntl() failed"));
-    }
+#if defined(PLATFORM_WINDOWS)
     m_isBlocking = value;
 #endif
 }
@@ -431,14 +408,13 @@ bool Socket::GetBlockingMode()
             serialization::Serialize(result, 0));
     });
 #if defined(PLATFORM_LINUX)
-    int flags = fcntl(this->GetHandle(), F_GETFL);
-    if (flags == -1)
+    int returnValue = m_socketAPI.GetBlockingMode(m_handle, result);
+    if (returnValue == -1)
     {
         int errorCode = GetError();
 
         tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "fcntl() failed"));
     }
-    result = (flags & O_NONBLOCK) == 0;
 #elif defined(PLATFORM_WINDOWS)
     result = m_isBlocking;
 #endif
@@ -532,7 +508,7 @@ void Socket::Bind(const sockaddr * address, socklen_t addressLength)
         return utility::FormatString(std::string("result={}"), 
             serialization::Serialize(result, 0));
     });
-    result = ::bind(this->GetHandle(), address, addressLength);
+    result = m_socketAPI.Bind(m_handle, address, addressLength);
     if (result == -1)
     {
         int errorCode = GetError();
@@ -564,7 +540,7 @@ bool Socket::Connect(sockaddr const * serverAddress, socklen_t serverAddressLeng
     }
 
 #if defined(PLATFORM_LINUX)
-    result = ::connect(GetHandle(), serverAddress, serverAddressLength);
+    result = m_socketAPI.Connect(m_handle, serverAddress, serverAddressLength);
     if (result == -1)
     {
         int errorCode = GetError();
@@ -605,7 +581,7 @@ bool Socket::Connect(sockaddr const * serverAddress, socklen_t serverAddressLeng
         waitTime = timeout;
     }
 
-    result = ::connect(GetHandle(), serverAddress, serverAddressLength);
+    result = m_socketAPI.Connect(m_handle, serverAddress, serverAddressLength);
     if (result == -1)
     {
         int errorCode = GetError();
@@ -663,7 +639,7 @@ void Socket::Listen(int numListeners)
         return utility::FormatString(std::string("result={}"), 
             serialization::Serialize(result, 0));
     });
-    result = ::listen(GetHandle(), numListeners);
+    result = m_socketAPI.Listen(m_handle, numListeners);
     if (result == -1)
     {
         int errorCode = GetError();
@@ -706,7 +682,7 @@ bool Socket::Accept(Socket & connectionSocket, sockaddr * clientAddress, socklen
 
     do
     {
-        handle = ::accept(GetHandle(), clientAddress, clientAddressLength);
+        handle = static_cast<SocketHandle>(m_socketAPI.Accept(m_handle, clientAddress, clientAddressLength));
         if (handle == -1)
         {
             int errorCode = GetError();
@@ -755,7 +731,7 @@ void Socket::GetLocalAddress(sockaddr * address, socklen_t * addressLength)
             serialization::Serialize(result != -1, 0),
             serialization::Serialize(*addressLength, 0));
     });
-    result = ::getsockname(this->GetHandle(), address, addressLength);
+    result = m_socketAPI.GetLocalAddress(m_handle, address, addressLength);
     if (result == -1)
     {
         int errorCode = GetError();
@@ -776,7 +752,7 @@ void Socket::GetRemoteAddress(sockaddr * address, socklen_t * addressLength)
             serialization::Serialize(result != -1, 0),
             serialization::Serialize(*addressLength, 0));
     });
-    result = ::getpeername(this->GetHandle(), address, addressLength);
+    result = m_socketAPI.GetRemoteAddress(m_handle, address, addressLength);
     if (result == -1)
     {
         int errorCode = GetError();
@@ -799,7 +775,7 @@ std::size_t Socket::Receive(std::uint8_t * data, std::size_t bufferSize, int fla
     });
     try
     {
-        int result = ::recv(GetHandle(), reinterpret_cast<char *>(data), static_cast<int>(bufferSize), flags);
+        int result = m_socketAPI.Receive(m_handle, data, bufferSize, flags);
         if (result == -1)
         {
             int errorCode = GetError();
@@ -841,7 +817,7 @@ bool Socket::Send(const std::uint8_t * data, std::size_t bytesToSend, int flags)
 
     while (numBytesLeftToSend > 0)
     {
-        int numBytes = ::send(GetHandle(), reinterpret_cast<const char *> (data + offset), numBytesLeftToSend, flags);
+        int numBytes = m_socketAPI.Send(m_handle, data + offset, static_cast<std::size_t>(numBytesLeftToSend), flags);
         if (numBytes == -1)
         {
             int errorCode = GetError();
@@ -878,7 +854,7 @@ std::size_t Socket::ReceiveFrom(sockaddr * address, socklen_t * addressLength, s
             serialization::Serialize(address, addressLength),
             serialization::SerializeData(data, bufferSize));
     });
-    int result = ::recvfrom(GetHandle(), reinterpret_cast<char *>(data), static_cast<int>(bufferSize), 0, address, addressLength);
+    int result = m_socketAPI.ReceiveFrom(m_handle, data, bufferSize, 0, address, addressLength);
     if (result == -1)
     {
         int errorCode = GetError();
@@ -905,7 +881,7 @@ void Socket::SendTo(const sockaddr * address, socklen_t addressLength, const std
         return utility::FormatString(std::string("result={}"), 
             serialization::Serialize(result, 0));
     });
-    result = ::sendto(GetHandle(), reinterpret_cast<const char *>(data), static_cast<int>(bytesToSend), 0, address, addressLength);
+    result = m_socketAPI.SendTo(m_handle, data, bytesToSend, 0, address, addressLength);
     if (result == -1)
     {
         int errorCode = GetError();

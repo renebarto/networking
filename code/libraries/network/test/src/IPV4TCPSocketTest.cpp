@@ -2,6 +2,7 @@
 
 #include "network/IPV4TCPSocket.h"
 
+#include "network-osal/SocketAPI.h"
 #include "tracing/ScopedTracing.h"
 #include "tracing/Tracing.h"
 #include "Utility.h"
@@ -29,7 +30,8 @@ public:
 
 TEST_F(IPV4TCPSocketTest, ConstructDefault)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     EXPECT_NE(InvalidHandleValue, target.GetHandle());
     EXPECT_TRUE(target.IsOpen());
     EXPECT_EQ(SocketFamily::InternetV4, target.Family());
@@ -38,7 +40,8 @@ TEST_F(IPV4TCPSocketTest, ConstructDefault)
 
 TEST_F(IPV4TCPSocketTest, ConstructCopy)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     auto handle = target.GetHandle();
     IPV4TCPSocket newSocket(target);
     EXPECT_EQ(handle, target.GetHandle());
@@ -56,7 +59,8 @@ TEST_F(IPV4TCPSocketTest, ConstructCopy)
 
 TEST_F(IPV4TCPSocketTest, ConstructMove)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     auto handle = target.GetHandle();
 
     IPV4TCPSocket newSocket(std::move(target));
@@ -72,10 +76,11 @@ TEST_F(IPV4TCPSocketTest, ConstructMove)
 
 TEST_F(IPV4TCPSocketTest, AssignMove)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     auto handle = target.GetHandle();
 
-    IPV4TCPSocket newSocket;
+    IPV4TCPSocket newSocket(api);
     newSocket = std::move(target);
     EXPECT_EQ(InvalidHandleValue, target.GetHandle());
     EXPECT_FALSE(target.IsOpen());
@@ -89,7 +94,8 @@ TEST_F(IPV4TCPSocketTest, AssignMove)
 
 TEST_F(IPV4TCPSocketTest, GetSetHandle)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     target.Close();
 
     SocketHandle handle = 1234;
@@ -104,7 +110,8 @@ TEST_F(IPV4TCPSocketTest, GetSetHandle)
 
 TEST_F(IPV4TCPSocketTest, Open)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     target.Close();
     target.Open();
     EXPECT_TRUE(target.IsOpen());
@@ -114,7 +121,8 @@ TEST_F(IPV4TCPSocketTest, Open)
 
 TEST_F(IPV4TCPSocketTest, Close)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     target.Open();
     EXPECT_TRUE(target.IsOpen());
     target.Close();
@@ -125,7 +133,8 @@ TEST_F(IPV4TCPSocketTest, Close)
 
 TEST_F(IPV4TCPSocketTest, GetOptionWithLevel)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     linger value { };
     socklen_t size = static_cast<socklen_t>(sizeof(value));
     target.GetSocketOptionWithLevel(SocketOptionLevel::Socket, SocketOption::Linger, &value, &size);
@@ -135,7 +144,8 @@ TEST_F(IPV4TCPSocketTest, GetOptionWithLevel)
 
 TEST_F(IPV4TCPSocketTest, SetOptionWithLevel)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     linger value { 1, 0 };
     socklen_t size = static_cast<socklen_t>(sizeof(value));
     linger actual;
@@ -147,7 +157,8 @@ TEST_F(IPV4TCPSocketTest, SetOptionWithLevel)
 
 TEST_F(IPV4TCPSocketTest, GetOption)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     linger value { };
     socklen_t size = static_cast<socklen_t>(sizeof(value));
     target.GetSocketOption(SocketOption::Linger, &value, &size);
@@ -157,7 +168,8 @@ TEST_F(IPV4TCPSocketTest, GetOption)
 
 TEST_F(IPV4TCPSocketTest, SetOption)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     linger value { 1, 0 };
     socklen_t size = static_cast<socklen_t>(sizeof(value));
     linger actual;
@@ -169,20 +181,23 @@ TEST_F(IPV4TCPSocketTest, SetOption)
 
 TEST_F(IPV4TCPSocketTest, GetSetSocketOptionBool)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     target.SetSocketOptionBool(SocketOption::KeepAlive, true);
     EXPECT_TRUE(target.GetSocketOptionBool(SocketOption::KeepAlive));
 }
 
 TEST_F(IPV4TCPSocketTest, GetSocketOptionInt)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     EXPECT_NE(0, target.GetSocketOptionInt(SocketOption::ReceiveBuffer));
 }
 
 TEST_F(IPV4TCPSocketTest, SetSocketOptionInt)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     // Must be larger than 2304
     int receiveBufferSize = 4096;
     EXPECT_NE(0, target.GetSocketOptionInt(SocketOption::ReceiveBuffer));
@@ -192,13 +207,15 @@ TEST_F(IPV4TCPSocketTest, SetSocketOptionInt)
 
 TEST_F(IPV4TCPSocketTest, GetBlockingMode)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     EXPECT_TRUE(target.GetBlockingMode());
 }
 
 TEST_F(IPV4TCPSocketTest, SetBlockingMode)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     EXPECT_TRUE(target.GetBlockingMode());
     target.SetBlockingMode(false);
     EXPECT_FALSE(target.GetBlockingMode());
@@ -208,13 +225,15 @@ TEST_F(IPV4TCPSocketTest, SetBlockingMode)
 
 TEST_F(IPV4TCPSocketTest, GetReuseAddress)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     EXPECT_FALSE(target.GetReuseAddress());
 }
 
 TEST_F(IPV4TCPSocketTest, SetReuseAddress)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     EXPECT_FALSE(target.GetReuseAddress());
     target.SetReuseAddress(true);
     EXPECT_TRUE(target.GetReuseAddress());
@@ -224,14 +243,16 @@ TEST_F(IPV4TCPSocketTest, SetReuseAddress)
 
 TEST_F(IPV4TCPSocketTest, GetReceiveTimeout)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     std::chrono::milliseconds timeout(0);
     EXPECT_EQ(timeout, target.GetReceiveTimeout());
 }
 
 TEST_F(IPV4TCPSocketTest, SetReceiveTimeout)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     std::chrono::milliseconds timeout(0);
     std::chrono::milliseconds timeoutNew(1000);
     EXPECT_EQ(timeout, target.GetReceiveTimeout());
@@ -243,14 +264,16 @@ TEST_F(IPV4TCPSocketTest, SetReceiveTimeout)
 
 TEST_F(IPV4TCPSocketTest, GetSendTimeout)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     std::chrono::milliseconds timeout(0);
     EXPECT_EQ(timeout, target.GetSendTimeout());
 }
 
 TEST_F(IPV4TCPSocketTest, SetSendTimeout)
 {
-    IPV4TCPSocket target;
+    SocketAPI api;
+    IPV4TCPSocket target(api);
     std::chrono::milliseconds timeout(0);
     std::chrono::milliseconds timeoutNew(1000);
     EXPECT_EQ(timeout, target.GetSendTimeout());
@@ -262,15 +285,16 @@ TEST_F(IPV4TCPSocketTest, SetSendTimeout)
 
 bool IPV4TCPSocketTCPAcceptThread()
 {
+    SocketAPI api;
     bool accepted {};
     SCOPEDTRACE([] () { return "TCP Accept Send Recv thread"; }, [&]{
         return serialization::Serialize(accepted);
     });
-    IPV4TCPSocket acceptorSocket;
+    IPV4TCPSocket acceptorSocket(api);
 
     acceptorSocket.Bind(IPV4EndPoint(TestPort));
     acceptorSocket.Listen(1);
-    IPV4TCPSocket newSocket;
+    IPV4TCPSocket newSocket(api);
     IPV4EndPoint clientAddress;
     accepted = acceptorSocket.Accept(newSocket, clientAddress, 5000);
     const std::size_t BufferSize = 10;
@@ -285,7 +309,8 @@ bool IPV4TCPSocketTCPAcceptThread()
 
 TEST_F(IPV4TCPSocketTest, ConnectAcceptSendReceiveTCP)
 {
-    IPV4TCPSocket clientSocket;
+    SocketAPI api;
+    IPV4TCPSocket clientSocket(api);
     IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
 
     BoolReturnThread acceptorThread(IPV4TCPSocketTCPAcceptThread);

@@ -8,7 +8,7 @@ class IPV4UDPSocket
     : private IPV4Socket
 {
 public:
-    IPV4UDPSocket();
+    IPV4UDPSocket(ISocketAPI & socketAPI);
     IPV4UDPSocket(const IPV4UDPSocket & other);
     IPV4UDPSocket(IPV4UDPSocket && other);
 

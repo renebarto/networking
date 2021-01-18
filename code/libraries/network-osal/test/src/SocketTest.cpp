@@ -7,7 +7,13 @@
 #include "tracing/ScopedTracing.h"
 #include "tracing/Tracing.h"
 
+#include "SocketAPIMock.h"
+
 namespace network {
+namespace testing {
+
+using ::testing::DoAll;
+using ::testing::SetArgPointee;
 
 class SocketTest : public ::testing::Test
 {
@@ -30,7 +36,12 @@ public:
 
 TEST_F(SocketTest, Construct)
 {
-    Socket target;
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(_, _, _)).Times(0);
+
+    Socket target(api);
+
     EXPECT_EQ(InvalidHandleValue, target.GetHandle());
     EXPECT_FALSE(target.IsOpen());
     EXPECT_EQ(SocketFamily::Any, target.Family());
@@ -39,7 +50,14 @@ TEST_F(SocketTest, Construct)
 
 TEST_F(SocketTest, ConstructAndOpen)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Stream);
+    // ::testing::NiceMock<testing::SocketAPIMock> api;
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Stream);
+
     EXPECT_TRUE(target.IsOpen());
     EXPECT_EQ(SocketFamily::InternetV4, target.Family());
     EXPECT_EQ(SocketType::Stream, target.Type());
@@ -47,9 +65,15 @@ TEST_F(SocketTest, ConstructAndOpen)
 
 TEST_F(SocketTest, ConstructCopy)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
     auto handle = target.GetHandle();
     Socket newSocket(target);
+
     EXPECT_EQ(handle, target.GetHandle());
     EXPECT_TRUE(target.IsOpen());
     EXPECT_EQ(handle, newSocket.GetHandle());
@@ -65,7 +89,12 @@ TEST_F(SocketTest, ConstructCopy)
 
 TEST_F(SocketTest, ConstructMove)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
     auto handle = target.GetHandle();
 
     Socket newSocket(std::move(target));
@@ -81,10 +110,15 @@ TEST_F(SocketTest, ConstructMove)
 
 TEST_F(SocketTest, AssignMove)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
     auto handle = target.GetHandle();
 
-    Socket newSocket;
+    Socket newSocket(api);
     newSocket = std::move(target);
     EXPECT_EQ(InvalidHandleValue, target.GetHandle());
     EXPECT_FALSE(target.IsOpen());
@@ -98,7 +132,12 @@ TEST_F(SocketTest, AssignMove)
 
 TEST_F(SocketTest, GetSetHandle)
 {
-    Socket target;
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(0);
+    EXPECT_CALL(api, Close(_)).Times(0);
+
+    Socket target(api);
     EXPECT_EQ(InvalidHandleValue, target.GetHandle());
 
     SocketHandle handle = 1234;
@@ -112,7 +151,12 @@ TEST_F(SocketTest, GetSetHandle)
 
 TEST_F(SocketTest, Open)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Stream);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Stream);
     EXPECT_TRUE(target.IsOpen());
     EXPECT_EQ(SocketFamily::InternetV4, target.Family());
     EXPECT_EQ(SocketType::Stream, target.Type());
@@ -120,7 +164,13 @@ TEST_F(SocketTest, Open)
 
 TEST_F(SocketTest, OpenAndReOpen)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Stream);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(2);
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Stream);
     EXPECT_TRUE(target.IsOpen());
     EXPECT_EQ(SocketFamily::InternetV4, target.Family());
     EXPECT_EQ(SocketType::Stream, target.Type());
@@ -132,30 +182,61 @@ TEST_F(SocketTest, OpenAndReOpen)
 
 TEST_F(SocketTest, Close)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Stream);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Stream);
     EXPECT_TRUE(target.IsOpen());
+    target.Close();
+    EXPECT_FALSE(target.IsOpen());
+    EXPECT_EQ(SocketFamily::Any, target.Family());
+    EXPECT_EQ(SocketType::None, target.Type());
+
     target.Close();
     EXPECT_FALSE(target.IsOpen());
     EXPECT_EQ(SocketFamily::Any, target.Family());
     EXPECT_EQ(SocketType::None, target.Type());
 }
 
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable: 4100)
+#endif
+ACTION_P(SetArg3ToMCValue, value) { *reinterpret_cast<int *>(arg3) = value; return 0; }
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default: 4100)
+#endif
+
 TEST_F(SocketTest, GetOptionWithLevel)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
+    testing::SocketAPIMock api;
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, GetSocketOption(_, SocketOptionLevel::Socket, SocketOption::Broadcast, &value, &size)).WillOnce(SetArg3ToMCValue(0));
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
     target.GetSocketOptionWithLevel(SocketOptionLevel::Socket, SocketOption::Broadcast, &value, &size);
     EXPECT_FALSE(value != 0);
 }
 
 TEST_F(SocketTest, SetOptionWithLevel)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
-    EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
+    testing::SocketAPIMock api;
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value = 1;
     int actual;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, GetSocketOption(_, SocketOptionLevel::Socket, SocketOption::Broadcast, _, _)).WillOnce(SetArg3ToMCValue(0)).WillOnce(SetArg3ToMCValue(1));
+    EXPECT_CALL(api, SetSocketOption(_, SocketOptionLevel::Socket, SocketOption::Broadcast, &value, size)).Times(1);
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+    EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
     target.SetSocketOptionWithLevel(SocketOptionLevel::Socket, SocketOption::Broadcast, &value, size);
     target.GetSocketOptionWithLevel(SocketOptionLevel::Socket, SocketOption::Broadcast, &actual, &size);
     EXPECT_EQ(value, actual);
@@ -163,20 +244,33 @@ TEST_F(SocketTest, SetOptionWithLevel)
 
 TEST_F(SocketTest, GetOption)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
+    testing::SocketAPIMock api;
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, GetSocketOption(_, SocketOptionLevel::Socket, SocketOption::Broadcast, &value, &size)).WillOnce(SetArg3ToMCValue(0));
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
     target.GetSocketOption(SocketOption::Broadcast, &value, &size);
     EXPECT_FALSE(value != 0);
 }
 
 TEST_F(SocketTest, SetOption)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
-    EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
+    testing::SocketAPIMock api;
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value = 1;
     int actual;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, GetSocketOption(_, SocketOptionLevel::Socket, SocketOption::Broadcast, _, _)).WillOnce(SetArg3ToMCValue(0)).WillOnce(SetArg3ToMCValue(1));
+    EXPECT_CALL(api, SetSocketOption(_, SocketOptionLevel::Socket, SocketOption::Broadcast, &value, size)).Times(1);
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+    EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
     target.SetSocketOption(SocketOption::Broadcast, &value, size);
     target.GetSocketOption(SocketOption::Broadcast, &actual, &size);
     EXPECT_EQ(value, actual);
@@ -184,13 +278,26 @@ TEST_F(SocketTest, SetOption)
 
 TEST_F(SocketTest, GetSocketOptionBool)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, GetSocketOption(_, SocketOptionLevel::Socket, SocketOption::Broadcast, _, _)).WillOnce(SetArg3ToMCValue(0));
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
 }
 
 TEST_F(SocketTest, SetSocketOptionBool)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, GetSocketOption(_, SocketOptionLevel::Socket, SocketOption::Broadcast, _, _)).WillOnce(SetArg3ToMCValue(0)).WillOnce(SetArg3ToMCValue(1));
+    EXPECT_CALL(api, SetSocketOption(_, SocketOptionLevel::Socket, SocketOption::Broadcast, _, _)).Times(1);
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
     target.SetSocketOptionBool(SocketOption::Broadcast, true);
     EXPECT_TRUE(target.GetSocketOptionBool(SocketOption::Broadcast));
@@ -198,14 +305,27 @@ TEST_F(SocketTest, SetSocketOptionBool)
 
 TEST_F(SocketTest, GetSocketOptionInt)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, GetSocketOption(_, SocketOptionLevel::Socket, SocketOption::Broadcast, _, _)).WillOnce(SetArg3ToMCValue(0));
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_EQ(0, target.GetSocketOptionInt(SocketOption::Broadcast));
 }
 
 TEST_F(SocketTest, SetSocketOptionInt)
 {
     int enableBroadcast = 1;
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, GetSocketOption(_, SocketOptionLevel::Socket, SocketOption::Broadcast, _, _)).WillOnce(SetArg3ToMCValue(0)).WillOnce(SetArg3ToMCValue(1));
+    EXPECT_CALL(api, SetSocketOption(_, SocketOptionLevel::Socket, SocketOption::Broadcast, _, _)).Times(1);
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_FALSE(target.GetSocketOptionInt(SocketOption::Broadcast));
     target.SetSocketOptionInt(SocketOption::Broadcast, enableBroadcast);
     EXPECT_EQ(enableBroadcast, target.GetSocketOptionInt(SocketOption::Broadcast));
@@ -213,27 +333,65 @@ TEST_F(SocketTest, SetSocketOptionInt)
 
 TEST_F(SocketTest, GetBroadcastOption)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, GetSocketOption(_, SocketOptionLevel::Socket, SocketOption::Broadcast, _, _)).WillOnce(SetArg3ToMCValue(0));
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_FALSE(target.GetBroadcastOption());
 }
 
 TEST_F(SocketTest, SetBroadcastOption)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, GetSocketOption(_, SocketOptionLevel::Socket, SocketOption::Broadcast, _, _)).WillOnce(SetArg3ToMCValue(0)).WillOnce(SetArg3ToMCValue(1));
+    EXPECT_CALL(api, SetSocketOption(_, SocketOptionLevel::Socket, SocketOption::Broadcast, _, _)).Times(1);
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_FALSE(target.GetBroadcastOption());
     target.SetBroadcastOption(true);
     EXPECT_TRUE(target.GetBroadcastOption());
 }
 
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable: 4100)
+#endif
+ACTION_P(SetArg1ToMCValue, value) { arg1 = value; return 0; }
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default: 4100)
+#endif
+
 TEST_F(SocketTest, GetBlockingMode)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Stream);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+#if defined(PLATFORM_LINUX)
+    EXPECT_CALL(api, GetBlockingMode(_, _)).WillOnce(SetArg1ToMCValue(true));
+#endif
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Stream);
     EXPECT_TRUE(target.GetBlockingMode());
 }
 
 TEST_F(SocketTest, SetBlockingMode)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Stream);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, SetBlockingMode(_, _)).Times(2);
+#if defined(PLATFORM_LINUX)
+    EXPECT_CALL(api, GetBlockingMode(_, _)).WillOnce(SetArg1ToMCValue(true)).WillOnce(SetArg1ToMCValue(false)).WillOnce(SetArg1ToMCValue(true));
+#endif
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Stream);
     EXPECT_TRUE(target.GetBlockingMode());
     target.SetBlockingMode(false);
     EXPECT_FALSE(target.GetBlockingMode());
@@ -243,13 +401,26 @@ TEST_F(SocketTest, SetBlockingMode)
 
 TEST_F(SocketTest, GetReuseAddress)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, GetSocketOption(_, SocketOptionLevel::Socket, SocketOption::ReuseAddress, _, _)).WillOnce(SetArg3ToMCValue(0));
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_FALSE(target.GetReuseAddress());
 }
 
 TEST_F(SocketTest, SetReuseAddress)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, GetSocketOption(_, SocketOptionLevel::Socket, SocketOption::ReuseAddress, _, _)).WillOnce(SetArg3ToMCValue(0)).WillOnce(SetArg3ToMCValue(1)).WillOnce(SetArg3ToMCValue(0));
+    EXPECT_CALL(api, SetSocketOption(_, SocketOptionLevel::Socket, SocketOption::ReuseAddress, _, _)).Times(2);
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
     EXPECT_FALSE(target.GetReuseAddress());
     target.SetReuseAddress(true);
     EXPECT_TRUE(target.GetReuseAddress());
@@ -259,14 +430,27 @@ TEST_F(SocketTest, SetReuseAddress)
 
 TEST_F(SocketTest, GetReceiveTimeout)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, GetSocketOption(_, SocketOptionLevel::Socket, SocketOption::ReceiveTimeout, _, _)).WillOnce(SetArg3ToMCValue(0));
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
     std::chrono::milliseconds timeout(0);
     EXPECT_EQ(timeout, target.GetReceiveTimeout());
 }
 
 TEST_F(SocketTest, SetReceiveTimeout)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, GetSocketOption(_, SocketOptionLevel::Socket, SocketOption::ReceiveTimeout, _, _)).WillOnce(SetArg3ToMCValue(0)).WillOnce(SetArg3ToMCValue(1)).WillOnce(SetArg3ToMCValue(0));
+    EXPECT_CALL(api, SetSocketOption(_, SocketOptionLevel::Socket, SocketOption::ReceiveTimeout, _, _)).Times(2);
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
     std::chrono::milliseconds timeout(0);
     std::chrono::milliseconds timeoutNew(1000);
     EXPECT_EQ(timeout, target.GetReceiveTimeout());
@@ -278,14 +462,27 @@ TEST_F(SocketTest, SetReceiveTimeout)
 
 TEST_F(SocketTest, GetSendTimeout)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, GetSocketOption(_, SocketOptionLevel::Socket, SocketOption::SendTimeout, _, _)).WillOnce(SetArg3ToMCValue(0));
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
     std::chrono::milliseconds timeout(0);
     EXPECT_EQ(timeout, target.GetSendTimeout());
 }
 
 TEST_F(SocketTest, SetSendTimeout)
 {
-    Socket target(SocketFamily::InternetV4, SocketType::Datagram);
+    testing::SocketAPIMock api;
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, GetSocketOption(_, SocketOptionLevel::Socket, SocketOption::SendTimeout, _, _)).WillOnce(SetArg3ToMCValue(0)).WillOnce(SetArg3ToMCValue(1)).WillOnce(SetArg3ToMCValue(0));
+    EXPECT_CALL(api, SetSocketOption(_, SocketOptionLevel::Socket, SocketOption::SendTimeout, _, _)).Times(2);
+
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
     std::chrono::milliseconds timeout(0);
     std::chrono::milliseconds timeoutNew(1000);
     EXPECT_EQ(timeout, target.GetSendTimeout());
@@ -335,13 +532,14 @@ bool TCPAcceptThread()
     SCOPEDTRACE([] () { return "TCP Accept Send Recv thread"; }, [&]{
         return serialization::Serialize(accepted);
     });
-    Socket acceptorSocket(SocketFamily::InternetV4, SocketType::Stream);
+    SocketAPI api;
+    Socket acceptorSocket(api, SocketFamily::InternetV4, SocketType::Stream);
     sockaddr_in serverAddress {};
     FillAddress(serverAddress, TestPort, IPV4Address::LocalHost.GetUInt32());
 
     acceptorSocket.Bind(reinterpret_cast<sockaddr *>(&serverAddress), sizeof(serverAddress));
     acceptorSocket.Listen(1);
-    Socket newSocket;
+    Socket newSocket(api);
     sockaddr_in clientAddress {};
     socklen_t clientAddressSize = sizeof(clientAddress);
     accepted = acceptorSocket.Accept(newSocket, reinterpret_cast<sockaddr *>(&clientAddress), &clientAddressSize, 5000);
@@ -357,7 +555,8 @@ bool TCPAcceptThread()
 
 TEST_F(SocketTest, ConnectAcceptSendReceiveTCP)
 {
-    Socket clientSocket(SocketFamily::InternetV4, SocketType::Stream);
+    SocketAPI api;
+    Socket clientSocket(api, SocketFamily::InternetV4, SocketType::Stream);
     sockaddr_in serverAddress {};
     FillAddress(serverAddress, TestPort, IPV4Address::LocalHost.GetUInt32());
 
@@ -388,7 +587,8 @@ bool UDPServerThread()
     SCOPEDTRACE([] () { return "UDP Send Recv thread"; }, [&]{
         return serialization::Serialize(ok);
     });
-    Socket serverSocket(SocketFamily::InternetV4, SocketType::Datagram);
+    SocketAPI api;
+    Socket serverSocket(api, SocketFamily::InternetV4, SocketType::Datagram);
     sockaddr_in serverAddress {};
     FillAddress(serverAddress, TestPort, IPV4Address::Any.GetUInt32());
 
@@ -407,7 +607,8 @@ bool UDPServerThread()
 
 TEST_F(SocketTest, SendReceiveUDPConnected)
 {
-    Socket clientSocket(SocketFamily::InternetV4, SocketType::Datagram);
+    SocketAPI api;
+    Socket clientSocket(api, SocketFamily::InternetV4, SocketType::Datagram);
     sockaddr_in serverAddress {};
     FillAddress(serverAddress, TestPort, IPV4Address::LocalHost.GetUInt32());
 
@@ -432,7 +633,8 @@ TEST_F(SocketTest, SendReceiveUDPConnected)
 
 TEST_F(SocketTest, SendReceiveUDPConnectionless)
 {
-    Socket clientSocket(SocketFamily::InternetV4, SocketType::Datagram);
+    SocketAPI api;
+    Socket clientSocket(api, SocketFamily::InternetV4, SocketType::Datagram);
     sockaddr_in serverAddress {};
     FillAddress(serverAddress, TestPort, IPV4Address::LocalHost.GetUInt32());
 
@@ -454,7 +656,8 @@ TEST_F(SocketTest, SendReceiveUDPConnectionless)
 
 TEST_F(SocketTest, SerializeSocket)
 {
-    Socket target;
+    testing::SocketAPIMock api;
+    Socket target(api);
 
     EXPECT_EQ("-1", serialization::Serialize(target, socklen_t {0}));
 
@@ -482,4 +685,5 @@ TEST_F(SocketTest, SerializeSockAddrSizePtr)
     EXPECT_EQ("addressFamily=2, size=16", serialization::Serialize(reinterpret_cast<sockaddr *>(&address), &addressSize));
 }
 
+} // namespace testing
 } // namespace network

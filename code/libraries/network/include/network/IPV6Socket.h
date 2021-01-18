@@ -11,8 +11,8 @@ class IPV6Socket
     : private Socket
 {
 public:
-    IPV6Socket();
-    IPV6Socket(SocketType socketType);
+    IPV6Socket(ISocketAPI & socketAPI);
+    IPV6Socket(ISocketAPI & socketAPI, SocketType socketType);
     IPV6Socket(const IPV6Socket & other);
     IPV6Socket(IPV6Socket && other);
 

@@ -2,6 +2,7 @@
 
 #include "network/IPV6Socket.h"
 
+#include "network-osal/SocketAPI.h"
 #include "tracing/ScopedTracing.h"
 #include "tracing/Logging.h"
 #include "utility/GenericError.h"
@@ -30,7 +31,8 @@ public:
 
 TEST_F(IPV6SocketTest, ConstructDefault)
 {
-    IPV6Socket target;
+    SocketAPI api;
+    IPV6Socket target(api);
     EXPECT_EQ(InvalidHandleValue, target.GetHandle());
     EXPECT_FALSE(target.IsOpen());
     EXPECT_EQ(SocketFamily::Any, target.Family());
@@ -39,7 +41,8 @@ TEST_F(IPV6SocketTest, ConstructDefault)
 
 TEST_F(IPV6SocketTest, Construct)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     EXPECT_NE(InvalidHandleValue, target.GetHandle());
     EXPECT_TRUE(target.IsOpen());
     EXPECT_EQ(SocketFamily::InternetV6, target.Family());
@@ -48,7 +51,8 @@ TEST_F(IPV6SocketTest, Construct)
 
 TEST_F(IPV6SocketTest, ConstructCopy)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     auto handle = target.GetHandle();
     IPV6Socket newSocket(target);
     EXPECT_EQ(handle, target.GetHandle());
@@ -66,7 +70,8 @@ TEST_F(IPV6SocketTest, ConstructCopy)
 
 TEST_F(IPV6SocketTest, ConstructMove)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     auto handle = target.GetHandle();
 
     IPV6Socket newSocket(std::move(target));
@@ -82,10 +87,11 @@ TEST_F(IPV6SocketTest, ConstructMove)
 
 TEST_F(IPV6SocketTest, AssignMove)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     auto handle = target.GetHandle();
 
-    IPV6Socket newSocket;
+    IPV6Socket newSocket(api);
     newSocket = std::move(target);
     EXPECT_EQ(InvalidHandleValue, target.GetHandle());
     EXPECT_FALSE(target.IsOpen());
@@ -99,7 +105,8 @@ TEST_F(IPV6SocketTest, AssignMove)
 
 TEST_F(IPV6SocketTest, GetSetHandle)
 {
-    IPV6Socket target;
+    SocketAPI api;
+    IPV6Socket target(api);
     EXPECT_EQ(InvalidHandleValue, target.GetHandle());
     EXPECT_FALSE(target.IsOpen());
 
@@ -115,7 +122,8 @@ TEST_F(IPV6SocketTest, GetSetHandle)
 
 TEST_F(IPV6SocketTest, Open)
 {
-    IPV6Socket target;
+    SocketAPI api;
+    IPV6Socket target(api);
     target.Open(SocketType::Stream);
     EXPECT_TRUE(target.IsOpen());
     EXPECT_EQ(SocketFamily::InternetV6, target.Family());
@@ -124,7 +132,8 @@ TEST_F(IPV6SocketTest, Open)
 
 TEST_F(IPV6SocketTest, OpenAndReOpen)
 {
-    IPV6Socket target;
+    SocketAPI api;
+    IPV6Socket target(api);
     target.Open(SocketType::Stream);
     EXPECT_TRUE(target.IsOpen());
     EXPECT_EQ(SocketFamily::InternetV6, target.Family());
@@ -137,7 +146,8 @@ TEST_F(IPV6SocketTest, OpenAndReOpen)
 
 TEST_F(IPV6SocketTest, Close)
 {
-    IPV6Socket target;
+    SocketAPI api;
+    IPV6Socket target(api);
     target.Open(SocketType::Stream);
     EXPECT_TRUE(target.IsOpen());
     target.Close();
@@ -148,7 +158,8 @@ TEST_F(IPV6SocketTest, Close)
 
 TEST_F(IPV6SocketTest, GetOptionWithLevel)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value;
     target.GetSocketOptionWithLevel(SocketOptionLevel::Socket, SocketOption::Broadcast, &value, &size);
@@ -157,7 +168,8 @@ TEST_F(IPV6SocketTest, GetOptionWithLevel)
 
 TEST_F(IPV6SocketTest, SetOptionWithLevel)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value = 1;
@@ -169,7 +181,8 @@ TEST_F(IPV6SocketTest, SetOptionWithLevel)
 
 TEST_F(IPV6SocketTest, GetOption)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value;
     target.GetSocketOption(SocketOption::Broadcast, &value, &size);
@@ -178,7 +191,8 @@ TEST_F(IPV6SocketTest, GetOption)
 
 TEST_F(IPV6SocketTest, SetOption)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value = 1;
@@ -190,13 +204,15 @@ TEST_F(IPV6SocketTest, SetOption)
 
 TEST_F(IPV6SocketTest, GetSocketOptionBool)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
 }
 
 TEST_F(IPV6SocketTest, SetSocketOptionBool)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
     target.SetSocketOptionBool(SocketOption::Broadcast, true);
     EXPECT_TRUE(target.GetSocketOptionBool(SocketOption::Broadcast));
@@ -204,14 +220,16 @@ TEST_F(IPV6SocketTest, SetSocketOptionBool)
 
 TEST_F(IPV6SocketTest, GetSocketOptionInt)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     EXPECT_EQ(0, target.GetSocketOptionInt(SocketOption::Broadcast));
 }
 
 TEST_F(IPV6SocketTest, SetSocketOptionInt)
 {
     int enableBroadcast = 1;
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     EXPECT_FALSE(target.GetSocketOptionInt(SocketOption::Broadcast));
     target.SetSocketOptionInt(SocketOption::Broadcast, enableBroadcast);
     EXPECT_EQ(enableBroadcast, target.GetSocketOptionInt(SocketOption::Broadcast));
@@ -219,13 +237,15 @@ TEST_F(IPV6SocketTest, SetSocketOptionInt)
 
 TEST_F(IPV6SocketTest, GetBroadcastOption)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     EXPECT_FALSE(target.GetBroadcastOption());
 }
 
 TEST_F(IPV6SocketTest, SetBroadcastOption)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     EXPECT_FALSE(target.GetBroadcastOption());
     target.SetBroadcastOption(true);
     EXPECT_TRUE(target.GetBroadcastOption());
@@ -233,13 +253,15 @@ TEST_F(IPV6SocketTest, SetBroadcastOption)
 
 TEST_F(IPV6SocketTest, GetBlockingMode)
 {
-    IPV6Socket target(SocketType::Stream);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Stream);
     EXPECT_TRUE(target.GetBlockingMode());
 }
 
 TEST_F(IPV6SocketTest, SetBlockingMode)
 {
-    IPV6Socket target(SocketType::Stream);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Stream);
     EXPECT_TRUE(target.GetBlockingMode());
     target.SetBlockingMode(false);
     EXPECT_FALSE(target.GetBlockingMode());
@@ -249,13 +271,15 @@ TEST_F(IPV6SocketTest, SetBlockingMode)
 
 TEST_F(IPV6SocketTest, GetReuseAddress)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     EXPECT_FALSE(target.GetReuseAddress());
 }
 
 TEST_F(IPV6SocketTest, SetReuseAddress)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     EXPECT_FALSE(target.GetReuseAddress());
     target.SetReuseAddress(true);
     EXPECT_TRUE(target.GetReuseAddress());
@@ -265,14 +289,16 @@ TEST_F(IPV6SocketTest, SetReuseAddress)
 
 TEST_F(IPV6SocketTest, GetReceiveTimeout)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     std::chrono::milliseconds timeout(0);
     EXPECT_EQ(timeout, target.GetReceiveTimeout());
 }
 
 TEST_F(IPV6SocketTest, SetReceiveTimeout)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     std::chrono::milliseconds timeout(0);
     std::chrono::milliseconds timeoutNew(1000);
     EXPECT_EQ(timeout, target.GetReceiveTimeout());
@@ -284,14 +310,16 @@ TEST_F(IPV6SocketTest, SetReceiveTimeout)
 
 TEST_F(IPV6SocketTest, GetSendTimeout)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     std::chrono::milliseconds timeout(0);
     EXPECT_EQ(timeout, target.GetSendTimeout());
 }
 
 TEST_F(IPV6SocketTest, SetSendTimeout)
 {
-    IPV6Socket target(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket target(api, SocketType::Datagram);
     std::chrono::milliseconds timeout(0);
     std::chrono::milliseconds timeoutNew(1000);
     EXPECT_EQ(timeout, target.GetSendTimeout());
@@ -303,15 +331,16 @@ TEST_F(IPV6SocketTest, SetSendTimeout)
 
 bool IPV6SocketTCPAcceptThread()
 {
+    SocketAPI api;
     bool accepted {};
     SCOPEDTRACE([] () { return "TCP Accept Send Recv thread"; }, [&]{
         return serialization::Serialize(accepted);
     });
-    IPV6Socket acceptorSocket(SocketType::Stream);
+    IPV6Socket acceptorSocket(api, SocketType::Stream);
 
     acceptorSocket.Bind(IPV6EndPoint(TestPort));
     acceptorSocket.Listen(1);
-    IPV6Socket newSocket;
+    IPV6Socket newSocket(api);
     IPV6EndPoint clientAddress;
     accepted = acceptorSocket.Accept(newSocket, clientAddress, 5000);
     const std::size_t BufferSize = 10;
@@ -326,7 +355,8 @@ bool IPV6SocketTCPAcceptThread()
 
 TEST_F(IPV6SocketTest, ConnectAcceptSendReceiveTCP)
 {
-    IPV6Socket clientSocket(SocketType::Stream);
+    SocketAPI api;
+    IPV6Socket clientSocket(api, SocketType::Stream);
     IPV6EndPoint serverAddress(IPV6Address::LocalHost, TestPort);
 
     BoolReturnThread acceptorThread(IPV6SocketTCPAcceptThread);
@@ -352,13 +382,14 @@ TEST_F(IPV6SocketTest, ConnectAcceptSendReceiveTCP)
 
 bool IPV6SocketUDPServerThread()
 {
+    SocketAPI api;
     bool ok {};
     try
     {
         SCOPEDTRACE([] () { return "UDP Send Recv thread"; }, [&]{
             return serialization::Serialize(ok);
         });
-        IPV6Socket serverSocket(SocketType::Datagram);
+        IPV6Socket serverSocket(api, SocketType::Datagram);
         IPV6EndPoint serverAddress(TestPort);
 
         serverSocket.Bind(serverAddress);
@@ -380,7 +411,8 @@ bool IPV6SocketUDPServerThread()
 
 TEST_F(IPV6SocketTest, SendReceiveUDPConnected)
 {
-    IPV6Socket clientSocket(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket clientSocket(api, SocketType::Datagram);
     IPV6EndPoint serverAddress(IPV6Address::LocalHost, TestPort);
 
     BoolReturnThread serverThread(IPV6SocketUDPServerThread);
@@ -404,7 +436,8 @@ TEST_F(IPV6SocketTest, SendReceiveUDPConnected)
 
 TEST_F(IPV6SocketTest, SendReceiveUDPConnectionless)
 {
-    IPV6Socket clientSocket(SocketType::Datagram);
+    SocketAPI api;
+    IPV6Socket clientSocket(api, SocketType::Datagram);
     IPV6EndPoint serverAddress(IPV6Address::LocalHost, TestPort);
 
     BoolReturnThread serverThread(IPV6SocketUDPServerThread);

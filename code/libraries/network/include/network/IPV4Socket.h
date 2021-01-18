@@ -11,8 +11,8 @@ class IPV4Socket
     : private Socket
 {
 public:
-    IPV4Socket();
-    IPV4Socket(SocketType socketType);
+    IPV4Socket(ISocketAPI & socketAPI);
+    IPV4Socket(ISocketAPI & socketAPI, SocketType socketType);
     IPV4Socket(const IPV4Socket & other);
     IPV4Socket(IPV4Socket && other);
 

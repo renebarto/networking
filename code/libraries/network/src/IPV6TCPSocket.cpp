@@ -2,8 +2,8 @@
 
 namespace network {
 
-IPV6TCPSocket::IPV6TCPSocket()
-    : IPV6Socket(SocketType::Stream)
+IPV6TCPSocket::IPV6TCPSocket(ISocketAPI & socketAPI)
+    : IPV6Socket(socketAPI, SocketType::Stream)
 {    
 }
 
