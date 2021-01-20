@@ -53,6 +53,7 @@ set(PROJECT_LIBS
     )
 
 set(PROJECT_SOURCES 
+    src/ActiveObjectTest.cpp
     src/IteratorTest.cpp
     src/NullableTest.cpp
     src/ObservableTest.cpp

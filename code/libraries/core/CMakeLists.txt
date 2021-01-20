@@ -55,6 +55,7 @@ set(PROJECT_SOURCES
 set(PROJECT_INCLUDES_PRIVATE
     )
 set(PROJECT_INCLUDES_PUBLIC
+    include/core/ActiveObject.h
     include/core/IObservable.h
     include/core/Iterator.h
     include/core/Nullable.h
