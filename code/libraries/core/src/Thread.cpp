@@ -60,7 +60,7 @@ void Thread::Create(ThreadFunction threadFunc)
     Lock lock(m_threadMutex);
     try
     {
-        SCOPEDTRACE([] () { return "Start thread"; }, nullptr);
+        TraceMessage(__FILE__, __LINE__, __func__, "Start thread");
         std::packaged_task<void()> task(std::bind(threadFunc));
 
         m_threadResult = task.get_future();
@@ -160,8 +160,9 @@ void Thread::WaitForDeath()
     Lock lock(m_threadMutex);
     if (!IsThreadSelf(m_thread))
     {
-        SCOPEDTRACE([] () { return "Wait for thread to die"; }, nullptr);
+        TraceMessage(__FILE__, __LINE__, __func__, "Wait for thread to end");
         m_thread.join();
+        TraceMessage(__FILE__, __LINE__, __func__, "Thread ended");
         m_state = ThreadState::Finished;
     }
 }

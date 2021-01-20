@@ -8,7 +8,8 @@
 
 namespace core {
 
-class WorkerThread : private Thread
+class WorkerThread
+    : private Thread
 {
 public:
     WorkerThread() = delete;
@@ -41,7 +42,10 @@ public:
 
     virtual void Thread() = 0;
 
+    using Thread::Destroy;
+    using Thread::GetName;
     using Thread::IsRunning;
+    using Thread::WaitForDeath;
 
 protected:
     osal::ManualEvent m_birthEvent;
@@ -50,16 +54,17 @@ protected:
         try
         {
             SetSignalMask();
-            TraceMessage(__FILE__, __LINE__, __func__, "WorkerThread " + GetName() + ": Thread starting");
+            TraceMessage(__FILE__, __LINE__, __func__, "Thread {} starting", GetName());
             m_birthEvent.Set();
             Thread();
-            TraceMessage(__FILE__, __LINE__, __func__, "WorkerThread " + GetName() + ": Thread stopping");
+            TraceMessage(__FILE__, __LINE__, __func__, "Thread {} stopping", GetName());
             m_state = ThreadState::Finished;
         }
-        catch (const std::exception & /*e*/)
+        catch (const std::exception & e)
         {
-            // TraceDebug("WorkerThread " + GetName() + ": Exception thown: " + std::string(e.what()));
+            TraceMessage(__FILE__, __LINE__, __func__, "Thread {}: Exception thown: {}", GetName(), std::string(e.what()));
             m_birthEvent.Set();
+            throw;
         }
     }
 
