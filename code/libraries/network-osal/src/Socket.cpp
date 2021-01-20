@@ -655,7 +655,7 @@ bool Socket::Accept(Socket & connectionSocket, sockaddr * clientAddress, socklen
     SCOPEDTRACE([&]{
         return utility::FormatString(std::string("clientAddress={}, clientAddressLength={}, timeout={} ms"), 
             serialization::Serialize(clientAddress, 0),
-            serialization::Serialize(clientAddressLength, 0),
+            serialization::Serialize(*clientAddressLength, 0),
             serialization::Serialize(timeout, 0));
     }, [&]{
         return utility::FormatString(std::string("result={}, socket={}"), 

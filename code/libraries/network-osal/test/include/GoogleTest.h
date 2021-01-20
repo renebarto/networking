@@ -7,7 +7,6 @@
 #pragma warning(disable: 4826) //TICS !POR#018 !POR#037 Suppress compilation warnings on GoogleTest for Windows only
 #endif
 #include "gtest/gtest.h"
-#include "gmock/gmock.h"
 #if defined (_MSC_VER)
 #pragma warning(default: 4826) //TICS !POR#018 !POR#037 Suppress compilation warnings on GoogleTest for Windows only
 #endif

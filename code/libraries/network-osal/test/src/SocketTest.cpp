@@ -1,13 +1,15 @@
 #include "GoogleTest.h"
 
 #include "network-osal/Socket.h"
+
+#include "gmock/gmock.h"
+
+#include "network-osal/SocketAPIMock.h"
 #include "osal/Utilities.h"
 #include "core/Thread.h"
 #include "network-osal/IPV4Address.h"
 #include "tracing/ScopedTracing.h"
 #include "tracing/Tracing.h"
-
-#include "SocketAPIMock.h"
 
 namespace network {
 namespace testing {

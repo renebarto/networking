@@ -120,7 +120,7 @@ bool IPV4Socket::Accept(IPV4Socket & connectionSocket, IPV4EndPoint & clientAddr
     SCOPEDTRACE(nullptr, [&]{
         return 
             "connectionSocket="+ serialization::Serialize(connectionSocket, 0) +
-            "clientAddress="+ serialization::Serialize(clientAddress, 0) +
+            " clientAddress="+ serialization::Serialize(clientAddress, 0) +
             " timeout="+ serialization::Serialize(timeout, 0) +
             " result="+ serialization::Serialize(result);
     });
