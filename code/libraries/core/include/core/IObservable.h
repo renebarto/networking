@@ -9,8 +9,8 @@ class IObservable
 public:
     virtual ~IObservable() {}
 
-    virtual void Add(T * observer) = 0;
-    virtual void Remove(T * observer) = 0;
+    virtual void Subscribe(T * observer) = 0;
+    virtual void Unsubscribe(T * observer) = 0;
 };
 
 } // namespace core

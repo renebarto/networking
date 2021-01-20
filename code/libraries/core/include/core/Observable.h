@@ -15,10 +15,10 @@ public:
     typedef std::recursive_mutex Mutex;
     typedef std::lock_guard<Mutex> Lock;
 
-    void Add(T * observer) override;
-    void Remove(T * observer) override;
+    void Subscribe(T * observer) override;
+    void Unsubscribe(T * observer) override;
 
-    size_t Count() const;
+    size_t TotalSubscribers() const;
 
     void ForAll(std::function<void (T *)> action);
 
@@ -29,13 +29,13 @@ protected:
 };
 
 template <class T>
-size_t Observable<T>::Count() const
+size_t Observable<T>::TotalSubscribers() const
 {
     return static_cast<size_t>(std::count_if(m_observers.begin(), m_observers.end(), [](const T *) -> bool { return true; }));
 }
 
 template <class T>
-void Observable<T>::Add(T * observer)
+void Observable<T>::Subscribe(T * observer)
 {
     Lock lock(m_guard);
     typename std::list<T *>::iterator it = Find(observer);
@@ -46,7 +46,7 @@ void Observable<T>::Add(T * observer)
 }
 
 template <class T>
-void Observable<T>::Remove(T * observer)
+void Observable<T>::Unsubscribe(T * observer)
 {
     Lock lock(m_guard);
     typename std::list<T *>::iterator it = Find(observer);

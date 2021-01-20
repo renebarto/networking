@@ -9,18 +9,18 @@ using Value = int;
 TEST(observableTest, Construction)
 {
     Observable<Value> target;
-    EXPECT_EQ(size_t{0}, target.Count());
+    EXPECT_EQ(size_t{0}, target.TotalSubscribers());
 }
 
-TEST(observableTest, Add)
+TEST(observableTest, Subscribe)
 {
     int value1 = 123;
     int value2 = 234;
     Observable<Value> target;
 
-    target.Add(&value1);
-    target.Add(&value2);
-    EXPECT_EQ(size_t{2}, target.Count());
+    target.Subscribe(&value1);
+    target.Subscribe(&value2);
+    EXPECT_EQ(size_t{2}, target.TotalSubscribers());
     std::vector<Value *> result;
     target.ForAll([&result](Value * value){ result.push_back(value); });
     EXPECT_EQ(size_t{2}, result.size());
@@ -28,32 +28,32 @@ TEST(observableTest, Add)
     EXPECT_EQ(&value2, result[1]);
 }
 
-TEST(observableTest, Remove)
+TEST(observableTest, Unsubscribe)
 {
     int value1 = 123;
     int value2 = 234;
     int value3 = 345;
     Observable<Value> target;
 
-    target.Add(&value1);
-    target.Add(&value2);
-    target.Remove(&value3);
-    EXPECT_EQ(size_t{2}, target.Count());
+    target.Subscribe(&value1);
+    target.Subscribe(&value2);
+    target.Unsubscribe(&value3);
+    EXPECT_EQ(size_t{2}, target.TotalSubscribers());
     std::vector<Value *> result;
     target.ForAll([&result](Value * value){ result.push_back(value); });
     EXPECT_EQ(size_t{2}, result.size());
     EXPECT_EQ(&value1, result[0]);
     EXPECT_EQ(&value2, result[1]);
 
-    target.Remove(&value1);
-    EXPECT_EQ(size_t{1}, target.Count());
+    target.Unsubscribe(&value1);
+    EXPECT_EQ(size_t{1}, target.TotalSubscribers());
     result.clear();
     target.ForAll([&result](Value * value){ result.push_back(value); });
     EXPECT_EQ(size_t{1}, result.size());
     EXPECT_EQ(&value2, result[0]);
 
-    target.Remove(&value2);
-    EXPECT_EQ(size_t{0}, target.Count());
+    target.Unsubscribe(&value2);
+    EXPECT_EQ(size_t{0}, target.TotalSubscribers());
     result.clear();
     target.ForAll([&result](Value * value){ result.push_back(value); });
     EXPECT_EQ(size_t{0}, result.size());
@@ -65,8 +65,8 @@ TEST(observableTest, ForAll)
     int value2 = 234;
     Observable<Value> target;
 
-    target.Add(&value1);
-    target.Add(&value2);
+    target.Subscribe(&value1);
+    target.Subscribe(&value2);
     std::vector<Value *> result;
     target.ForAll([&result](Value * value){ result.push_back(value); });
     EXPECT_EQ(size_t{2}, result.size());
