@@ -70,7 +70,7 @@ protected:
 
     void SetSignalMask()
     {
-        osal::signal::SignalSet signalMaskSet;
+        osal::SignalSet signalMaskSet;
         signalMaskSet.clear();
         signalMaskSet.add(SIGTERM);
         signalMaskSet.add(SIGINT);
