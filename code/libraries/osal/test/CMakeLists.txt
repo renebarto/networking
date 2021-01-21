@@ -41,6 +41,7 @@ set(PROJECT_LINK_OPTIONS
 
 set(PROJECT_DEPENDENCIES
     osal
+    core
     gtest
     gtest_main
     gmock
@@ -59,6 +60,7 @@ set(PROJECT_SOURCES
     src/SemaphoreTest.cpp
     src/SignalTest.cpp
     src/StringConversionTest.cpp
+    src/ThreadTest.cpp
     src/TypeInfoTest.cpp
     )
 

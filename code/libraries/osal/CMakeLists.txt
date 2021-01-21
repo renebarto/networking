@@ -44,6 +44,7 @@ set(PROJECT_DEPENDENCIES
 set(PROJECT_LIBS
     ${LINKER_LIBRARIES}
     ${PROJECT_DEPENDENCIES}
+    Threads::Threads
     )
 
 set(PROJECT_SOURCES 
@@ -52,6 +53,7 @@ set(PROJECT_SOURCES
     src/FileHandling.cpp
     src/Signal.cpp
     src/StringConversion.cpp
+    src/Thread.cpp
     src/TypeInfo.cpp
     )
 set(PROJECT_INCLUDES_PRIVATE
