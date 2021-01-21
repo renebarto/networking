@@ -53,12 +53,8 @@ set(PROJECT_LIBS
     )
 
 set(PROJECT_SOURCES 
-    src/HTTPClientSocketTest.cpp
-    src/HTTPClientTest.cpp
     src/HTTPRequestTest.cpp
     src/HTTPResponseTest.cpp
-    src/HTTPServerSocketTest.cpp
-    src/HTTPServerTest.cpp
     )
 
 set(PROJECT_INCLUDES_PRIVATE

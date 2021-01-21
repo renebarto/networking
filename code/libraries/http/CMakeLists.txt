@@ -40,7 +40,6 @@ set(PROJECT_LINK_OPTIONS
 
 set(PROJECT_DEPENDENCIES
     network
-    core
     )
 
 set(PROJECT_LIBS
@@ -49,23 +48,14 @@ set(PROJECT_LIBS
     )
 
 set(PROJECT_SOURCES 
-    src/HTTPClient.cpp
-    src/HTTPClientSocket.cpp
     src/HTTPRequest.cpp
     src/HTTPResponse.cpp
-    src/HTTPServer.cpp
-    src/HTTPServerSocket.cpp
     )
 set(PROJECT_INCLUDES_PRIVATE
     )
 set(PROJECT_INCLUDES_PUBLIC
-    include/http/HTTPClient.h
-    include/http/HTTPClientSocket.h
     include/http/HTTPRequest.h
     include/http/HTTPResponse.h
-    include/http/HTTPServer.h
-    include/http/HTTPServerSocket.h
-    include/http/SocketBlocking.h
     )
 
 display_list("Package                           : " ${PROJECT_NAME} )

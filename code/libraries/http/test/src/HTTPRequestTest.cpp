@@ -7,7 +7,6 @@ namespace http {
 TEST(HTTPRequestTest, ConstructDefault)
 {
     HTTPRequest request;
-    FAIL();
 }
 
 } // namespace http

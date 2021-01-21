@@ -40,6 +40,7 @@ set(PROJECT_LINK_OPTIONS
 
 set(PROJECT_DEPENDENCIES
     network-osal
+    core
     utility
     )
 
@@ -51,6 +52,12 @@ set(PROJECT_LIBS
 set(PROJECT_SOURCES 
     src/IPV4EndPoint.cpp
     src/IPV4Socket.cpp
+    src/IPV4TCPClient.cpp
+    src/IPV4TCPClientConnectionThread.cpp
+    src/IPV4TCPClientSocket.cpp
+    src/IPV4TCPServer.cpp
+    src/IPV4TCPServerSocket.cpp
+    src/IPV4TCPServerThread.cpp
     src/IPV4TCPSocket.cpp
     src/IPV4UDPSocket.cpp
     src/IPV6EndPoint.cpp
@@ -63,12 +70,19 @@ set(PROJECT_INCLUDES_PRIVATE
 set(PROJECT_INCLUDES_PUBLIC
     include/network/IPV4EndPoint.h
     include/network/IPV4Socket.h
+    include/network/IPV4TCPClient.h
+    include/network/IPV4TCPClientConnectionThread.h
+    include/network/IPV4TCPClientSocket.h
+    include/network/IPV4TCPServer.h
+    include/network/IPV4TCPServerSocket.h
+    include/network/IPV4TCPServerThread.h
     include/network/IPV4TCPSocket.h
     include/network/IPV4UDPSocket.h
     include/network/IPV6EndPoint.h
     include/network/IPV6Socket.h
     include/network/IPV6TCPSocket.h
     include/network/IPV6UDPSocket.h
+    include/network/SocketBlocking.h
     )
 
 display_list("Package                           : " ${PROJECT_NAME} )

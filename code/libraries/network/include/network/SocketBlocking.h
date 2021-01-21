@@ -1,10 +1,10 @@
 #pragma once
 
-namespace http {
+namespace network {
 
 enum class SocketBlocking {
     Off,
     On
 };
 
-} // namespace http
+} // namespace network
