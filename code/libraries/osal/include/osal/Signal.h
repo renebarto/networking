@@ -1,6 +1,7 @@
 #pragma once
 
 #include <csignal>
+#include <functional>
 
 #if defined(PLATFORM_WINDOWS)
 #pragma warning(disable: 4265)
@@ -11,7 +12,25 @@
 #endif
 
 namespace osal {
-namespace signal {
+
+enum class SignalType : std::uint8_t
+{
+    None = 0,
+    Interrupt = SIGINT,
+    Illegal = SIGILL,
+    FPError = SIGFPE,
+    SegmentViolation = SIGSEGV,
+    Terminate = SIGTERM,
+    Abort = SIGABRT,
+};
+
+std::ostream & operator << (std::ostream & stream, SignalType value);
+
+using SignalHandlerFunc = std::function<void (SignalType)>;
+
+void SetSignalHandler(SignalType signal, SignalHandlerFunc handler);
+void ResetSignalHandler(SignalType signal);
+bool Raise(SignalType signal);
 
 #if defined(PLATFORM_WINDOWS)
 union sigval
@@ -53,39 +72,23 @@ struct sigaction_t
     void(*sa_restorer)(void);
 };
 
-inline int sigaction(int /*signum*/, const sigaction_t * /*act*/, sigaction_t * /*oldact*/)
+inline int SigAction(int /*signum*/, const sigaction_t * /*act*/, sigaction_t * /*oldact*/)
 {
     return -1;
 }
 
 using sighandler_t = ::_crt_signal_t;
 
-inline sighandler_t signal(int signum, sighandler_t handler)
-{
-#if _MSC_VER > 1900 // Versions after VS 2015
-#pragma warning(disable: 5039)
-#endif
-    return std::signal(signum, handler);
-#if _MSC_VER > 1900 // Versions after VS 2015
-#pragma warning(default: 5039)
-#endif
-}
-
 #else
 
 typedef struct ::sigaction sigaction_t;
 
-inline int sigaction(int signum, const sigaction_t *act, sigaction_t *oldact)
+inline int SigAction(int signum, const sigaction_t *act, sigaction_t *oldact)
 {
     return ::sigaction(signum, act, oldact);
 }
 
 using sighandler_t = ::sighandler_t;
-
-inline sighandler_t signal(int signum, sighandler_t handler)
-{
-    return ::signal(signum, handler);
-}
 
 using sigset_t = ::sigset_t;
 
@@ -115,5 +118,4 @@ enum SignalHow
 
 int SetSignalMask(SignalHow how, const sigset_t * set, sigset_t * oldset);
 
-} // namespace signal
-} // namespace core
+} // namespace osal

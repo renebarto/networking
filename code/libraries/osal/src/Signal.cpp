@@ -1,7 +1,126 @@
 #include "osal/Signal.h"
 
+#include <iostream>
+#include <map>
+
 namespace osal {
-namespace signal {
+
+static std::map<SignalType, const char *> s_signalLookup {
+    { SignalType::None, "None" },
+    { SignalType::Interrupt, "Interrupt" },
+    { SignalType::Illegal, "Illegal" },
+    { SignalType::FPError, "FPError" },
+    { SignalType::SegmentViolation, "SegmentViolation" },
+    { SignalType::Terminate, "Terminate" },
+    { SignalType::Abort, "Abort" },
+};
+
+std::ostream & operator << (std::ostream & stream, SignalType value)
+{
+    auto it = s_signalLookup.find(value);
+    if (it != s_signalLookup.end())
+    {
+        stream << it->second;
+    }
+    else
+    {
+        stream << "Unknown: " << static_cast<int>(value);
+    }
+    return stream;
+}
+
+class SignalHandlerRegistry
+{
+private:
+    static std::map<SignalType, SignalHandlerFunc> m_signalMap;
+    static std::map<SignalType, SignalHandlerFunc> m_defaultSignalMap;
+
+public:
+    SignalHandlerRegistry()
+    {
+        SetupSignalHandler(SignalType::Interrupt);
+        SetupSignalHandler(SignalType::Illegal);
+        SetupSignalHandler(SignalType::FPError);
+        SetupSignalHandler(SignalType::SegmentViolation);
+        SetupSignalHandler(SignalType::Terminate);
+        SetupSignalHandler(SignalType::Abort);
+    }
+
+    void SetupSignalHandler(SignalType signal)
+    {
+        auto oldSignal = std::signal(static_cast<int>(signal), SignalHandlerOS);
+        if (oldSignal == SIG_DFL)
+        {
+            m_defaultSignalMap[signal] = std::bind(&SignalHandlerRegistry::SignalHandlerDefault, this, std::placeholders::_1);
+        }
+        else if (oldSignal == SIG_IGN)
+        {
+            m_defaultSignalMap[signal] = std::bind(&SignalHandlerRegistry::SignalHandlerIgnore, this, std::placeholders::_1);
+        }
+        else
+        {
+            m_defaultSignalMap[signal] = std::bind(&SignalHandlerRegistry::SignalHandlerIgnore, this, std::placeholders::_1);
+        }
+        ResetSignalHandler(signal);
+    }    
+    void SetSignalHandler(SignalType signal, SignalHandlerFunc handler)
+    {
+        m_signalMap[signal] = handler;
+    }
+    void ResetSignalHandler(SignalType signal)
+    {
+        m_signalMap[signal] = m_defaultSignalMap[signal];
+    }
+    void SignalHandlerDefault(SignalType signal)
+    {
+        switch (signal)
+        {
+            case SignalType::Interrupt:
+            case SignalType::Illegal:
+            case SignalType::FPError:
+            case SignalType::SegmentViolation:
+            case SignalType::Terminate:
+            case SignalType::Abort:
+                exit(static_cast<int>(signal));
+            case SignalType::None:
+                break;
+        }
+    }
+
+    void SignalHandlerIgnore(SignalType /*signal*/)
+    {
+    }
+
+    static void SignalHandlerOS(int signalOS) noexcept
+    {
+        SignalType signal = static_cast<SignalType>(signalOS);
+        auto & handler = m_signalMap[signal];
+        if (!handler)
+        {
+            std::cout << "Signal not supported, no entry in map! Terminating..." << std::endl;
+            std::terminate();
+        }
+        handler(signal);
+    }
+
+};
+
+std::map<SignalType, SignalHandlerFunc> SignalHandlerRegistry::m_signalMap {};
+std::map<SignalType, SignalHandlerFunc> SignalHandlerRegistry::m_defaultSignalMap {};
+static SignalHandlerRegistry s_registry;
+
+void SetSignalHandler(SignalType signal, SignalHandlerFunc handler)
+{
+    s_registry.SetSignalHandler(signal, handler);
+}
+void ResetSignalHandler(SignalType signal)
+{
+    s_registry.ResetSignalHandler(signal);
+}
+bool Raise(SignalType signal)
+{
+    return ::raise(static_cast<int>(signal)) == 0;
+}
 
 #if defined(PLATFORM_WINDOWS)
 
@@ -116,5 +235,4 @@ int SetSignalMask(SignalHow how, const sigset_t * set, sigset_t * oldset)
 
 #endif
 
-} // namespace signal
 } // namespace osal

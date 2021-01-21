@@ -3,113 +3,99 @@
 #include "osal/Signal.h"
 
 namespace osal {
-namespace signal {
 
 class SignalTest : public ::testing::Test
 {
 public:
-    static int signalValue;
-    static bool hadSignal;
-};
+    SignalType m_signalValue;
+    bool m_hadSignal;
 
-int SignalTest::signalValue = -1;
-bool SignalTest::hadSignal = false;
+    SignalTest()
+        : m_signalValue()
+        , m_hadSignal()
+    {
 
-void SignalHandler(int signal)
-{
-    SignalTest::signalValue = signal;
-    SignalTest::hadSignal = true;
+    }
+    void SignalHandler(SignalType signal)
+    {
+        SignalTest::m_signalValue = signal;
+        SignalTest::m_hadSignal = true;
+    }
 };
 
 TEST_F(SignalTest, GenerateSigAbort)
 {
-    signalValue = -1;
-    hadSignal = false;
+    SetSignalHandler(SignalType::Abort, std::bind(&SignalTest::SignalHandler, this, std::placeholders::_1));
 
-    signal(SIGABRT, SignalHandler);
+    EXPECT_EQ(SignalType::None, m_signalValue);
+    EXPECT_FALSE(m_hadSignal);
 
-    EXPECT_EQ(-1, signalValue);
-    EXPECT_FALSE(hadSignal);
+    Raise(SignalType::Abort);
 
-    raise(SIGABRT);
+    EXPECT_EQ(SignalType::Abort, m_signalValue);
+    EXPECT_TRUE(m_hadSignal);
 
-    EXPECT_EQ(SIGABRT, signalValue);
-    EXPECT_TRUE(hadSignal);
-
-    signal(SIGABRT, SIG_DFL);
+    ResetSignalHandler(SignalType::Abort);
 }
 
 TEST_F(SignalTest, GenerateSigIll)
 {
-    signalValue = -1;
-    hadSignal = false;
+    SetSignalHandler(SignalType::Illegal, std::bind(&SignalTest::SignalHandler, this, std::placeholders::_1));
 
-    signal(SIGILL, SignalHandler);
+    EXPECT_EQ(SignalType::None, m_signalValue);
+    EXPECT_FALSE(m_hadSignal);
 
-    EXPECT_EQ(-1, signalValue);
-    EXPECT_FALSE(hadSignal);
+    Raise(SignalType::Illegal);
 
-    raise(SIGILL);
+    EXPECT_EQ(SignalType::Illegal, m_signalValue);
+    EXPECT_TRUE(m_hadSignal);
 
-    EXPECT_EQ(SIGILL, signalValue);
-    EXPECT_TRUE(hadSignal);
-
-    signal(SIGILL, SIG_DFL);
+    ResetSignalHandler(SignalType::Illegal);
 }
 
 TEST_F(SignalTest, GenerateSigInt)
 {
-    signalValue = -1;
-    hadSignal = false;
+    SetSignalHandler(SignalType::Interrupt, std::bind(&SignalTest::SignalHandler, this, std::placeholders::_1));
 
-    signal(SIGINT, SignalHandler);
+    EXPECT_EQ(SignalType::None, m_signalValue);
+    EXPECT_FALSE(m_hadSignal);
 
-    EXPECT_EQ(-1, signalValue);
-    EXPECT_FALSE(hadSignal);
+    Raise(SignalType::Interrupt);
 
-    raise(SIGINT);
+    EXPECT_EQ(SignalType::Interrupt, m_signalValue);
+    EXPECT_TRUE(m_hadSignal);
 
-    EXPECT_EQ(SIGINT, signalValue);
-    EXPECT_TRUE(hadSignal);
-
-    signal(SIGINT, SIG_DFL);
+    ResetSignalHandler(SignalType::Interrupt);
 }
 
 TEST_F(SignalTest, GenerateSigSegv)
 {
-    signalValue = -1;
-    hadSignal = false;
+    SetSignalHandler(SignalType::SegmentViolation, std::bind(&SignalTest::SignalHandler, this, std::placeholders::_1));
 
-    signal(SIGSEGV, SignalHandler);
+    EXPECT_EQ(SignalType::None, m_signalValue);
+    EXPECT_FALSE(m_hadSignal);
 
-    EXPECT_EQ(-1, signalValue);
-    EXPECT_FALSE(hadSignal);
+    Raise(SignalType::SegmentViolation);
 
-    raise(SIGSEGV);
+    EXPECT_EQ(SignalType::SegmentViolation, m_signalValue);
+    EXPECT_TRUE(m_hadSignal);
 
-    EXPECT_EQ(SIGSEGV, signalValue);
-    EXPECT_TRUE(hadSignal);
-
-    signal(SIGSEGV, SIG_DFL);
+    ResetSignalHandler(SignalType::SegmentViolation);
 }
 
 TEST_F(SignalTest, GenerateSigTerm)
 {
-    signalValue = -1;
-    hadSignal = false;
+    SetSignalHandler(SignalType::Terminate, std::bind(&SignalTest::SignalHandler, this, std::placeholders::_1));
 
-    signal(SIGTERM, SignalHandler);
+    EXPECT_EQ(SignalType::None, m_signalValue);
+    EXPECT_FALSE(m_hadSignal);
 
-    EXPECT_EQ(-1, signalValue);
-    EXPECT_FALSE(hadSignal);
+    Raise(SignalType::Terminate);
 
-    raise(SIGTERM);
+    EXPECT_EQ(SignalType::Terminate, m_signalValue);
+    EXPECT_TRUE(m_hadSignal);
 
-    EXPECT_EQ(SIGTERM, signalValue);
-    EXPECT_TRUE(hadSignal);
-
-    signal(SIGTERM, SIG_DFL);
+    ResetSignalHandler(SignalType::Terminate);
 }
 
-} // namespace signal
 } // namespace osal
