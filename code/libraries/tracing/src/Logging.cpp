@@ -2,6 +2,7 @@
 
 #include <iomanip>
 #include "osal/Console.h"
+#include "osal/Thread.h"
 #include "utility/Error.h"
 #include "utility/GenericError.h"
 #include "tracing/Tracing.h"
@@ -99,7 +100,7 @@ void Logging::Log(LogCategory category, const std::string & path, int line, cons
     else
     {
         s_logConsole << fgcolor(GetColorForCategory(category));
-        s_logConsole << clock << "|" << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
+        s_logConsole << clock << "|" << category << "|" << fileName << ":" << line << "|" << functionName << "|" << osal::GetThreadNameSelf() << "|" << msg << std::endl;
         s_logConsole << fgcolor(osal::ConsoleColor::Default);
     }
     if (Tracing::IsTraceCategoryEnabled(TraceCategory::Log))

@@ -2,6 +2,7 @@
 
 #include <iomanip>
 #include "osal/Console.h"
+#include "osal/Thread.h"
 #include "utility/Error.h"
 #include "utility/GenericError.h"
 #include "tracing/TraceHelpers.h"
@@ -81,7 +82,7 @@ void Tracing::Trace(TraceCategory category, const std::string & path, int line, 
     else
     {
         s_traceConsole << fgcolor(GetColorForCategory(category));
-        s_traceConsole << clock << "|" << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
+        s_traceConsole << clock << "|" << category << "|" << fileName << ":" << line << "|" << functionName << "|" << osal::GetThreadNameSelf() << "|" << msg << std::endl;
         s_traceConsole << fgcolor(osal::ConsoleColor::Default);
     }
 }

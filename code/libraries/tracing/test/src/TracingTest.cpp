@@ -1,5 +1,6 @@
 #include "GoogleTest.h"
 
+#include "osal/Thread.h"
 #include "core/Regex.h"
 #include "tracing/Tracing.h"
 
@@ -24,6 +25,7 @@ public:
             std::bind(&TracingTest::TraceFunc, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, 
                       std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
         m_savedTraceFilter = GetDefaultTraceFilter();
+        osal::SetThreadNameSelf("TracingTest");
     }
     virtual void TearDown() override
     {
@@ -40,7 +42,7 @@ public:
         const std::string & msg)
     {
         std::ostringstream stream;
-        stream << osal::Clock::ToString(timestamp) << "|" << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
+        stream << osal::Clock::ToString(timestamp) << "|" << category << "|" << fileName << ":" << line << "|" << functionName << "|" << osal::GetThreadNameSelf() << "|" << msg << std::endl;
         m_traceOutput += stream.str();
     }
 };
@@ -57,7 +59,7 @@ TEST_F(TracingTest, IfTracingFunctionsSetAndCategoryEnabledTraceIsWritten)
     SetDefaultTraceFilter(TraceCategory::All);
     Tracing::Trace(TraceCategory::Startup, "MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Start\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
+        TraceRegexTimeStamp + "Start\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, TracingOnlyForEnabledCategory)
@@ -66,7 +68,7 @@ TEST_F(TracingTest, TracingOnlyForEnabledCategory)
     Tracing::Trace(TraceCategory::Startup, "MyFile", 123, "MyFunction", "Hello World");
     Tracing::Trace(TraceCategory::Shutdown, "MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Start\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
+        TraceRegexTimeStamp + "Start\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, IfNoTracingEnableFunctionSetOnlyDefaultCategoriesAreEnabled)
@@ -76,8 +78,8 @@ TEST_F(TracingTest, IfNoTracingEnableFunctionSetOnlyDefaultCategoriesAreEnabled)
     Tracing::Trace(TraceCategory::Shutdown, "MyFile", 123, "MyFunction", "Hello World");
     Tracing::Trace(TraceCategory::Data, "MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Start\\|MyFile\\:123\\|MyFunction\\|Hello World\n" +
-        TraceRegexTimeStamp + "Shtdn\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
+        TraceRegexTimeStamp + "Start\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" +
+        TraceRegexTimeStamp + "Shtdn\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, IfDefaultFilterIsChangedOnlySpecifiedCategoriesAreEnabled)
@@ -87,7 +89,7 @@ TEST_F(TracingTest, IfDefaultFilterIsChangedOnlySpecifiedCategoriesAreEnabled)
     Tracing::Trace(TraceCategory::Shutdown, "MyFile", 123, "MyFunction", "Hello World");
     Tracing::Trace(TraceCategory::Data, "MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Start\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
+        TraceRegexTimeStamp + "Start\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, TracingCategories)
@@ -101,13 +103,13 @@ TEST_F(TracingTest, TracingCategories)
     Tracing::Trace(TraceCategory::Message, "MyFile", 123, "MyFunction", "Hello World");
     Tracing::Trace(TraceCategory::Data, "MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Enter\\|MyFile\\:123\\|MyFunction\\|Hello World\n" + 
-        TraceRegexTimeStamp + "Leave\\|MyFile\\:123\\|MyFunction\\|Hello World\n" + 
-        TraceRegexTimeStamp + "Start\\|MyFile\\:123\\|MyFunction\\|Hello World\n" + 
-        TraceRegexTimeStamp + "Shtdn\\|MyFile\\:123\\|MyFunction\\|Hello World\n" + 
-        TraceRegexTimeStamp + "Log  \\|MyFile\\:123\\|MyFunction\\|Hello World\n" + 
-        TraceRegexTimeStamp + "Messg\\|MyFile\\:123\\|MyFunction\\|Hello World\n" + 
-        TraceRegexTimeStamp + "Data \\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
+        TraceRegexTimeStamp + "Enter\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Leave\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Start\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Shtdn\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Log  \\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Messg\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Data \\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, TracingWithFormat)
@@ -115,7 +117,7 @@ TEST_F(TracingTest, TracingWithFormat)
     SetDefaultTraceFilter(TraceCategory::Message);
     Tracing::Trace(TraceCategory::Message, "MyFile", 123, "MyFunction", "{0} {1} (C) {2,4:D}", "Hello", "World", 2020);
     EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Messg\\|MyFile\\:123\\|MyFunction\\|Hello World \\(C\\) 2020\n"));
+        TraceRegexTimeStamp + "Messg\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World \\(C\\) 2020\n"));
 }
 
 TEST_F(TracingTest, TraceFuncEnterString)
@@ -123,7 +125,7 @@ TEST_F(TracingTest, TraceFuncEnterString)
     SetDefaultTraceFilter(TraceCategory::All);
     TraceFuncEnter("MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Enter\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
+        TraceRegexTimeStamp + "Enter\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, TraceFuncEnterFormatted)
@@ -131,7 +133,7 @@ TEST_F(TracingTest, TraceFuncEnterFormatted)
     SetDefaultTraceFilter(TraceCategory::All);
     TraceFuncEnter("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
     EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Enter\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
+        TraceRegexTimeStamp + "Enter\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, TraceFuncLeaveString)
@@ -139,7 +141,7 @@ TEST_F(TracingTest, TraceFuncLeaveString)
     SetDefaultTraceFilter(TraceCategory::All);
     TraceFuncLeave("MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Leave\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
+        TraceRegexTimeStamp + "Leave\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, TraceFuncLeaveFormatted)
@@ -147,7 +149,7 @@ TEST_F(TracingTest, TraceFuncLeaveFormatted)
     SetDefaultTraceFilter(TraceCategory::All);
     TraceFuncLeave("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
     EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Leave\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
+        TraceRegexTimeStamp + "Leave\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, TraceStartup)
@@ -155,7 +157,7 @@ TEST_F(TracingTest, TraceStartup)
     SetDefaultTraceFilter(TraceCategory::All);
     TraceStartup("MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Start\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
+        TraceRegexTimeStamp + "Start\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, TraceShutdown)
@@ -163,7 +165,7 @@ TEST_F(TracingTest, TraceShutdown)
     SetDefaultTraceFilter(TraceCategory::All);
     TraceShutdown("MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Shtdn\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
+        TraceRegexTimeStamp + "Shtdn\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, TraceMessageString)
@@ -171,7 +173,7 @@ TEST_F(TracingTest, TraceMessageString)
     SetDefaultTraceFilter(TraceCategory::All);
     TraceMessage("MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Messg\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
+        TraceRegexTimeStamp + "Messg\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, TraceMessageFormatted)
@@ -179,7 +181,7 @@ TEST_F(TracingTest, TraceMessageFormatted)
     SetDefaultTraceFilter(TraceCategory::All);
     TraceMessage("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
     EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Messg\\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
+        TraceRegexTimeStamp + "Messg\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, TraceDataString)
@@ -187,7 +189,7 @@ TEST_F(TracingTest, TraceDataString)
     SetDefaultTraceFilter(TraceCategory::All);
     TraceData("MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Data \\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
+        TraceRegexTimeStamp + "Data \\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, TraceDataFormatted)
@@ -195,7 +197,7 @@ TEST_F(TracingTest, TraceDataFormatted)
     SetDefaultTraceFilter(TraceCategory::All);
     TraceData("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
     EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Data \\|MyFile\\:123\\|MyFunction\\|Hello World\n"));
+        TraceRegexTimeStamp + "Data \\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, TraceToConsole)
