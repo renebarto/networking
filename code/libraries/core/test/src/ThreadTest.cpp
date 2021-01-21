@@ -1,5 +1,6 @@
 #include "GoogleTest.h"
 
+#include "osal/Thread.h"
 #include "core/Thread.h"
 #include "tracing/Tracing.h"
 
@@ -39,7 +40,7 @@ public:
         const std::string & functionName, 
         const std::string & msg)
     {
-        std::cout << osal::Clock::ToString(timestamp) << "|" << category << "|" << fileName << ":" << line << "|" << functionName << "|" << msg << std::endl;
+        std::cout << osal::Clock::ToString(timestamp) << "|" << category << "|" << fileName << ":" << line << "|" << functionName << "|" << osal::GetThreadNameSelf() << "|" << msg << std::endl;
     }
     static void TestThread()
     {

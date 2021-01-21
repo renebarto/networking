@@ -14,6 +14,7 @@
 #include <mutex>
 #include <ostream>
 #include <thread>
+#include "osal/Thread.h"
 #include "osal/TypeInfo.h"
 
 namespace core {
@@ -26,17 +27,6 @@ enum class ThreadState
     Running,
     Finished,
     Killed,
-};
-
-enum class Priority : uint8_t
-{
-    IDLE     = 0x00,
-    LOWEST   = 0x1F,
-    LOW      = 0x3F,
-    NORMAL   = 0x7F,
-    HIGH     = 0x9F,
-    HIGHEST  = 0xBF,
-    REALTIME = 0xFF
 };
 
 class Thread
@@ -64,13 +54,8 @@ public:
     // Wait until thread is in signaled state (thread died)
     void WaitForDeath();
 
-    Priority GetPriority();
-    void SetPriority(Priority priority);
-
-    static Priority GetPriorityCurrentThread();
-    static Priority GetPriority( std::thread & thread);
-    static void SetPriorityCurrentThread(Priority priority);
-    static void SetPriority(std::thread & thread, Priority priority);
+    osal::ThreadPriority GetPriority();
+    void SetPriority(osal::ThreadPriority priority);
 
     void GetResult()
     {
@@ -99,5 +84,31 @@ inline std::ostream & operator << (std::ostream & stream, const Thread & thread)
 {
     return stream << osal::type(thread) << "Name=" << thread.GetName();
 }
+
+template<class ReturnType>
+class TypedReturnThread
+    : public core::Thread
+{
+private:
+    std::function<ReturnType ()> m_threadFunc;
+    ReturnType m_result;
+
+public:
+    TypedReturnThread(std::function<ReturnType ()> threadFunc)
+        : Thread()
+        , m_threadFunc(threadFunc)
+        , m_result()
+    {
+        Create(std::bind(&TypedReturnThread::ThreadFunc, this));
+    }
+
+    ReturnType GetResult() { return m_result; }
+    void SetResult(ReturnType value) { m_result = value; }
+
+    void ThreadFunc()
+    {
+        SetResult(m_threadFunc());
+    }
+};
 
 } // namespace core
