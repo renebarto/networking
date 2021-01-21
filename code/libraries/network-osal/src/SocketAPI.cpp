@@ -1,28 +1,16 @@
 #include "network-osal/SocketAPI.h"
 
-// #include <algorithm>
-// #include <thread>
-// #include "tracing/ScopedTracing.h"
-// #include "tracing/Logging.h"
-// #include "utility/Error.h"
-// #include "network-osal/Network.h"
+#if defined(PLATFORM_LINUX)
 
-// #if defined(PLATFORM_LINUX)
+#include <fcntl.h>
 
-// #include <fcntl.h>
-// #include <poll.h>
+#elif defined(PLATFORM_WINDOWS)
 
-// #elif defined(PLATFORM_WINDOWS)
+#else
 
-// #ifdef min
-// #undef min
-// #endif
+#error Unsupported platform
 
-// #else
-
-// #error Unsupported platform
-
-// #endif
+#endif
 
 namespace network {
 
@@ -90,6 +78,7 @@ int SocketAPI::GetBlockingMode(SocketHandle handle, bool & value)
         return flags;
     }
     value = ((flags & O_NONBLOCK) == 0);
+    return value;
 #elif defined(PLATFORM_WINDOWS)
     (void) handle;
     (void) value;
