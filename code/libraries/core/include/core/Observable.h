@@ -59,7 +59,9 @@ void Observable<T>::Unsubscribe(T * observer)
 template<class T>
 void Observable<T>::ForAll(std::function<void (T *)> action)
 {
-    for (auto const & observer : m_observers)
+    // Save in case the subscriber list is changed
+    auto tempObservers = m_observers;
+    for (auto const & observer : tempObservers)
     {
         action(observer);
     }
