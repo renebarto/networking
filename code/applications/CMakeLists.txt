@@ -1,4 +1,6 @@
 add_subdirectory(helloworld)
+add_subdirectory(echo-client)
+add_subdirectory(echo-server)
 if(PLATFORM_LINUX)
 add_subdirectory(alsatest)
 add_subdirectory(ip-sniffer)
