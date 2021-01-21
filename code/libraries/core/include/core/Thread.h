@@ -94,8 +94,8 @@ private:
     ReturnType m_result;
 
 public:
-    TypedReturnThread(std::function<ReturnType ()> threadFunc)
-        : Thread()
+    TypedReturnThread(std::function<ReturnType ()> threadFunc, const std::string & threadName = {})
+        : Thread(threadName)
         , m_threadFunc(threadFunc)
         , m_result()
     {
