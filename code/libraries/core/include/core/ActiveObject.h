@@ -1,5 +1,6 @@
 #pragma once
 
+#include "tracing/ScopedTracing.h"
 #include "tracing/Tracing.h"
 #include "core/WorkerThread.h"
 
@@ -24,13 +25,16 @@ public:
         , m_isDying(false)
         , m_isAlive(false)
     {
+        SCOPEDTRACE(nullptr, nullptr);
     }
     virtual ~ActiveObject()
     {
+        SCOPEDTRACE(nullptr, nullptr);
     }
 
     void Kill()
     {
+        SCOPEDTRACE(nullptr, nullptr);
         if (WorkerThread::IsRunning())
         {
             m_isDying = true;
@@ -47,22 +51,28 @@ public:
     }
     void Create()
     {
+        SCOPEDTRACE(nullptr, nullptr);
         m_isDying = false;
         WorkerThread::Create();
     }
 
     bool IsAlive() const
     {
-        return m_isAlive;
+        bool result = m_isAlive;
+        SCOPEDTRACE(nullptr, [&] () { return utility::FormatString(std::string("result={}"), result); });
+        return result;
     }
     bool IsDying() const
     {
-        return m_isDying;
+        bool result = m_isDying;
+        SCOPEDTRACE(nullptr, [&] () { return utility::FormatString(std::string("result={}"), result); });
+        return result;
     }
 
 protected:
     virtual void Thread() override final
     {
+        SCOPEDTRACE(nullptr, nullptr);
         try
         {
             m_isAlive = true;
