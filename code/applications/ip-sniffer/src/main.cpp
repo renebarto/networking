@@ -127,7 +127,7 @@
 //     data = packet[h_size:]
 //     print 'Data : ' + data
 
-void parse_ethernet_header(const std::vector<std::uint8_t> & /*packet*/)
+void parse_ethernet_header(const ByteBuffer & /*packet*/)
 {
     // eth_header = packet[:ETH_LENGTH]
     // eth = unpack('!6s6sH' , eth_header)
