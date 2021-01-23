@@ -316,4 +316,14 @@ std::basic_string<T> FormatString(
     return buffer;
 }
 
+template <typename T, typename ... Args>
+std::basic_string<T> FormatString(
+            const T * format,
+            Args const & ... args)
+{
+    std::basic_string<T> buffer;
+    Format(buffer, format, args ...);
+    return buffer;
+}
+
 } // namespace utility
