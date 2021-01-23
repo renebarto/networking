@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "osal/Signal.h"
+#include "network-osal/Socket.h"
 
 class Application
 {
@@ -19,4 +20,5 @@ public:
     virtual void Usage();
     virtual int Run();
     void SignalHandler(osal::SignalType signal);
+    bool DataCallback(const network::ByteBuffer & dataReceived, network::ByteBuffer & dataToSend);
 };

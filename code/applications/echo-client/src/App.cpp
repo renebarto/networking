@@ -57,22 +57,20 @@ int Application::Run()
     network::IPV4TCPClient client(api, serverEndPoint);
     if (client.Connect(1000))
     {
-        std::vector<std::uint8_t> bufferOut;
-        std::vector<std::uint8_t> bufferIn;
+        network::ByteBuffer bufferOut;
+        network::ByteBuffer bufferIn;
         network::IPV4EndPoint clientEndPoint;
         client.GetLocalAddress(clientEndPoint);
 
-        std::size_t bytesToSend = 0;
+        std::size_t offset = 0;
         auto localAddressString = serialization::Serialize(clientEndPoint, 0);
-        serialization::SerializeBinary(localAddressString, bufferOut, bytesToSend);
-        if (client.Send(bufferOut.data(), bytesToSend, 0))
+        serialization::SerializeBinary(localAddressString, bufferOut, offset);
+        if (client.SendBuffer(bufferOut, 0))
         {
-            bufferIn.resize(50);
-            std::size_t bufferSize = bufferIn.size();
-            auto numBytesReceived = client.Receive(bufferIn.data(), bufferSize, 0);
-            bufferIn.resize(numBytesReceived);
-            TraceData(__FILE__, __LINE__, __func__, "Sent {} bytes: {}", bytesToSend, serialization::SerializeData(bufferOut.data(), numBytesReceived));
-            TraceData(__FILE__, __LINE__, __func__, "Received {} bytes: {}", numBytesReceived, serialization::SerializeData(bufferIn.data(), numBytesReceived));
+            bufferIn.clear();
+            auto numBytesReceived = client.ReceiveBuffer(bufferIn, offset, 0);
+            TraceData(__FILE__, __LINE__, __func__, "Sent {} bytes: {}", offset, serialization::SerializeData(bufferOut));
+            TraceData(__FILE__, __LINE__, __func__, "Received {} bytes: {}", numBytesReceived, serialization::SerializeData(bufferIn));
         }
         else
         {
