@@ -6,8 +6,6 @@ namespace serialization {
 
 template<>
 const utility::BidirectionalMap<tracing::LogCategory, std::string> EnumSerializationMap<tracing::LogCategory>::ConversionMap = {
-    { tracing::LogCategory::Trace, "Trace"},
-    { tracing::LogCategory::Debug, "Debug"},
     { tracing::LogCategory::Information, "Info "},
     { tracing::LogCategory::Warning, "Warn "},
     { tracing::LogCategory::Error, "Error"},

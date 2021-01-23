@@ -120,3 +120,14 @@ void TraceData(const std::string & path, int line, const std::string & functionN
 {
     tracing::Tracing::Trace(tracing::TraceCategory::Data, path, line, functionName, format, args ...);
 }
+
+inline void TraceDebug(const std::string & path, int line, const std::string & functionName, const std::string & message)
+{
+    tracing::Tracing::Trace(tracing::TraceCategory::Debug, path, line, functionName, message);
+}
+template <typename ... Args>
+void TraceDebug(const std::string & path, int line, const std::string & functionName, const std::string & format, Args const & ... args) noexcept
+{
+    tracing::Tracing::Trace(tracing::TraceCategory::Debug, path, line, functionName, format, args ...);
+}
+

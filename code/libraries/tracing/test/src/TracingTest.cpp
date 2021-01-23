@@ -200,6 +200,22 @@ TEST_F(TracingTest, TraceDataFormatted)
         TraceRegexTimeStamp + "Data \\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
+TEST_F(TracingTest, TraceDebugString)
+{
+    SetDefaultTraceFilter(TraceCategory::All);
+    TraceDebug("MyFile", 123, "MyFunction", "Hello World");
+    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "Debug\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
+}
+
+TEST_F(TracingTest, TraceDebugFormatted)
+{
+    SetDefaultTraceFilter(TraceCategory::All);
+    TraceDebug("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
+    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "Debug\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
+}
+
 TEST_F(TracingTest, TraceToConsole)
 {
     SetDefaultTraceFilter(TraceCategory::All);

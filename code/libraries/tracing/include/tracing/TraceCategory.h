@@ -15,8 +15,9 @@ enum class TraceCategory : uint16_t
     Log = 0x10,
     Message = 0x20,
     Data = 0x40,
+    Debug = 0x80,
     None = 0x00,
-    All = 0x7F,
+    All = 0xFF,
 };
 
 std::ostream & operator << (std::ostream & stream, const TraceCategory & value);

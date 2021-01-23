@@ -57,8 +57,6 @@ public:
 TEST_F(LoggingTest, IfLoggingFunctionsSetButNothingEnabledNothingHappens)
 {
     SetDefaultLogFilter(LogCategory::None);
-    Logging::Log(LogCategory::Trace, "MyFile", 123, "MyFunction", "Hello World");
-    Logging::Log(LogCategory::Debug, "MyFile", 123, "MyFunction", "Hello World");
     Logging::Log(LogCategory::Information, "MyFile", 123, "MyFunction", "Hello World");
     Logging::Log(LogCategory::Warning, "MyFile", 123, "MyFunction", "Hello World");
     Logging::Log(LogCategory::Error, "MyFile", 123, "MyFunction", "Hello World");
@@ -69,9 +67,9 @@ TEST_F(LoggingTest, IfLoggingFunctionsSetButNothingEnabledNothingHappens)
 TEST_F(LoggingTest, IfLoggingFunctionsSetAndCategoryEnabledLogIsWritten)
 {
     SetDefaultLogFilter(LogCategory::All);
-    Logging::Log(LogCategory::Debug, "MyFile", 123, "MyFunction", "Hello World");
+    Logging::Log(LogCategory::Information, "MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(core::VerifyMatch(m_logOutput, 
-        LogRegexTimeStamp + "Debug\\|MyFile\\:123\\|MyFunction\\|LoggingTest\\|Hello World\n"));
+        LogRegexTimeStamp + "Info \\|MyFile\\:123\\|MyFunction\\|LoggingTest\\|Hello World\n"));
 }
 
 TEST_F(LoggingTest, IfLogTracingIsEnabledTraceIsWritten)
@@ -92,11 +90,11 @@ TEST_F(LoggingTest, IfLogTracingIsEnabledTraceIsWritten)
         });
     auto savedTraceFilter = GetDefaultTraceFilter();
     SetDefaultTraceFilter(TraceCategory::Log);
-    Logging::Log(LogCategory::Debug, "MyFile", 123, "MyFunction", "Hello World");
+    Logging::Log(LogCategory::Information, "MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(core::VerifyMatch(m_logOutput, 
-        LogRegexTimeStamp + "Debug\\|MyFile\\:123\\|MyFunction\\|LoggingTest\\|Hello World\n"));
+        LogRegexTimeStamp + "Info \\|MyFile\\:123\\|MyFunction\\|LoggingTest\\|Hello World\n"));
     EXPECT_TRUE(core::VerifyMatch(traceOutput, 
-        LogRegexTimeStamp + "Log  \\|MyFile\\:123\\|MyFunction\\|LoggingTest\\|Debug\\|Hello World\n"));
+        LogRegexTimeStamp + "Log  \\|MyFile\\:123\\|MyFunction\\|LoggingTest\\|Info \\|Hello World\n"));
     Tracing::SetTracingFunction(nullptr);
     SetDefaultTraceFilter(savedTraceFilter);
 }
@@ -104,7 +102,7 @@ TEST_F(LoggingTest, IfLogTracingIsEnabledTraceIsWritten)
 TEST_F(LoggingTest, LoggingOnlyForEnabledCategory)
 {
     SetDefaultLogFilter(LogCategory::Information);
-    Logging::Log(LogCategory::Debug, "MyFile", 123, "MyFunction", "Hello World");
+    Logging::Log(LogCategory::Warning, "MyFile", 123, "MyFunction", "Hello World");
     Logging::Log(LogCategory::Information, "MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(core::VerifyMatch(m_logOutput, 
         LogRegexTimeStamp + "Info \\|MyFile\\:123\\|MyFunction\\|LoggingTest\\|Hello World\n"));
@@ -134,15 +132,11 @@ TEST_F(LoggingTest, IfDefaultFilterIsChangedOnlySpecifiedCategoriesAreEnabled)
 TEST_F(LoggingTest, LoggingCategories)
 {
     SetDefaultLogFilter(LogCategory::All);
-    Logging::Log(LogCategory::Trace, "MyFile", 123, "MyFunction", "Hello World");
-    Logging::Log(LogCategory::Debug, "MyFile", 123, "MyFunction", "Hello World");
     Logging::Log(LogCategory::Information, "MyFile", 123, "MyFunction", "Hello World");
     Logging::Log(LogCategory::Warning, "MyFile", 123, "MyFunction", "Hello World");
     Logging::Log(LogCategory::Error, "MyFile", 123, "MyFunction", "Hello World");
     Logging::Log(LogCategory::Fatal, "MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(core::VerifyMatch(m_logOutput, 
-        LogRegexTimeStamp + "Trace\\|MyFile\\:123\\|MyFunction\\|LoggingTest\\|Hello World\n" + 
-        LogRegexTimeStamp + "Debug\\|MyFile\\:123\\|MyFunction\\|LoggingTest\\|Hello World\n" + 
         LogRegexTimeStamp + "Info \\|MyFile\\:123\\|MyFunction\\|LoggingTest\\|Hello World\n" + 
         LogRegexTimeStamp + "Warn \\|MyFile\\:123\\|MyFunction\\|LoggingTest\\|Hello World\n" + 
         LogRegexTimeStamp + "Error\\|MyFile\\:123\\|MyFunction\\|LoggingTest\\|Hello World\n" + 
@@ -233,22 +227,6 @@ TEST_F(LoggingTest, ThrowGenericError)
     }
     EXPECT_TRUE(core::VerifyMatch(m_logOutput, 
         LogRegexTimeStamp + "Error MyFile\\:123 \\(MyFunction\\)\\: Fake error"));
-}
-
-TEST_F(LoggingTest, LogDebugString)
-{
-    SetDefaultLogFilter(LogCategory::All);
-    LogDebug("MyFile", 123, "MyFunction", "Hello World");
-    EXPECT_TRUE(core::VerifyMatch(m_logOutput, 
-        LogRegexTimeStamp + "Debug\\|MyFile\\:123\\|MyFunction\\|LoggingTest\\|Hello World\n"));
-}
-
-TEST_F(LoggingTest, LogDebugFormatted)
-{
-    SetDefaultLogFilter(LogCategory::All);
-    LogDebug("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
-    EXPECT_TRUE(core::VerifyMatch(m_logOutput, 
-        LogRegexTimeStamp + "Debug\\|MyFile\\:123\\|MyFunction\\|LoggingTest\\|Hello World\n"));
 }
 
 TEST_F(LoggingTest, LogInfoString)

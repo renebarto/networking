@@ -15,6 +15,7 @@ TEST(TraceCategoryTest, Serialize)
     EXPECT_EQ("Log  ", serialization::Serialize(TraceCategory::Log));
     EXPECT_EQ("Messg", serialization::Serialize(TraceCategory::Message));
     EXPECT_EQ("Data ", serialization::Serialize(TraceCategory::Data));
+    EXPECT_EQ("Debug", serialization::Serialize(TraceCategory::Debug));
 }
 
 TEST(TraceCategoryTest, EnumTraceCategories)
@@ -27,6 +28,7 @@ TEST(TraceCategoryTest, EnumTraceCategories)
         TraceCategory::Log,
         TraceCategory::Message,
         TraceCategory::Data,
+        TraceCategory::Debug,
     };
     EXPECT_EQ(expected, EnumTraceCategories());
 }

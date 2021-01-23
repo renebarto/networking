@@ -12,7 +12,8 @@ const utility::BidirectionalMap<tracing::TraceCategory, std::string> EnumSeriali
     { tracing::TraceCategory::Shutdown, "Shtdn"},
     { tracing::TraceCategory::Log, "Log  "},
     { tracing::TraceCategory::Message, "Messg"},
-    { tracing::TraceCategory::Data, "Data "}
+    { tracing::TraceCategory::Data, "Data "},
+    { tracing::TraceCategory::Debug, "Debug"},
 };
 
 } // namespace serialization

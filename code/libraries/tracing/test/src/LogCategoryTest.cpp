@@ -8,8 +8,6 @@ namespace tracing {
 
 TEST(LogCategoryTest, Serialize)
 {
-    EXPECT_EQ("Trace", serialization::Serialize(LogCategory::Trace));
-    EXPECT_EQ("Debug", serialization::Serialize(LogCategory::Debug));
     EXPECT_EQ("Info ", serialization::Serialize(LogCategory::Information));
     EXPECT_EQ("Warn ", serialization::Serialize(LogCategory::Warning));
     EXPECT_EQ("Error", serialization::Serialize(LogCategory::Error));
@@ -19,8 +17,6 @@ TEST(LogCategoryTest, Serialize)
 TEST(LogCategoryTest, EnumLogCategories)
 {
     std::vector<LogCategory> expected = { 
-        LogCategory::Trace,
-        LogCategory::Debug,
         LogCategory::Information,
         LogCategory::Warning,
         LogCategory::Error,

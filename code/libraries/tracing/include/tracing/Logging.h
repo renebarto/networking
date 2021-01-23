@@ -82,16 +82,6 @@ std::ostream & operator << (std::ostream & stream, const LogCategory & value);
 
 } // namespace tracing
 
-inline void LogDebug(const std::string & path, int line, const std::string & functionName, const std::string & message)
-{
-    tracing::Logging::Log(tracing::LogCategory::Debug, path, line, functionName, message);
-}
-template <typename ... Args>
-void LogDebug(const std::string & path, int line, const std::string & functionName, const std::string & format, Args const & ... args) noexcept
-{
-    tracing::Logging::Log(tracing::LogCategory::Debug, path, line, functionName, format, args ...);
-}
-
 inline void LogInfo(const std::string & path, int line, const std::string & functionName, const std::string & message)
 {
     tracing::Logging::Log(tracing::LogCategory::Information, path, line, functionName, message);

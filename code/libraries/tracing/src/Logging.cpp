@@ -75,8 +75,6 @@ static osal::ConsoleColor GetColorForCategory(LogCategory category)
 {
     switch (category)
     {
-        case LogCategory::Trace:        return osal::ConsoleColor::Magenta;
-        case LogCategory::Debug:        return osal::ConsoleColor::Magenta;
         case LogCategory::Information:  return osal::ConsoleColor::Cyan;
         case LogCategory::Warning:      return osal::ConsoleColor::Yellow;
         case LogCategory::Error:        return osal::ConsoleColor::Red;
