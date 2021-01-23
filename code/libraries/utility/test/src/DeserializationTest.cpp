@@ -420,19 +420,10 @@ TEST(DeserializationTest, DeserializeBinaryLongDoubleBigEndian)
 TEST(DeserializationTest, DeserializeBinaryStringLittleEndian)
 {
     std::string value {};
-    std::vector<std::uint8_t> buffer;
-    if (sizeof(size_t) == 4)
-    {
-        buffer = { 0x0C, 0x00, 0x00, 0x00,
-                   0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 
-                   0x72, 0x6C, 0x64, 0x21 };
-    }
-    else
-    {
-        buffer = { 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                   0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 
-                   0x72, 0x6C, 0x64, 0x21 };
-    }
+    std::vector<std::uint8_t> buffer = { 
+        0x0C, 0x00, 0x00, 0x00, 0x48, 0x65, 0x6C, 0x6C, 
+        0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21
+    };
 
     std::size_t offset = 0;
     EXPECT_TRUE(DeserializeBinary(value, buffer, offset, utility::Endianness::LittleEndian));
@@ -443,19 +434,10 @@ TEST(DeserializationTest, DeserializeBinaryStringLittleEndian)
 TEST(DeserializationTest, DeserializeBinaryStringBigEndian)
 {
     std::string value {};
-    std::vector<std::uint8_t> buffer;
-    if (sizeof(size_t) == 4)
-    {
-        buffer = { 0x00, 0x00, 0x00, 0x0C,
-                   0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 
-                   0x72, 0x6C, 0x64, 0x21 };
-    }
-    else
-    {
-        buffer = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0C,
-                   0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 
-                   0x72, 0x6C, 0x64, 0x21 };
-    }
+    std::vector<std::uint8_t> buffer = { 
+        0x00, 0x00, 0x00, 0x0C, 0x48, 0x65, 0x6C, 0x6C, 
+        0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21
+    };
     std::size_t offset = 0;
     EXPECT_TRUE(DeserializeBinary(value, buffer, offset, utility::Endianness::BigEndian));
     EXPECT_EQ(offset, buffer.size());
@@ -465,15 +447,7 @@ TEST(DeserializationTest, DeserializeBinaryStringBigEndian)
 TEST(DeserializationTest, DeserializeBinaryWStringLittleEndian)
 {
     std::wstring value {};
-    std::vector<std::uint8_t> buffer;
-    if (sizeof(size_t) == 4)
-    {
-        buffer = { 0x0C, 0x00, 0x00, 0x00 };
-    }
-    else
-    {
-        buffer = { 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-    }
+    std::vector<std::uint8_t> buffer = { 0x0C, 0x00, 0x00, 0x00 };
 
     if (sizeof(wchar_t) == 2)
     {
@@ -500,15 +474,7 @@ TEST(DeserializationTest, DeserializeBinaryWStringLittleEndian)
 TEST(DeserializationTest, DeserializeBinaryWStringBigEndian)
 {
     std::wstring value {};
-    std::vector<std::uint8_t> buffer;
-    if (sizeof(size_t) == 4)
-    {
-        buffer = { 0x00, 0x00, 0x00, 0x0C };
-    }
-    else
-    {
-        buffer = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0C };
-    }
+    std::vector<std::uint8_t> buffer = { 0x00, 0x00, 0x00, 0x0C };
 
     if (sizeof(wchar_t) == 2)
     {

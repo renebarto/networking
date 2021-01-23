@@ -38,6 +38,7 @@ std::string Serialize(const wchar_t * value, int width = 0, bool quote = false);
 std::string Serialize(const void * value, int width = 0);
 std::string Serialize(void * value, int width = 0);
 std::string SerializeData(const std::uint8_t * value, std::size_t size);
+std::string SerializeData(const std::vector<std::uint8_t> & value);
 
 template<typename T>
 std::string Serialize(T t, int width)

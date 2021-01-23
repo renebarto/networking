@@ -377,10 +377,11 @@ bool DeserializeBinary(long double & value, const std::vector<std::uint8_t> & bu
 
 bool DeserializeBinary(std::string & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
 {
-    std::size_t length {};
+    // Always make length 32 bits, as size_t is 32 bit or 64 bit depending on platform
+    std::uint32_t length {};
     if (!DeserializeBinary(length, buffer, offset, endianness))
         return false;
-    for (size_t i = 0; i < length; ++i)
+    for (uint32_t i = 0; i < length; ++i)
     {
         char ch;
         if (!DeserializeBinary(ch, buffer, offset, endianness))
@@ -392,10 +393,11 @@ bool DeserializeBinary(std::string & value, const std::vector<std::uint8_t> & bu
 
 bool DeserializeBinary(std::wstring & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
 {
-    std::size_t length {};
+    // Always make length 32 bits, as size_t is 32 bit or 64 bit depending on platform
+    std::uint32_t length {};
     if (!DeserializeBinary(length, buffer, offset, endianness))
         return false;
-    for (size_t i = 0; i < length; ++i)
+    for (uint32_t i = 0; i < length; ++i)
     {
         if (sizeof(wchar_t) == 2)
         {

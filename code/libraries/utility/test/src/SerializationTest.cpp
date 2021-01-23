@@ -277,6 +277,25 @@ TEST(SerializationTest, SerializeUInt8PtrThirtyTwoBytesWithNonPrintables)
     EXPECT_EQ(expected, SerializeData(value, sizeof(value)));
 }
 
+TEST(SerializationTest, SerializeVectorEmpty)
+{
+    const std::vector<std::uint8_t> value;
+    std::string expected = "-";
+    EXPECT_EQ(expected, SerializeData(value));
+}
+
+TEST(SerializationTest, SerializeVectorThirtyTwoBytesWithNonPrintables)
+{
+    const std::vector<std::uint8_t> value = { 
+        0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50,
+        0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20
+    };
+    std::string expected = 
+        "41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F 50  A B C D E F G H I J K L M N O P\n"
+        "11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20  . . . . . . . . . . . . . . .  \n";
+    EXPECT_EQ(expected, SerializeData(value));
+}
+
 TEST(SerializationTest, SerializeBinaryBool)
 {
     bool value = true;
@@ -528,21 +547,12 @@ TEST(SerializationTest, SerializeBinaryStringLittleEndian)
     std::vector<std::uint8_t> buffer;
     std::size_t offset = 0;
     SerializeBinary(value, buffer, offset, utility::Endianness::LittleEndian);
-    EXPECT_EQ(value.length() + sizeof(size_t), offset);
+    EXPECT_EQ(value.length() + sizeof(std::uint32_t), offset);
     EXPECT_EQ(offset, buffer.size());
-    std::vector<std::uint8_t> expected;
-    if (sizeof(size_t) == 4)
-    {
-        expected = { 0x0C, 0x00, 0x00, 0x00, 
-                     0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 
-                     0x72, 0x6C, 0x64, 0x21 };
-    }
-    else
-    {
-        expected = { 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                     0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 
-                     0x72, 0x6C, 0x64, 0x21 };
-    }
+    std::vector<std::uint8_t> expected = { 
+        0x0C, 0x00, 0x00, 0x00, 0x48, 0x65, 0x6C, 0x6C, 
+        0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21
+    };
     EXPECT_EQ(expected, buffer);
 }
 
@@ -552,21 +562,12 @@ TEST(SerializationTest, SerializeBinaryStringBigEndian)
     std::vector<std::uint8_t> buffer;
     std::size_t offset = 0;
     SerializeBinary(value, buffer, offset, utility::Endianness::BigEndian);
-    EXPECT_EQ(value.length() + sizeof(size_t), offset);
+    EXPECT_EQ(value.length() + sizeof(std::uint32_t), offset);
     EXPECT_EQ(offset, buffer.size());
-    std::vector<std::uint8_t> expected;
-    if (sizeof(size_t) == 4)
-    {
-        expected = { 0x00, 0x00, 0x00, 0x0C, 
-                     0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 
-                     0x72, 0x6C, 0x64, 0x21 };
-    }
-    else
-    {
-        expected = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0C, 
-                     0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 
-                     0x72, 0x6C, 0x64, 0x21 };
-    }
+    std::vector<std::uint8_t> expected = { 
+        0x00, 0x00, 0x00, 0x0C, 0x48, 0x65, 0x6C, 0x6C, 
+        0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21
+    };
     EXPECT_EQ(expected, buffer);
 }
 
@@ -576,17 +577,9 @@ TEST(SerializationTest, SerializeBinaryWStringLittleEndian)
     std::vector<std::uint8_t> buffer;
     std::size_t offset = 0;
     SerializeBinary(value, buffer, offset, utility::Endianness::LittleEndian);
-    EXPECT_EQ(value.length() * sizeof(wchar_t) + sizeof(size_t), offset);
+    EXPECT_EQ(value.length() * sizeof(wchar_t) + sizeof(std::uint32_t), offset);
     EXPECT_EQ(offset, buffer.size());
-    std::vector<std::uint8_t> expected;
-    if (sizeof(size_t) == 4)
-    {
-        expected = { 0x0C, 0x00, 0x00, 0x00 };
-    }
-    else
-    {
-        expected = { 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-    }
+    std::vector<std::uint8_t> expected = { 0x0C, 0x00, 0x00, 0x00 };
 
     if (sizeof(wchar_t) == 2)
     {
@@ -612,17 +605,9 @@ TEST(SerializationTest, SerializeBinaryWStringBigEndian)
     std::vector<std::uint8_t> buffer;
     std::size_t offset = 0;
     SerializeBinary(value, buffer, offset, utility::Endianness::BigEndian);
-    EXPECT_EQ(value.length() * sizeof(wchar_t) + sizeof(size_t), offset);
+    EXPECT_EQ(value.length() * sizeof(wchar_t) + sizeof(std::uint32_t), offset);
     EXPECT_EQ(offset, buffer.size());
-    std::vector<std::uint8_t> expected;
-    if (sizeof(size_t) == 4)
-    {
-        expected = { 0x00, 0x00, 0x00, 0x0C };
-    }
-    else
-    {
-        expected = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0C };
-    }
+    std::vector<std::uint8_t> expected = { 0x00, 0x00, 0x00, 0x0C };
     
     if (sizeof(wchar_t) == 2)
     {
@@ -649,21 +634,12 @@ TEST(SerializationTest, SerializeBinaryCharPtrLittleEndian)
     std::vector<std::uint8_t> buffer;
     std::size_t offset = 0;
     SerializeBinary(value, buffer, offset, utility::Endianness::LittleEndian);
-    EXPECT_EQ(std::strlen(value) + sizeof(size_t), offset);
+    EXPECT_EQ(std::strlen(value) + sizeof(std::uint32_t), offset);
     EXPECT_EQ(offset, buffer.size());
-    std::vector<std::uint8_t> expected;
-    if (sizeof(size_t) == 4)
-    {
-        expected = { 0x0C, 0x00, 0x00, 0x00, 
-                     0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 
-                     0x72, 0x6C, 0x64, 0x21 };
-    }
-    else
-    {
-        expected = { 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                     0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 
-                     0x72, 0x6C, 0x64, 0x21 };
-    }
+    std::vector<std::uint8_t> expected = { 
+        0x0C, 0x00, 0x00, 0x00, 0x48, 0x65, 0x6C, 0x6C, 
+        0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21
+    };
     EXPECT_EQ(expected, buffer);
 }
 
@@ -673,21 +649,12 @@ TEST(SerializationTest, SerializeBinaryCharPtrBigEndian)
     std::vector<std::uint8_t> buffer;
     std::size_t offset = 0;
     SerializeBinary(value, buffer, offset, utility::Endianness::BigEndian);
-    EXPECT_EQ(std::strlen(value) + sizeof(size_t), offset);
+    EXPECT_EQ(std::strlen(value) + sizeof(std::uint32_t), offset);
     EXPECT_EQ(offset, buffer.size());
-    std::vector<std::uint8_t> expected;
-    if (sizeof(size_t) == 4)
-    {
-        expected = { 0x00, 0x00, 0x00, 0x0C, 
-                     0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 
-                     0x72, 0x6C, 0x64, 0x21 };
-    }
-    else
-    {
-        expected = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0C, 
-                     0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 
-                     0x72, 0x6C, 0x64, 0x21 };
-    }
+    std::vector<std::uint8_t> expected = { 
+        0x00, 0x00, 0x00, 0x0C, 0x48, 0x65, 0x6C, 0x6C, 
+        0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21
+    };
     EXPECT_EQ(expected, buffer);
 }
 
@@ -697,17 +664,9 @@ TEST(SerializationTest, SerializeBinaryWCharPtrLittleEndian)
     std::vector<std::uint8_t> buffer;
     std::size_t offset = 0;
     SerializeBinary(value, buffer, offset, utility::Endianness::LittleEndian);
-    EXPECT_EQ(std::wcslen(value) * sizeof(wchar_t) + sizeof(size_t), offset);
+    EXPECT_EQ(std::wcslen(value) * sizeof(wchar_t) + sizeof(std::uint32_t), offset);
     EXPECT_EQ(offset, buffer.size());
-    std::vector<std::uint8_t> expected;
-    if (sizeof(size_t) == 4)
-    {
-        expected = { 0x0C, 0x00, 0x00, 0x00 };
-    }
-    else
-    {
-        expected = { 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-    }
+    std::vector<std::uint8_t> expected = { 0x0C, 0x00, 0x00, 0x00 };
 
     if (sizeof(wchar_t) == 2)
     {
@@ -734,17 +693,9 @@ TEST(SerializationTest, SerializeBinaryWCharPtrBigEndian)
     std::vector<std::uint8_t> buffer;
     std::size_t offset = 0;
     SerializeBinary(value, buffer, offset, utility::Endianness::BigEndian);
-    EXPECT_EQ(std::wcslen(value) * sizeof(wchar_t) + sizeof(size_t), offset);
+    EXPECT_EQ(std::wcslen(value) * sizeof(wchar_t) + sizeof(std::uint32_t), offset);
     EXPECT_EQ(offset, buffer.size());
-    std::vector<std::uint8_t> expected;
-    if (sizeof(size_t) == 4)
-    {
-        expected = { 0x00, 0x00, 0x00, 0x0C };
-    }
-    else
-    {
-        expected = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0C };
-    }
+    std::vector<std::uint8_t> expected = { 0x00, 0x00, 0x00, 0x0C };
 
     if (sizeof(wchar_t) == 2)
     {

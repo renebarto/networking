@@ -389,13 +389,15 @@ std::string SerializeData(const std::uint8_t * value, std::size_t size)
 {
     std::ostringstream stream;
 
+    stream << std::endl;
     if (value != nullptr)
     {
         const std::size_t LineDisplayBytes = 16;
-        const std::size_t MaxDisplayBytes = 32;
+        const std::size_t MaxDisplayBytes = 1024;
         std::size_t displayBytes = (size < MaxDisplayBytes) ? size : MaxDisplayBytes;
         for (std::size_t i = 0; i < displayBytes; i += LineDisplayBytes)
         {
+            stream << Serialize(i, 0, 16) << "  ";
             for (std::size_t j = 0; j < LineDisplayBytes; ++j)
             {
                 if (j != 0)
@@ -426,6 +428,13 @@ std::string SerializeData(const std::uint8_t * value, std::size_t size)
     else
         stream << "null";
     return stream.str();
+}
+
+std::string SerializeData(const std::vector<std::uint8_t> & value)
+{
+    if (value.size() > 0)
+        return SerializeData(value.data(), value.size());
+    return "-";
 }
 
 // Binary Serialization
@@ -539,7 +548,8 @@ void SerializeBinary(long double value, std::vector<std::uint8_t> & buffer, std:
 
 void SerializeBinary(const std::string & value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
 {
-    SerializeBinary(value.length(), buffer, offset, endianness);
+    // Always make length 32 bits, as size_t is 32 bit or 64 bit depending on platform
+    SerializeBinary(static_cast<uint32_t>(value.length()), buffer, offset, endianness);
     for (auto ch : value)
     {
         SerializeBinary(CastToInteger(ch), buffer, offset, endianness);
@@ -548,7 +558,8 @@ void SerializeBinary(const std::string & value, std::vector<std::uint8_t> & buff
 
 void SerializeBinary(const std::wstring & value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
 {
-    SerializeBinary(value.length(), buffer, offset, endianness);
+    // Always make length 32 bits, as size_t is 32 bit or 64 bit depending on platform
+    SerializeBinary(static_cast<uint32_t>(value.length()), buffer, offset, endianness);
     for (auto ch : value)
     {
         SerializeBinary(CastToInteger(ch), buffer, offset, endianness);
@@ -557,7 +568,7 @@ void SerializeBinary(const std::wstring & value, std::vector<std::uint8_t> & buf
 
 void SerializeBinary(const char * value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
 {
-    auto length = std::strlen(value);
+    auto length = static_cast<uint32_t>(std::strlen(value));
     SerializeBinary(length, buffer, offset, endianness);
     for (std::size_t i = 0; i < length; ++i)
     {
@@ -567,7 +578,7 @@ void SerializeBinary(const char * value, std::vector<std::uint8_t> & buffer, std
 
 void SerializeBinary(const wchar_t * value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
 {
-    auto length = std::wcslen(value);
+    auto length = static_cast<uint32_t>(std::wcslen(value));
     SerializeBinary(length, buffer, offset, endianness);
     for (std::size_t i = 0; i < length; ++i)
     {
