@@ -20,7 +20,7 @@ Thread::Thread(const std::string & name)
     , m_name(name.substr(0, std::min(name.length(), size_t {15})))
     , m_state(ThreadState::NotStarted)
 {
-    SCOPEDTRACE([&] () { return utility::FormatString(std::string("name={0}"), m_name); }, nullptr);
+    SCOPEDTRACE([&] () { return utility::FormatString("name={0}", m_name); }, nullptr);
 }
 
 Thread::Thread(ThreadFunction threadFunc)
@@ -39,7 +39,7 @@ Thread::Thread(ThreadFunction threadFunc, const std::string & name)
     , m_name(name.substr(0, std::min(name.length(), size_t {15})))
     , m_state(ThreadState::NotStarted)
 {
-    SCOPEDTRACE([&] () { return utility::FormatString(std::string("name={0}"), m_name); }, nullptr);
+    SCOPEDTRACE([&] () { return utility::FormatString("name={0}", m_name); }, nullptr);
     Create(threadFunc);
 }
 
@@ -64,7 +64,9 @@ void Thread::Create(ThreadFunction threadFunc)
         m_thread = std::thread(std::move(task));
         m_state = ThreadState::Running;
         osal::SetThreadName(m_thread, m_name);
-        TraceMessage(__FILE__, __LINE__, __func__, "Start thread {}, id {}", m_name, m_thread.get_id());
+        TraceMessage(__FILE__, __LINE__, __func__, "Start thread {}, id {}", 
+            (m_name.empty() ? "Thread #" + serialization::Serialize(m_thread.get_id(), 0) : m_name), 
+            m_thread.get_id());
     }
     catch (const std::exception & e)
     {
@@ -89,7 +91,7 @@ void Thread::Destroy()
 bool Thread::IsAlive()
 {
     bool result;
-    SCOPEDTRACE(nullptr, [&](){ return utility::FormatString(std::string("result={}"), result); });
+    SCOPEDTRACE(nullptr, [&](){ return utility::FormatString("result={}", result); });
 
     Lock lock(m_threadMutex);
  
@@ -101,7 +103,7 @@ bool Thread::IsAlive()
 bool Thread::IsRunning()
 {
     bool result;
-    SCOPEDTRACE(nullptr, [&](){ return utility::FormatString(std::string("result={}"), result); });
+    SCOPEDTRACE(nullptr, [&](){ return utility::FormatString("result={}", result); });
 
     Lock lock(m_threadMutex);
 
@@ -113,7 +115,7 @@ bool Thread::IsRunning()
 bool Thread::IsFinished()
 {
     bool result;
-    SCOPEDTRACE(nullptr, [&](){ return utility::FormatString(std::string("result={}"), result); });
+    SCOPEDTRACE(nullptr, [&](){ return utility::FormatString("result={}", result); });
 
     Lock lock(m_threadMutex);
 
@@ -125,7 +127,7 @@ bool Thread::IsFinished()
 bool Thread::HasDied()
 {
     bool result;
-    SCOPEDTRACE(nullptr, [&](){ return utility::FormatString(std::string("result={}"), result); });
+    SCOPEDTRACE(nullptr, [&](){ return utility::FormatString("result={}", result); });
 
     Lock lock(m_threadMutex);
 
@@ -136,14 +138,14 @@ bool Thread::HasDied()
 
 const std::string & Thread::GetName() const
 {
-    SCOPEDTRACE(nullptr, [&](){ return utility::FormatString(std::string("result={}"), m_name); });
+    SCOPEDTRACE(nullptr, [&](){ return utility::FormatString("result={}", m_name); });
 
     return m_name;
 }
 
 void Thread::SetName(const std::string & name)
 {
-    SCOPEDTRACE([&] () { return utility::FormatString(std::string("name={}"), name); }, nullptr);
+    SCOPEDTRACE([&] () { return utility::FormatString("name={}", name); }, nullptr);
     m_name = name.substr(0, std::min(name.length(), size_t {15}));
     osal::SetThreadName(m_thread, m_name);
 }
@@ -176,7 +178,7 @@ void Thread::Cleanup()
 osal::ThreadPriority Thread::GetPriority()
 {
     osal::ThreadPriority priority {};
-    SCOPEDTRACE(nullptr, [&]() { return utility::FormatString(std::string("result={}"), static_cast<int>(priority)); });
+    SCOPEDTRACE(nullptr, [&]() { return utility::FormatString("result={}", static_cast<int>(priority)); });
 
     priority = osal::GetThreadPriority(m_thread);
     return priority;
@@ -184,7 +186,7 @@ osal::ThreadPriority Thread::GetPriority()
 
 void Thread::SetPriority(osal::ThreadPriority priority)
 {
-    SCOPEDTRACE([&] () { return utility::FormatString(std::string("priority={}"), static_cast<int>(priority)); }, nullptr);
+    SCOPEDTRACE([&] () { return utility::FormatString("priority={}", static_cast<int>(priority)); }, nullptr);
     osal::SetThreadPriority(m_thread, priority);
 }
 
