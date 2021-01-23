@@ -132,7 +132,9 @@ bool Console::ShouldUseColor() const
         return false;
     if (!IsTTY(m_handle))
         return false;
-
+#if defined(PLATFORM_WINDOWS)
+    return true;
+#else
     const char * termSetting = GetEnvironment("TERM");
     if (!termSetting)
         return false;
@@ -141,6 +143,7 @@ bool Console::ShouldUseColor() const
         || (term == "xterm-256color") || (term == "screen") || (term == "screen-256color")
         || (term == "linux") || (term == "cygwin");
     return terminalSupportsColor;
+#endif
 }
 
 bool Console::ForceUseColor() const

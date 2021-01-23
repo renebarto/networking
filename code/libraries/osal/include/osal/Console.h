@@ -15,6 +15,7 @@
 #pragma once
 
 #include <iostream>
+#include <mutex>
 
 #include "osal/FileHandling.h"
 
@@ -90,10 +91,11 @@ public:
     bool ForceUseColor() const;
     void ForceUseColor(bool value);
 
-    // Streams a non-pointer _value to this object.
+    // Streams a non-pointer value to this object.
     template <typename T>
     Console & operator << (const T & val)
     {
+        Lock lock(m_mutex);
         using ::operator <<;
         if (m_stream)
             *m_stream << val;
@@ -102,6 +104,7 @@ public:
 
     Console & operator << (BasicIoManip val)
     {
+        Lock lock(m_mutex);
         if (m_stream)
             *m_stream << val;
         return *this;
@@ -109,18 +112,24 @@ public:
 
     Console & operator << (_SetForegroundColor color)
     {
+        Lock lock(m_mutex);
         SetForegroundColor(color.color);
         return *this;
     }
     Console & operator << (_SetBackgroundColor color)
     {
+        Lock lock(m_mutex);
         SetBackgroundColor(color.color);
         return *this;
     }
 
 protected:
+    using Mutex = std::recursive_mutex;
+    using Lock = std::lock_guard<Mutex>;
+
     FileDescriptor m_handle;
     std::ostream * m_stream;
+    Mutex m_mutex;
     bool m_forceUseColor;
     ConsoleColor m_currentForegroundColor;
     ConsoleColor m_currentBackgroundColor;
