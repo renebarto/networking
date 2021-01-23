@@ -10,8 +10,6 @@ class ActiveObject
     : public WorkerThread
 {
 private:
-    using Mutex = std::recursive_mutex;
-    using Lock = std::lock_guard<Mutex>;
     std::atomic<bool> m_isDying;
     std::atomic<bool> m_isAlive;
 
@@ -59,13 +57,13 @@ public:
     bool IsAlive() const
     {
         bool result = m_isAlive;
-        SCOPEDTRACE(nullptr, [&] () { return utility::FormatString(std::string("result={}"), result); });
+        SCOPEDTRACE(nullptr, [&] () { return utility::FormatString("result={}", result); });
         return result;
     }
     bool IsDying() const
     {
         bool result = m_isDying;
-        SCOPEDTRACE(nullptr, [&] () { return utility::FormatString(std::string("result={}"), result); });
+        SCOPEDTRACE(nullptr, [&] () { return utility::FormatString("result={}", result); });
         return result;
     }
 
