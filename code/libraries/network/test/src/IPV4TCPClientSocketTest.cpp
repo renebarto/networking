@@ -37,8 +37,8 @@ TEST_F(IPV4TCPClientSocketTest, Construct)
 {
     testing::SocketAPIMock api;
 
-    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
-    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(0);
+    EXPECT_CALL(api, Close(_)).Times(0);
 
     IPV4TCPClientSocket client(api);
     EXPECT_FALSE(client.IsConnected());
@@ -46,15 +46,14 @@ TEST_F(IPV4TCPClientSocketTest, Construct)
 
 TEST_F(IPV4TCPClientSocketTest, ConnectNoTimeout)
 {
-    const std::uint16_t Port = 8080;
     testing::SocketAPIMock api;
-    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(2);
-    EXPECT_CALL(api, Close(_)).Times(2);
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
     EXPECT_CALL(api, Connect(_, _, _)).WillOnce(Return(0));
     EXPECT_CALL(api, SetBlockingMode(_, false)).Times(0);
     EXPECT_CALL(api, SetBlockingMode(_, true)).Times(2);
 
-    IPV4EndPoint serverAddress(IPV4Address::LocalHost, Port);
+    IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
     IPV4TCPClientSocket client(api);
     EXPECT_TRUE(client.Connect(serverAddress, InfiniteTimeout));
     EXPECT_TRUE(client.IsConnected());
@@ -62,15 +61,14 @@ TEST_F(IPV4TCPClientSocketTest, ConnectNoTimeout)
 
 TEST_F(IPV4TCPClientSocketTest, ConnectWithTimeout)
 {
-    const std::uint16_t Port = 8080;
     testing::SocketAPIMock api;
-    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(2);
-    EXPECT_CALL(api, Close(_)).Times(2);
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
     EXPECT_CALL(api, Connect(_, _, _)).WillOnce(Return(0));
     EXPECT_CALL(api, SetBlockingMode(_, false)).Times(1);
     EXPECT_CALL(api, SetBlockingMode(_, true)).Times(1);
 
-    IPV4EndPoint serverAddress(IPV4Address::LocalHost, Port);
+    IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
     IPV4TCPClientSocket client(api);
     EXPECT_TRUE(client.Connect(serverAddress, 1000));
     EXPECT_TRUE(client.IsConnected());
@@ -78,15 +76,14 @@ TEST_F(IPV4TCPClientSocketTest, ConnectWithTimeout)
 
 TEST_F(IPV4TCPClientSocketTest, ConnectTwiceFails)
 {
-    const std::uint16_t Port = 8080;
     testing::SocketAPIMock api;
-    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(2);
-    EXPECT_CALL(api, Close(_)).Times(2);
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
     EXPECT_CALL(api, Connect(_, _, _)).WillOnce(Return(0));
     EXPECT_CALL(api, SetBlockingMode(_, false)).Times(1);
     EXPECT_CALL(api, SetBlockingMode(_, true)).Times(1);
 
-    IPV4EndPoint serverAddress(IPV4Address::LocalHost, Port);
+    IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
     IPV4TCPClientSocket client(api);
     EXPECT_TRUE(client.Connect(serverAddress, 1000));
     EXPECT_TRUE(client.IsConnected());
@@ -96,15 +93,14 @@ TEST_F(IPV4TCPClientSocketTest, ConnectTwiceFails)
 
 TEST_F(IPV4TCPClientSocketTest, ConnectAfterConnectAndDisconnectSucceeds)
 {
-    const std::uint16_t Port = 8080;
     testing::SocketAPIMock api;
-    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(3);
-    EXPECT_CALL(api, Close(_)).Times(3);
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(2);
+    EXPECT_CALL(api, Close(_)).Times(2);
     EXPECT_CALL(api, Connect(_, _, _)).WillOnce(Return(0)).WillOnce(Return(0));
     EXPECT_CALL(api, SetBlockingMode(_, false)).Times(2);
     EXPECT_CALL(api, SetBlockingMode(_, true)).Times(2);
 
-    IPV4EndPoint serverAddress(IPV4Address::LocalHost, Port);
+    IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
     IPV4TCPClientSocket client(api);
     EXPECT_TRUE(client.Connect(serverAddress, 1000));
     EXPECT_TRUE(client.IsConnected());

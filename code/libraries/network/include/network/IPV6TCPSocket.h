@@ -9,9 +9,10 @@ class IPV6TCPSocket
 {
 public:
     IPV6TCPSocket(ISocketAPI & socketAPI);
-    IPV6TCPSocket(const IPV6TCPSocket & other);
+    IPV6TCPSocket(const IPV6TCPSocket & other) = delete;
     IPV6TCPSocket(IPV6TCPSocket && other);
 
+    IPV6TCPSocket & operator = (const IPV6TCPSocket & other) = delete;
     IPV6TCPSocket & operator = (IPV6TCPSocket && other);
 
     using IPV6Socket::GetHandle;
@@ -19,8 +20,9 @@ public:
 
     using IPV6Socket::Family;
     using IPV6Socket::Type;
+    using IPV6Socket::Protocol;
 
-	void Open(SocketProtocol protocol = SocketProtocol::IP);
+    using IPV6Socket::Open;
     using IPV6Socket::Close;
     using IPV6Socket::IsOpen;
 
@@ -57,6 +59,9 @@ public:
 
     using IPV6Socket::Receive;
     using IPV6Socket::Send;
+    using IPV6Socket::ReceiveBuffer;
+    using IPV6Socket::ReceiveBlock;
+    using IPV6Socket::SendBuffer;
 };
 
 std::ostream & operator <<(std::ostream & stream, const IPV6TCPSocket & value);

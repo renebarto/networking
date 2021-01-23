@@ -12,6 +12,8 @@
 
 namespace network {
 
+using ByteBuffer = std::vector<std::uint8_t>;
+
 class ISocketAPI;
 
 class Socket
@@ -21,6 +23,7 @@ private:
     SocketHandle m_handle;
     SocketFamily m_socketFamily;
     SocketType m_socketType;
+    SocketProtocol m_socketProtocol;
     using Mutex = std::recursive_mutex;
     using Lock = std::lock_guard<Mutex>;
     Mutex m_mutex;
@@ -30,8 +33,8 @@ private:
 
 public:
     Socket(ISocketAPI & socketAPI);
-	Socket(ISocketAPI & socketAPI, SocketFamily socketFamily, SocketType socketType);
-	Socket(const Socket & other);
+	Socket(ISocketAPI & socketAPI, SocketFamily socketFamily, SocketType socketType, SocketProtocol socketProtocol = SocketProtocol::IP);
+	Socket(const Socket & other) = delete;
 	Socket(Socket && other);
     virtual ~Socket();
 
@@ -43,8 +46,9 @@ public:
 
     SocketFamily Family() const { return m_socketFamily; }
     SocketType Type() const { return m_socketType; }
+    SocketProtocol Protocol() const { return m_socketProtocol; }
 
-	void Open(SocketFamily socketFamily, SocketType socketType, SocketProtocol protocol = SocketProtocol::IP);
+	void Open();
 	void Close();
 	bool IsOpen();
 
@@ -80,15 +84,23 @@ public:
 
     std::size_t Receive(std::uint8_t * data, std::size_t bufferSize, int flags);
     bool        Send(const std::uint8_t * data, std::size_t bytesToSend, int flags);
+    bool        ReceiveBlock(ByteBuffer & data, std::size_t bufferSize, int flags);
+    std::size_t ReceiveBuffer(ByteBuffer & data, std::size_t bufferSize, int flags);
+    bool        SendBuffer(const ByteBuffer & data, int flags);
     std::size_t ReceiveFrom(sockaddr * address, socklen_t * addressLength, std::uint8_t * data, std::size_t bufferSize);
-    void        SendTo(const sockaddr * address, socklen_t addressLength, const std::uint8_t * data, std::size_t bytesToSend);
+    bool        SendTo(const sockaddr * address, socklen_t addressLength, const std::uint8_t * data, std::size_t bytesToSend);
+    bool        ReceiveBlockFrom(sockaddr * address, socklen_t * addressLength, ByteBuffer & data, std::size_t bufferSize);
+    std::size_t ReceiveBufferFrom(sockaddr * address, socklen_t * addressLength, ByteBuffer & data, std::size_t bufferSize);
+    bool        SendBufferTo(const sockaddr * address, socklen_t addressLength, const ByteBuffer & data);
 };
 
 inline std::ostream &
 operator <<(std::ostream & stream, const Socket & value)
 {
-    return stream << serialization::Serialize(value, 0);
+    return stream << serialization::Serialize(value.GetHandle(), 0);
 }
+
+extern const size_t BufferSize;
 
 } // namespace network
 

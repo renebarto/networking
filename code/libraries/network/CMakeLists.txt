@@ -53,9 +53,11 @@ set(PROJECT_SOURCES
     src/IPV4EndPoint.cpp
     src/IPV4Socket.cpp
     src/IPV4TCPClient.cpp
-    src/IPV4TCPClientConnectionThread.cpp
     src/IPV4TCPClientSocket.cpp
     src/IPV4TCPServer.cpp
+    src/IPV4TCPServerConnectionHandler.cpp
+    src/IPV4TCPServerConnectionThread.cpp
+    src/IPV4TCPServerHandler.cpp
     src/IPV4TCPServerSocket.cpp
     src/IPV4TCPServerThread.cpp
     src/IPV4TCPSocket.cpp
@@ -71,9 +73,11 @@ set(PROJECT_INCLUDES_PUBLIC
     include/network/IPV4EndPoint.h
     include/network/IPV4Socket.h
     include/network/IPV4TCPClient.h
-    include/network/IPV4TCPClientConnectionThread.h
     include/network/IPV4TCPClientSocket.h
     include/network/IPV4TCPServer.h
+    include/network/IPV4TCPServerConnectionHandler.h
+    include/network/IPV4TCPServerConnectionThread.h
+    include/network/IPV4TCPServerHandler.h
     include/network/IPV4TCPServerSocket.h
     include/network/IPV4TCPServerThread.h
     include/network/IPV4TCPSocket.h

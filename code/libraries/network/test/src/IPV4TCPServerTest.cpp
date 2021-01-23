@@ -7,6 +7,7 @@
 #include "tracing/Tracing.h"
 #include "network/IPV4TCPClient.h"
 #include "network/IPV4TCPServer.h"
+#include "Utility.h"
 
 namespace network {
 
@@ -14,18 +15,18 @@ class IClosedConnectionCallback
 {
 public:
     virtual ~IClosedConnectionCallback() {};
-    virtual void OnConnectionClosed(IIPV4TCPClientConnectionHandler * connection) = 0;
+    virtual void OnConnectionClosed(IPV4TCPServerConnectionThread * connection) = 0;
 };
 
 class TCPConnectionHandler
-    : public IPV4TCPClientConnectionThread
+    : public IPV4TCPServerConnectionThread
     , public core::Observable<IClosedConnectionCallback>
 {
 public:
     bool m_abortThread;
 
     TCPConnectionHandler(ISocketAPI & api)
-        : IPV4TCPClientConnectionThread(api)
+        : IPV4TCPServerConnectionThread(api)
         , m_abortThread()
     {
         SCOPEDTRACE(nullptr, nullptr);
@@ -77,7 +78,7 @@ public:
     
     bool Start(PortType port, int numListeners, SocketBlocking blocking)
     {
-        SCOPEDTRACE([&] () { return utility::FormatString(std::string("port={}, numListeners={}, blocking={}"), port, numListeners, blocking == SocketBlocking::On ? "On" : "Off"); }, 
+        SCOPEDTRACE([&] () { return utility::FormatString("port={}, numListeners={}, blocking={}", port, numListeners, blocking == SocketBlocking::On ? "On" : "Off"); }, 
                     nullptr);
         return IPV4TCPServerThread::Start(port, numListeners, blocking);
     }
@@ -108,15 +109,17 @@ public:
     }
     bool ReadyToAccept() override
     {
+        bool result {};
         SCOPEDTRACE(nullptr, 
-                    nullptr);
-        return (m_connectionHandler == nullptr);
+                    [&] () { return utility::FormatString("result={}"), result);});
+        result = (m_connectionHandler == nullptr);
+        return result;
     }
-    bool OnAccepted(IPV4TCPSocket & clientSocket, const IPV4EndPoint & clientAddress) override
+    bool OnAccepted(IPV4TCPSocket && clientSocket, const IPV4EndPoint & clientAddress) override
     {
         bool connectionAdded {};
-        SCOPEDTRACE([&] () { return utility::FormatString(std::string("clientAddress={}"), clientAddress); }, 
-                    [&] () { return utility::FormatString(std::string("connectionAdded={}"), connectionAdded);});
+        SCOPEDTRACE([&] () { return utility::FormatString("clientAddress={}"), clientAddress); }, 
+                    [&] () { return utility::FormatString("connectionAdded={}"), connectionAdded);});
         if (m_connectionHandler == nullptr)
         {
             TraceMessage(__FILE__, __LINE__, __func__, "Add connection for {}", clientAddress);
@@ -124,7 +127,7 @@ public:
             m_connectionHandler = connectionHandler;
             m_connectionAdded = true;
             connectionHandler->Subscribe(this);
-            connectionHandler->Start(clientSocket, clientAddress);
+            connectionHandler->Start(std::move(clientSocket), clientAddress);
             connectionAdded = true;
         }
         else
@@ -135,9 +138,9 @@ public:
     }
 
     // Runs on connection handler thread
-    void OnConnectionClosed(IIPV4TCPClientConnectionHandler * connection) override
+    void OnConnectionClosed(IPV4TCPServerConnectionThread * connection) override
     {
-        SCOPEDTRACE([&] () { return utility::FormatString(std::string("connection={}"), connection); }, 
+        SCOPEDTRACE([&] () { return utility::FormatString("connection={}"), connection); }, 
                     nullptr);
         TraceMessage(__FILE__, __LINE__, __func__, "Connection closed");
         m_connectionRemoved = true;
@@ -147,69 +150,6 @@ public:
     }
 };
 
-class IPV4TCPServerHandlerLimitedConnections
-    : private IPV4TCPServerThread
-    , public IClosedConnectionCallback
-{
-private:
-    std::size_t m_maxConnections;
-    std::vector<TCPConnectionHandlerPtr> m_connectionHandlers;
-
-public:
-    IPV4TCPServerHandlerLimitedConnections(ISocketAPI & api, std::size_t maxConnections)
-        : IPV4TCPServerThread(api)
-        , m_maxConnections(maxConnections)
-        , m_connectionHandlers()
-    {        
-    }
-    
-    void DoConnectionCleanup() override
-    {
-        SCOPEDTRACE(nullptr, 
-                    nullptr);
-    }
-    void ForceConnectionClose() override
-    {
-        SCOPEDTRACE(nullptr, 
-                    nullptr);
-    }
-    bool ReadyToAccept() override
-    {
-        SCOPEDTRACE(nullptr, 
-                    nullptr);
-        return (m_connectionHandlers.size() < m_maxConnections);
-    }
-
-    bool OnAccepted(IPV4TCPSocket & clientSocket, const IPV4EndPoint & clientAddress) override
-    {
-        bool connectionAdded {};
-        SCOPEDTRACE([&] () { return utility::FormatString(std::string("clientAddress={}"), clientAddress); }, 
-                    [&] () { return utility::FormatString(std::string("connectionAdded={}"), connectionAdded);});
-        if (m_connectionHandlers.size() < m_maxConnections)
-        {
-            TraceMessage(__FILE__, __LINE__, __func__, "Add connection for {}", clientAddress);
-            auto connectionHandler = std::make_shared<TCPConnectionHandler>(m_socketAPI);
-            connectionHandler->Start(clientSocket, clientAddress);
-            connectionHandler->Subscribe(this);
-            m_connectionHandlers.push_back(connectionHandler);
-            connectionAdded = true;
-        }
-        else
-        {
-            clientSocket.Close();
-        }
-        return connectionAdded;
-    }
-
-    void OnConnectionClosed(IIPV4TCPClientConnectionHandler * connection) override
-    {
-        SCOPEDTRACE([&] () { return utility::FormatString(std::string("connection={}"), connection); }, 
-                    nullptr);
-        TraceMessage(__FILE__, __LINE__, __func__, "Connection closed");
-    }
-};
-
-static const std::uint16_t Port = 8080;
 static const int NumListeners = 1;
 
 class IPV4TCPServerTestSingleConnection : public ::testing::Test
@@ -226,7 +166,7 @@ public:
     void SetUp() override
     {
         m_savedTraceFilter = tracing::GetDefaultTraceFilter();
-        tracing::SetDefaultTraceFilter(tracing::TraceCategory::Message | tracing::TraceCategory::Data | tracing::TraceCategory::All);
+        tracing::SetDefaultTraceFilter(tracing::TraceCategory::Message | tracing::TraceCategory::Data);
         osal::SetThreadNameSelf("IPV4TCPServerTestSingleConnection");
     }
     void TearDown() override
@@ -247,7 +187,7 @@ TEST_F(IPV4TCPServerTestSingleConnection, Construct)
 TEST_F(IPV4TCPServerTestSingleConnection, Start)
 {
     IPV4TCPServer server(serverHandler);
-    server.Start(Port, NumListeners, SocketBlocking::On);
+    server.Start(TestPort, NumListeners, SocketBlocking::On);
     EXPECT_TRUE(server.IsStarted());
     EXPECT_FALSE(serverHandler.m_connectionAdded);
     EXPECT_FALSE(serverHandler.m_connectionRemoved);
@@ -256,7 +196,7 @@ TEST_F(IPV4TCPServerTestSingleConnection, Start)
 TEST_F(IPV4TCPServerTestSingleConnection, StartStop)
 {
     IPV4TCPServer server(serverHandler);
-    server.Start(Port, NumListeners, SocketBlocking::On);
+    server.Start(TestPort, NumListeners, SocketBlocking::On);
     EXPECT_TRUE(server.IsStarted());
     std::this_thread::sleep_for(std::chrono::seconds(2));
     server.Stop();
@@ -268,12 +208,12 @@ TEST_F(IPV4TCPServerTestSingleConnection, StartStop)
 TEST_F(IPV4TCPServerTestSingleConnection, SingleConnectionAccepted)
 {
     IPV4TCPServer server(serverHandler);
-    server.Start(Port, NumListeners, SocketBlocking::On);
+    server.Start(TestPort, NumListeners, SocketBlocking::On);
     EXPECT_TRUE(server.IsStarted());
 
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    IPV4EndPoint serverAddress(IPV4Address::LocalHost, Port);
+    IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
     IPV4TCPClient client(api, serverAddress);
     EXPECT_TRUE(client.Connect(100));
     // client server socket will close after 1 second, so don't wait too long
@@ -292,12 +232,12 @@ TEST_F(IPV4TCPServerTestSingleConnection, SingleConnectionAccepted)
 TEST_F(IPV4TCPServerTestSingleConnection, SecondSimultaneousConnectionRefused)
 {
     IPV4TCPServer server(serverHandler);
-    server.Start(Port, NumListeners, SocketBlocking::On);
+    server.Start(TestPort, NumListeners, SocketBlocking::On);
     EXPECT_TRUE(server.IsStarted());
 
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
-    IPV4EndPoint serverAddress(IPV4Address::LocalHost, Port);
+    IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
     IPV4TCPClient client1(api, serverAddress);
     IPV4TCPClient client2(api, serverAddress);
 

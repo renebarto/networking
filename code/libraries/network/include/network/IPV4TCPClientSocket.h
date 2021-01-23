@@ -25,6 +25,9 @@ public:
     using IPV4TCPSocket::GetRemoteAddress;
     using IPV4TCPSocket::Receive;
     using IPV4TCPSocket::Send;
+    using IPV4TCPSocket::ReceiveBuffer;
+    using IPV4TCPSocket::ReceiveBlock;
+    using IPV4TCPSocket::SendBuffer;
 };
 
 } // namespace network

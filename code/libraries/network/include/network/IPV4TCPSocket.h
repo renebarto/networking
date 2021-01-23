@@ -9,9 +9,10 @@ class IPV4TCPSocket
 {
 public:
     IPV4TCPSocket(ISocketAPI & socketAPI);
-    IPV4TCPSocket(const IPV4TCPSocket & other);
+    IPV4TCPSocket(const IPV4TCPSocket & other) = delete;
     IPV4TCPSocket(IPV4TCPSocket && other);
 
+    IPV4TCPSocket & operator = (const IPV4TCPSocket & other) = delete;
     IPV4TCPSocket & operator = (IPV4TCPSocket && other);
 
     using IPV4Socket::GetHandle;
@@ -19,8 +20,9 @@ public:
 
     using IPV4Socket::Family;
     using IPV4Socket::Type;
+    using IPV4Socket::Protocol;
 
-	void Open(SocketProtocol protocol = SocketProtocol::IP);
+    using IPV4Socket::Open;
     using IPV4Socket::Close;
     using IPV4Socket::IsOpen;
 
@@ -57,6 +59,9 @@ public:
 
     using IPV4Socket::Receive;
     using IPV4Socket::Send;
+    using IPV4Socket::ReceiveBuffer;
+    using IPV4Socket::ReceiveBlock;
+    using IPV4Socket::SendBuffer;
 };
 
 } // namespace network

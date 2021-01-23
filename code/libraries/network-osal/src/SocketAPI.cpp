@@ -1,5 +1,9 @@
 #include "network-osal/SocketAPI.h"
 
+#include "tracing/Logging.h"
+#include "utility/Error.h"
+#include "network-osal/Network.h"
+
 #if defined(PLATFORM_LINUX)
 
 #include <fcntl.h>
@@ -136,5 +140,41 @@ int SocketAPI::SendTo(SocketHandle handle, const std::uint8_t *data, std::size_t
 {
     return ::sendto(handle, reinterpret_cast<const char *>(data), static_cast<int>(bytesToSend), flags, address, addressLength);
 }
+
+#if defined(PLATFORM_WINDOWS)
+
+class SocketInitializer
+{
+public:
+    SocketInitializer()
+        : m_data()
+        , m_initialized(false)
+    {
+        int errorCode {};
+        // Do not trace here, as tracing may not be initialized yet
+        errorCode = WSAStartup(MAKEWORD(2, 2), &m_data);
+        if (errorCode != 0)
+            tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "socket() failed")); 
+        else
+            m_initialized = true;
+    }
+    ~SocketInitializer()
+    {
+        int errorCode {};
+        if (m_initialized)
+        {
+            errorCode = WSACleanup();
+            if (errorCode != 0)
+                tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "socket() failed")); 
+        }
+    }
+private:
+    WSADATA m_data;
+    bool m_initialized;
+};
+
+static SocketInitializer winsockInitalizer;
+
+#endif
 
 } // namespace serialization

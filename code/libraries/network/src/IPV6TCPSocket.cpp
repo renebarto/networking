@@ -3,13 +3,8 @@
 namespace network {
 
 IPV6TCPSocket::IPV6TCPSocket(ISocketAPI & socketAPI)
-    : IPV6Socket(socketAPI, SocketType::Stream)
+    : IPV6Socket(socketAPI, SocketType::Stream, SocketProtocol::IP)
 {    
-}
-
-IPV6TCPSocket::IPV6TCPSocket(const IPV6TCPSocket & other)
-    : IPV6Socket(other)
-{
 }
 
 IPV6TCPSocket::IPV6TCPSocket(IPV6TCPSocket && other)
@@ -25,11 +20,6 @@ IPV6TCPSocket & IPV6TCPSocket::operator = (IPV6TCPSocket && other)
         IPV6Socket::operator = (std::move(other));
     }
     return *this;
-}
-
-void IPV6TCPSocket::Open(SocketProtocol protocol)
-{
-    IPV6Socket::Open(SocketType::Stream, protocol);
 }
 
 void IPV6TCPSocket::Bind(const IPV6Address & ipAddress)

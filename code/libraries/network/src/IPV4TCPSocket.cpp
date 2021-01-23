@@ -3,13 +3,8 @@
 namespace network {
 
 IPV4TCPSocket::IPV4TCPSocket(ISocketAPI & socketAPI)
-    : IPV4Socket(socketAPI, SocketType::Stream)
+    : IPV4Socket(socketAPI, SocketType::Stream, SocketProtocol::IP)
 {    
-}
-
-IPV4TCPSocket::IPV4TCPSocket(const IPV4TCPSocket & other)
-    : IPV4Socket(other)
-{
 }
 
 IPV4TCPSocket::IPV4TCPSocket(IPV4TCPSocket && other)
@@ -24,11 +19,6 @@ IPV4TCPSocket & IPV4TCPSocket::operator = (IPV4TCPSocket && other)
         IPV4Socket::operator = (std::move(other));
     }
     return *this;
-}
-
-void IPV4TCPSocket::Open(SocketProtocol protocol)
-{
-    IPV4Socket::Open(SocketType::Stream, protocol);
 }
 
 void IPV4TCPSocket::Bind(const IPV4Address & ipAddress)

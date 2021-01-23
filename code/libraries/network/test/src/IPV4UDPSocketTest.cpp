@@ -32,35 +32,19 @@ TEST_F(IPV4UDPSocketTest, ConstructDefault)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     EXPECT_NE(InvalidHandleValue, target.GetHandle());
     EXPECT_TRUE(target.IsOpen());
     EXPECT_EQ(SocketFamily::InternetV4, target.Family());
     EXPECT_EQ(SocketType::Datagram, target.Type());
-}
-
-TEST_F(IPV4UDPSocketTest, ConstructCopy)
-{
-    SocketAPI api;
-    IPV4UDPSocket target(api);
-    auto handle = target.GetHandle();
-    IPV4UDPSocket newSocket(target);
-    EXPECT_EQ(handle, target.GetHandle());
-    EXPECT_TRUE(target.IsOpen());
-    EXPECT_EQ(handle, newSocket.GetHandle());
-    EXPECT_TRUE(newSocket.IsOpen());
-    EXPECT_EQ(SocketFamily::InternetV4, target.Family());
-    EXPECT_EQ(SocketType::Datagram, target.Type());
-    EXPECT_EQ(SocketFamily::InternetV4, newSocket.Family());
-    EXPECT_EQ(SocketType::Datagram, newSocket.Type());
-
-    // Do not close twice
-    newSocket.SetHandle(InvalidHandleValue);
+    EXPECT_EQ(SocketProtocol::IP, target.Protocol());
 }
 
 TEST_F(IPV4UDPSocketTest, ConstructMove)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     auto handle = target.GetHandle();
 
     IPV4UDPSocket newSocket(std::move(target));
@@ -68,16 +52,19 @@ TEST_F(IPV4UDPSocketTest, ConstructMove)
     EXPECT_FALSE(target.IsOpen());
     EXPECT_EQ(handle, newSocket.GetHandle());
     EXPECT_TRUE(newSocket.IsOpen());
-    EXPECT_EQ(SocketFamily::Any, target.Family());
-    EXPECT_EQ(SocketType::None, target.Type());
+    EXPECT_EQ(SocketFamily::InternetV4, target.Family());
+    EXPECT_EQ(SocketType::Datagram, target.Type());
+    EXPECT_EQ(SocketProtocol::IP, target.Protocol());
     EXPECT_EQ(SocketFamily::InternetV4, newSocket.Family());
     EXPECT_EQ(SocketType::Datagram, newSocket.Type());
+    EXPECT_EQ(SocketProtocol::IP, newSocket.Protocol());
 }
 
 TEST_F(IPV4UDPSocketTest, AssignMove)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     auto handle = target.GetHandle();
 
     IPV4UDPSocket newSocket(api);
@@ -86,16 +73,19 @@ TEST_F(IPV4UDPSocketTest, AssignMove)
     EXPECT_FALSE(target.IsOpen());
     EXPECT_EQ(handle, newSocket.GetHandle());
     EXPECT_TRUE(newSocket.IsOpen());
-    EXPECT_EQ(SocketFamily::Any, target.Family());
-    EXPECT_EQ(SocketType::None, target.Type());
+    EXPECT_EQ(SocketFamily::InternetV4, target.Family());
+    EXPECT_EQ(SocketType::Datagram, target.Type());
+    EXPECT_EQ(SocketProtocol::IP, target.Protocol());
     EXPECT_EQ(SocketFamily::InternetV4, newSocket.Family());
     EXPECT_EQ(SocketType::Datagram, newSocket.Type());
+    EXPECT_EQ(SocketProtocol::IP, newSocket.Protocol());
 }
 
 TEST_F(IPV4UDPSocketTest, GetSetHandle)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     target.Close();
 
     SocketHandle handle = 1234;
@@ -112,29 +102,34 @@ TEST_F(IPV4UDPSocketTest, Open)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     target.Close();
 
     target.Open();
     EXPECT_TRUE(target.IsOpen());
     EXPECT_EQ(SocketFamily::InternetV4, target.Family());
     EXPECT_EQ(SocketType::Datagram, target.Type());
+    EXPECT_EQ(SocketProtocol::IP, target.Protocol());
 }
 
 TEST_F(IPV4UDPSocketTest, Close)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     EXPECT_TRUE(target.IsOpen());
     target.Close();
     EXPECT_FALSE(target.IsOpen());
-    EXPECT_EQ(SocketFamily::Any, target.Family());
-    EXPECT_EQ(SocketType::None, target.Type());
+    EXPECT_EQ(SocketFamily::InternetV4, target.Family());
+    EXPECT_EQ(SocketType::Datagram, target.Type());
+    EXPECT_EQ(SocketProtocol::IP, target.Protocol());
 }
 
 TEST_F(IPV4UDPSocketTest, GetOptionWithLevel)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value;
     target.GetSocketOptionWithLevel(SocketOptionLevel::Socket, SocketOption::Broadcast, &value, &size);
@@ -145,6 +140,7 @@ TEST_F(IPV4UDPSocketTest, SetOptionWithLevel)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value = 1;
@@ -158,6 +154,7 @@ TEST_F(IPV4UDPSocketTest, GetOption)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value;
     target.GetSocketOption(SocketOption::Broadcast, &value, &size);
@@ -168,6 +165,7 @@ TEST_F(IPV4UDPSocketTest, SetOption)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
     socklen_t size = static_cast<socklen_t>(sizeof(int));
     int value = 1;
@@ -181,6 +179,7 @@ TEST_F(IPV4UDPSocketTest, GetSocketOptionBool)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
 }
 
@@ -188,6 +187,7 @@ TEST_F(IPV4UDPSocketTest, SetSocketOptionBool)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     EXPECT_FALSE(target.GetSocketOptionBool(SocketOption::Broadcast));
     target.SetSocketOptionBool(SocketOption::Broadcast, true);
     EXPECT_TRUE(target.GetSocketOptionBool(SocketOption::Broadcast));
@@ -197,6 +197,7 @@ TEST_F(IPV4UDPSocketTest, GetSocketOptionInt)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     EXPECT_EQ(0, target.GetSocketOptionInt(SocketOption::Broadcast));
 }
 
@@ -205,6 +206,7 @@ TEST_F(IPV4UDPSocketTest, SetSocketOptionInt)
     int enableBroadcast = 1;
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     EXPECT_FALSE(target.GetSocketOptionInt(SocketOption::Broadcast));
     target.SetSocketOptionInt(SocketOption::Broadcast, enableBroadcast);
     EXPECT_EQ(enableBroadcast, target.GetSocketOptionInt(SocketOption::Broadcast));
@@ -214,6 +216,7 @@ TEST_F(IPV4UDPSocketTest, GetBroadcastOption)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     EXPECT_FALSE(target.GetBroadcastOption());
 }
 
@@ -221,6 +224,7 @@ TEST_F(IPV4UDPSocketTest, SetBroadcastOption)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     EXPECT_FALSE(target.GetBroadcastOption());
     target.SetBroadcastOption(true);
     EXPECT_TRUE(target.GetBroadcastOption());
@@ -230,6 +234,7 @@ TEST_F(IPV4UDPSocketTest, GetBlockingMode)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     EXPECT_TRUE(target.GetBlockingMode());
 }
 
@@ -237,6 +242,7 @@ TEST_F(IPV4UDPSocketTest, SetBlockingMode)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     EXPECT_TRUE(target.GetBlockingMode());
     target.SetBlockingMode(false);
     EXPECT_FALSE(target.GetBlockingMode());
@@ -248,6 +254,7 @@ TEST_F(IPV4UDPSocketTest, GetReuseAddress)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     EXPECT_FALSE(target.GetReuseAddress());
 }
 
@@ -255,6 +262,7 @@ TEST_F(IPV4UDPSocketTest, SetReuseAddress)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     EXPECT_FALSE(target.GetReuseAddress());
     target.SetReuseAddress(true);
     EXPECT_TRUE(target.GetReuseAddress());
@@ -266,6 +274,7 @@ TEST_F(IPV4UDPSocketTest, GetReceiveTimeout)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     std::chrono::milliseconds timeout(0);
     EXPECT_EQ(timeout, target.GetReceiveTimeout());
 }
@@ -274,6 +283,7 @@ TEST_F(IPV4UDPSocketTest, SetReceiveTimeout)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     std::chrono::milliseconds timeout(0);
     std::chrono::milliseconds timeoutNew(1000);
     EXPECT_EQ(timeout, target.GetReceiveTimeout());
@@ -287,6 +297,7 @@ TEST_F(IPV4UDPSocketTest, GetSendTimeout)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     std::chrono::milliseconds timeout(0);
     EXPECT_EQ(timeout, target.GetSendTimeout());
 }
@@ -295,6 +306,7 @@ TEST_F(IPV4UDPSocketTest, SetSendTimeout)
 {
     SocketAPI api;
     IPV4UDPSocket target(api);
+    target.Open();
     std::chrono::milliseconds timeout(0);
     std::chrono::milliseconds timeoutNew(1000);
     EXPECT_EQ(timeout, target.GetSendTimeout());
@@ -313,7 +325,7 @@ bool IPV4UDPSocketUDPServerThread()
     });
     IPV4UDPSocket serverSocket(api);
     IPV4EndPoint serverAddress(TestPort);
-
+    serverSocket.Open();
     serverSocket.Bind(serverAddress);
 
     const std::size_t BufferSize = 10;
@@ -330,9 +342,10 @@ TEST_F(IPV4UDPSocketTest, SendReceiveUDPConnected)
 {
     SocketAPI api;
     IPV4UDPSocket clientSocket(api);
+    clientSocket.Open();
     IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
 
-    BoolReturnThread serverThread(IPV4UDPSocketUDPServerThread);
+    core::TypedReturnThread<bool> serverThread(IPV4UDPSocketUDPServerThread);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     bool connected = clientSocket.Connect(serverAddress, 5000);
     EXPECT_TRUE(connected);
@@ -355,9 +368,10 @@ TEST_F(IPV4UDPSocketTest, SendReceiveUDPConnectionless)
 {
     SocketAPI api;
     IPV4UDPSocket clientSocket(api);
+    clientSocket.Open();
     IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
 
-    BoolReturnThread serverThread(IPV4UDPSocketUDPServerThread);
+    core::TypedReturnThread<bool> serverThread(IPV4UDPSocketUDPServerThread);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     const std::size_t BufferSize = 10;
     std::uint8_t bufferOut[BufferSize] = { 'H', 'e', 'l', 'l', 'o', 'W', 'o', 'r', 'l', 'd'};

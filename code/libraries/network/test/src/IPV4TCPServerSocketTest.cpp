@@ -38,8 +38,8 @@ public:
 TEST_F(IPV4TCPServerSocketTest, Construct)
 {
     testing::SocketAPIMock api;
-    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
-    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(0);
+    EXPECT_CALL(api, Close(_)).Times(0);
 
     IPV4TCPServerSocket server(api, 8080, 1, SocketBlocking::On);
     EXPECT_FALSE(server.IsInitialized());
@@ -47,7 +47,6 @@ TEST_F(IPV4TCPServerSocketTest, Construct)
 
 TEST_F(IPV4TCPServerSocketTest, Initialize)
 {
-    const std::uint16_t Port = 8080;
     const int NumListeners = 1;
     testing::SocketAPIMock api;
     EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
@@ -55,14 +54,13 @@ TEST_F(IPV4TCPServerSocketTest, Initialize)
     EXPECT_CALL(api, Bind(_, _, _)).Times(1);
     EXPECT_CALL(api, Listen(_, NumListeners)).Times(1);
 
-    IPV4TCPServerSocket server(api, Port, NumListeners, SocketBlocking::On);
+    IPV4TCPServerSocket server(api, TestPort, NumListeners, SocketBlocking::On);
     EXPECT_TRUE(server.Initialize());
     EXPECT_TRUE(server.IsInitialized());
 }
 
 TEST_F(IPV4TCPServerSocketTest, InitializeTwiceSucceeds)
 {
-    const std::uint16_t Port = 8080;
     const int NumListeners = 1;
     testing::SocketAPIMock api;
     EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
@@ -70,7 +68,7 @@ TEST_F(IPV4TCPServerSocketTest, InitializeTwiceSucceeds)
     EXPECT_CALL(api, Bind(_, _, _)).Times(1);
     EXPECT_CALL(api, Listen(_, NumListeners)).Times(1);
 
-    IPV4TCPServerSocket server(api, Port, NumListeners, SocketBlocking::On);
+    IPV4TCPServerSocket server(api, TestPort, NumListeners, SocketBlocking::On);
     EXPECT_TRUE(server.Initialize());
     EXPECT_TRUE(server.IsInitialized());
     EXPECT_TRUE(server.Initialize());
@@ -79,7 +77,6 @@ TEST_F(IPV4TCPServerSocketTest, InitializeTwiceSucceeds)
 
 TEST_F(IPV4TCPServerSocketTest, Uninitialize)
 {
-    const std::uint16_t Port = 8080;
     const int NumListeners = 1;
     testing::SocketAPIMock api;
     EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
@@ -87,7 +84,7 @@ TEST_F(IPV4TCPServerSocketTest, Uninitialize)
     EXPECT_CALL(api, Bind(_, _, _)).Times(1);
     EXPECT_CALL(api, Listen(_, NumListeners)).Times(1);
 
-    IPV4TCPServerSocket server(api, Port, NumListeners, SocketBlocking::On);
+    IPV4TCPServerSocket server(api, TestPort, NumListeners, SocketBlocking::On);
     EXPECT_TRUE(server.Initialize());
     EXPECT_TRUE(server.IsInitialized());
     EXPECT_TRUE(server.Uninitialize());
@@ -96,15 +93,14 @@ TEST_F(IPV4TCPServerSocketTest, Uninitialize)
 
 TEST_F(IPV4TCPServerSocketTest, UninitializeIfNotInitializedFails)
 {
-    const std::uint16_t Port = 8080;
     const int NumListeners = 1;
     testing::SocketAPIMock api;
-    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
-    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(0);
+    EXPECT_CALL(api, Close(_)).Times(0);
     EXPECT_CALL(api, Bind(_, _, _)).Times(0);
     EXPECT_CALL(api, Listen(_, NumListeners)).Times(0);
 
-    IPV4TCPServerSocket server(api, Port, NumListeners, SocketBlocking::On);
+    IPV4TCPServerSocket server(api, TestPort, NumListeners, SocketBlocking::On);
     EXPECT_FALSE(server.IsInitialized());
     EXPECT_FALSE(server.Uninitialize());
     EXPECT_FALSE(server.IsInitialized());
@@ -112,18 +108,17 @@ TEST_F(IPV4TCPServerSocketTest, UninitializeIfNotInitializedFails)
 
 TEST_F(IPV4TCPServerSocketTest, AcceptNoTimeout)
 {
-    const std::uint16_t Port = 8080;
     const int NumListeners = 1;
     testing::SocketAPIMock api;
-    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(2);
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
     EXPECT_CALL(api, Close(_)).Times(2);
     EXPECT_CALL(api, Bind(_, _, _)).Times(1);
     EXPECT_CALL(api, Listen(_, NumListeners)).Times(1);
     EXPECT_CALL(api, SetBlockingMode(_, false)).Times(0);
     EXPECT_CALL(api, SetBlockingMode(_, true)).Times(2);
-    EXPECT_CALL(api, Accept(_, _, _)).WillOnce(Return(true));
+    EXPECT_CALL(api, Accept(_, _, _)).WillOnce(Return(1));
 
-    IPV4TCPServerSocket server(api, Port, NumListeners, SocketBlocking::On);
+    IPV4TCPServerSocket server(api, TestPort, NumListeners, SocketBlocking::On);
     EXPECT_TRUE(server.Initialize());
     EXPECT_TRUE(server.IsInitialized());
     IPV4TCPSocket client(api);
@@ -133,23 +128,42 @@ TEST_F(IPV4TCPServerSocketTest, AcceptNoTimeout)
 
 TEST_F(IPV4TCPServerSocketTest, AcceptWithTimeout)
 {
-    const std::uint16_t Port = 8080;
     const int NumListeners = 1;
     testing::SocketAPIMock api;
-    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(2);
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
     EXPECT_CALL(api, Close(_)).Times(2);
     EXPECT_CALL(api, Bind(_, _, _)).Times(1);
     EXPECT_CALL(api, Listen(_, NumListeners)).Times(1);
     EXPECT_CALL(api, SetBlockingMode(_, false)).Times(1);
     EXPECT_CALL(api, SetBlockingMode(_, true)).Times(1);
-    EXPECT_CALL(api, Accept(_, _, _)).WillOnce(Return(true));
+    EXPECT_CALL(api, Accept(_, _, _)).WillOnce(Return(1));
 
-    IPV4TCPServerSocket server(api, Port, NumListeners, SocketBlocking::On);
+    IPV4TCPServerSocket server(api, TestPort, NumListeners, SocketBlocking::On);
     EXPECT_TRUE(server.Initialize());
     EXPECT_TRUE(server.IsInitialized());
     IPV4TCPSocket client(api);
     IPV4EndPoint clientAddress;
     EXPECT_TRUE(server.Accept(client, clientAddress, 1000));
+}
+
+TEST_F(IPV4TCPServerSocketTest, AcceptWithTimeoutFails)
+{
+    const int NumListeners = 1;
+    testing::SocketAPIMock api;
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, Bind(_, _, _)).Times(1);
+    EXPECT_CALL(api, Listen(_, NumListeners)).Times(1);
+    EXPECT_CALL(api, SetBlockingMode(_, false)).Times(1);
+    EXPECT_CALL(api, SetBlockingMode(_, true)).Times(1);
+    EXPECT_CALL(api, Accept(_, _, _)).WillOnce(Return(-1));
+
+    IPV4TCPServerSocket server(api, TestPort, NumListeners, SocketBlocking::On);
+    EXPECT_TRUE(server.Initialize());
+    EXPECT_TRUE(server.IsInitialized());
+    IPV4TCPSocket client(api);
+    IPV4EndPoint clientAddress;
+    EXPECT_FALSE(server.Accept(client, clientAddress, 1000));
 }
 
 bool IPV4TCPSocketConnectThread()
@@ -161,9 +175,9 @@ bool IPV4TCPSocketConnectThread()
 
     SocketAPI api;
 
-    const std::uint16_t Port = 8080;
     IPV4TCPSocket clientSocket(api);
-    IPV4EndPoint serverAddress(IPV4Address::LocalHost, Port);
+    clientSocket.Open();
+    IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     connected = clientSocket.Connect(serverAddress, 5000);
@@ -194,13 +208,13 @@ TEST_F(IPV4TCPServerSocketTest, ConnectAcceptSendReceiveTCP)
 
     SocketAPI api;
 
-    const std::uint16_t Port = 8080;
     const int NumListeners = 1;
-    IPV4TCPServerSocket server(api, Port, NumListeners, SocketBlocking::On);
+    IPV4TCPServerSocket server(api, TestPort, NumListeners, SocketBlocking::On);
     server.Initialize();
-    core::TypedReturnThread<bool> connectorThread(IPV4TCPSocketConnectThread);
+    core::TypedReturnThread<bool> connectorThread(IPV4TCPSocketConnectThread, "IPV4TCPSocketConnectThread");
 
     IPV4TCPSocket client(api);
+    client.Open();
     IPV4EndPoint clientAddress;
     accepted = server.Accept(client, clientAddress, 1000);
     EXPECT_TRUE(accepted);

@@ -12,10 +12,11 @@ class IPV4Socket
 {
 public:
     IPV4Socket(ISocketAPI & socketAPI);
-    IPV4Socket(ISocketAPI & socketAPI, SocketType socketType);
-    IPV4Socket(const IPV4Socket & other);
+    IPV4Socket(ISocketAPI & socketAPI, SocketType socketType, SocketProtocol socketProtocol = SocketProtocol::IP);
+    IPV4Socket(const IPV4Socket & other) = delete;
     IPV4Socket(IPV4Socket && other);
 
+    IPV4Socket & operator = (const IPV4Socket & other) = delete;
     IPV4Socket & operator = (IPV4Socket && other);
 
     using Socket::GetHandle;
@@ -23,8 +24,9 @@ public:
 
     using Socket::Family;
     using Socket::Type;
+    using Socket::Protocol;
 
-	void Open(SocketType socketType, SocketProtocol protocol = SocketProtocol::IP);
+	using Socket::Open;
     using Socket::Close;
     using Socket::IsOpen;
 
@@ -61,18 +63,17 @@ public:
     void GetLocalAddress(IPV4EndPoint & ipEndPoint);
     void GetRemoteAddress(IPV4EndPoint & ipEndPoint);
 
-    void SendTo(const IPV4EndPoint & ipEndPoint, const std::vector<uint8_t> & data, size_t bytesToSend);
-    void SendTo(const IPV4Address & ipAddress, std::uint16_t port, const std::vector<uint8_t> & data, size_t bytesToSend);
-    void SendTo(const IPV4EndPoint & ipEndPoint, const uint8_t * data, size_t bytesToSend);
-    void SendTo(const IPV4Address & ipAddress, std::uint16_t port, const uint8_t * data, size_t bytesToSend);
-
     using Socket::Receive;
     using Socket::Send;
+    using Socket::ReceiveBuffer;
+    using Socket::ReceiveBlock;
+    using Socket::SendBuffer;
 
-    std::vector<uint8_t> ReceiveFrom(IPV4EndPoint & ipEndPoint);
-    std::vector<uint8_t> ReceiveFrom(IPV4Address & ipAddress, std::uint16_t & port);
-    size_t ReceiveFrom(IPV4EndPoint & ipEndPoint, uint8_t * data, size_t bufferSize);
-    size_t ReceiveFrom(IPV4Address & ipAddress, std::uint16_t & port, uint8_t * data, size_t bufferSize);
+    size_t ReceiveFrom(IPV4EndPoint & ipEndPoint, std::uint8_t * data, size_t bufferSize);
+    bool SendTo(const IPV4EndPoint & ipEndPoint, const std::uint8_t * data, size_t bytesToSend);
+    size_t ReceiveBufferFrom(IPV4EndPoint & ipEndPoint, ByteBuffer & data, size_t bufferSize);
+    bool ReceiveBlockFrom(IPV4EndPoint & ipEndPoint, ByteBuffer & data, size_t bufferSize);
+    bool SendBufferTo(const IPV4EndPoint & ipEndPoint, const ByteBuffer & data);
 };
 
 std::ostream & operator <<(std::ostream & stream, const IPV4Socket & value);

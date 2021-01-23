@@ -12,10 +12,11 @@ class IPV6Socket
 {
 public:
     IPV6Socket(ISocketAPI & socketAPI);
-    IPV6Socket(ISocketAPI & socketAPI, SocketType socketType);
-    IPV6Socket(const IPV6Socket & other);
+    IPV6Socket(ISocketAPI & socketAPI, SocketType socketType, SocketProtocol socketProtocol = SocketProtocol::IP);
+    IPV6Socket(const IPV6Socket & other) = delete;
     IPV6Socket(IPV6Socket && other);
 
+    IPV6Socket & operator = (const IPV6Socket & other) = delete;
     IPV6Socket & operator = (IPV6Socket && other);
 
     using Socket::GetHandle;
@@ -23,8 +24,9 @@ public:
 
     using Socket::Family;
     using Socket::Type;
+    using Socket::Protocol;
 
-	void Open(SocketType socketType, SocketProtocol protocol = SocketProtocol::IP);
+	using Socket::Open;
     using Socket::Close;
     using Socket::IsOpen;
 
@@ -61,18 +63,17 @@ public:
     void GetLocalAddress(IPV6EndPoint & ipEndPoint);
     void GetRemoteAddress(IPV6EndPoint & ipEndPoint);
 
-    void SendTo(const IPV6EndPoint & ipEndPoint, const std::vector<uint8_t> & data, size_t bytesToSend);
-    void SendTo(const IPV6Address & ipAddress, std::uint16_t port, std::uint32_t flowInfo, std::uint32_t scopeID, const std::vector<uint8_t> & data, size_t bytesToSend);
-    void SendTo(const IPV6EndPoint & ipEndPoint, const uint8_t * data, size_t bytesToSend);
-    void SendTo(const IPV6Address & ipAddress, std::uint16_t port, std::uint32_t flowInfo, std::uint32_t scopeID, const uint8_t * data, size_t bytesToSend);
-
     using Socket::Receive;
     using Socket::Send;
+    using Socket::ReceiveBuffer;
+    using Socket::ReceiveBlock;
+    using Socket::SendBuffer;
 
-    std::vector<uint8_t> ReceiveFrom(IPV6EndPoint & ipEndPoint);
-    std::vector<uint8_t> ReceiveFrom(IPV6Address & ipAddress, std::uint16_t & port, std::uint32_t & flowInfo, std::uint32_t & scopeID);
-    size_t ReceiveFrom(IPV6EndPoint & ipEndPoint, uint8_t * data, size_t bufferSize);
-    size_t ReceiveFrom(IPV6Address & ipAddress, std::uint16_t & port, std::uint32_t & flowInfo, std::uint32_t & scopeID, uint8_t * data, size_t bufferSize);
+    size_t ReceiveFrom(IPV6EndPoint & ipEndPoint, std::uint8_t * data, size_t bufferSize);
+    bool SendTo(const IPV6EndPoint & ipEndPoint, const std::uint8_t * data, size_t bytesToSend);
+    size_t ReceiveBufferFrom(IPV6EndPoint & ipEndPoint, ByteBuffer & data, size_t bufferSize);
+    bool ReceiveBlockFrom(IPV6EndPoint & ipEndPoint, ByteBuffer & data, size_t bufferSize);
+    bool SendBufferTo(const IPV6EndPoint & ipEndPoint, const ByteBuffer & data);
 };
 
 std::ostream & operator <<(std::ostream & stream, const IPV6Socket & value);

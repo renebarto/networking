@@ -9,9 +9,10 @@ class IPV4UDPSocket
 {
 public:
     IPV4UDPSocket(ISocketAPI & socketAPI);
-    IPV4UDPSocket(const IPV4UDPSocket & other);
+    IPV4UDPSocket(const IPV4UDPSocket & other) = delete;
     IPV4UDPSocket(IPV4UDPSocket && other);
 
+    IPV4UDPSocket & operator = (const IPV4UDPSocket & other) = delete;
     IPV4UDPSocket & operator = (IPV4UDPSocket && other);
 
     using IPV4Socket::GetHandle;
@@ -19,8 +20,9 @@ public:
 
     using IPV4Socket::Family;
     using IPV4Socket::Type;
+    using IPV4Socket::Protocol;
 
-	void Open(SocketProtocol protocol = SocketProtocol::IP);
+    using IPV4Socket::Open;
     using IPV4Socket::Close;
     using IPV4Socket::IsOpen;
 
@@ -62,11 +64,15 @@ public:
 
     using IPV4Socket::Receive;
     using IPV4Socket::Send;
+    using IPV4Socket::ReceiveBuffer;
+    using IPV4Socket::ReceiveBlock;
+    using IPV4Socket::SendBuffer;
 
-    std::vector<uint8_t> ReceiveFrom(IPV4EndPoint & ipEndPoint);
-    std::vector<uint8_t> ReceiveFrom(IPV4Address & ipAddress, std::uint16_t & port);
-    size_t ReceiveFrom(IPV4EndPoint & ipEndPoint, uint8_t * data, size_t bufferSize);
-    size_t ReceiveFrom(IPV4Address & ipAddress, std::uint16_t & port, uint8_t * data, size_t bufferSize);
+    using IPV4Socket::ReceiveFrom;
+    using IPV4Socket::SendTo;
+    using IPV4Socket::ReceiveBufferFrom;
+    using IPV4Socket::ReceiveBlockFrom;
+    using IPV4Socket::SendBufferTo;
 };
 
 } // namespace network

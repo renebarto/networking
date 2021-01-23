@@ -9,9 +9,10 @@ class IPV6UDPSocket
 {
 public:
     IPV6UDPSocket(ISocketAPI & socketAPI);
-    IPV6UDPSocket(const IPV6UDPSocket & other);
+    IPV6UDPSocket(const IPV6UDPSocket & other) = delete;
     IPV6UDPSocket(IPV6UDPSocket && other);
 
+    IPV6UDPSocket & operator = (const IPV6UDPSocket & other) = delete;
     IPV6UDPSocket & operator = (IPV6UDPSocket && other);
 
     using IPV6Socket::GetHandle;
@@ -19,8 +20,9 @@ public:
 
     using IPV6Socket::Family;
     using IPV6Socket::Type;
+    using IPV6Socket::Protocol;
 
-	void Open(SocketProtocol protocol = SocketProtocol::IP);
+    using IPV6Socket::Open;
     using IPV6Socket::Close;
     using IPV6Socket::IsOpen;
 
@@ -55,18 +57,17 @@ public:
     using IPV6Socket::GetLocalAddress;
     using IPV6Socket::GetRemoteAddress;
 
-    void SendTo(const IPV6EndPoint & ipEndPoint, const std::vector<uint8_t> & data, size_t bytesToSend);
-    void SendTo(const IPV6Address & ipAddress, std::uint16_t port, std::uint32_t flowInfo, std::uint32_t scopeID, const std::vector<uint8_t> & data, size_t bytesToSend);
-    void SendTo(const IPV6EndPoint & ipEndPoint, const uint8_t * data, size_t bytesToSend);
-    void SendTo(const IPV6Address & ipAddress, std::uint16_t port, std::uint32_t flowInfo, std::uint32_t scopeID, const uint8_t * data, size_t bytesToSend);
-
     using IPV6Socket::Receive;
     using IPV6Socket::Send;
+    using IPV6Socket::ReceiveBuffer;
+    using IPV6Socket::ReceiveBlock;
+    using IPV6Socket::SendBuffer;
 
-    std::vector<uint8_t> ReceiveFrom(IPV6EndPoint & ipEndPoint);
-    std::vector<uint8_t> ReceiveFrom(IPV6Address & ipAddress, std::uint16_t & port, std::uint32_t & flowInfo, std::uint32_t & scopeID);
-    size_t ReceiveFrom(IPV6EndPoint & ipEndPoint, uint8_t * data, size_t bufferSize);
-    size_t ReceiveFrom(IPV6Address & ipAddress, std::uint16_t & port, std::uint32_t & flowInfo, std::uint32_t & scopeID, uint8_t * data, size_t bufferSize);
+    using IPV6Socket::ReceiveFrom;
+    using IPV6Socket::SendTo;
+    using IPV6Socket::ReceiveBufferFrom;
+    using IPV6Socket::ReceiveBlockFrom;
+    using IPV6Socket::SendBufferTo;
 };
 
 } // namespace network
