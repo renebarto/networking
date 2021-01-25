@@ -63,10 +63,12 @@ set(PROJECT_SOURCES
     src/MACAddressTest.cpp
     src/SocketDefinitionsTest.cpp
     src/SocketTest.cpp
+    src/Utility.cpp
     )
 
 set(PROJECT_INCLUDES_PRIVATE
     include/GoogleTest.h
+    include/Utility.h
     )
 
 set(PROJECT_INCLUDES_PUBLIC

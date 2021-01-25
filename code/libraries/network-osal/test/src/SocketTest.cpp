@@ -10,6 +10,7 @@
 #include "network-osal/IPV4Address.h"
 #include "tracing/ScopedTracing.h"
 #include "tracing/Tracing.h"
+#include "Utility.h"
 
 namespace network {
 namespace testing {
@@ -17,6 +18,13 @@ namespace testing {
 using ::testing::DoAll;
 using ::testing::SetArgPointee;
 using ::testing::Return;
+
+static void FillAddress(sockaddr_in & address, std::uint16_t port, std::uint32_t ipAddress)
+{
+    address.sin_family = AF_INET;
+    address.sin_port = osal::SwapBytes(port);
+    address.sin_addr.s_addr = ipAddress;
+}
 
 class SocketTest : public ::testing::Test
 {
@@ -519,14 +527,6 @@ TEST_F(SocketTest, SetSendTimeout)
     EXPECT_EQ(timeout, target.GetSendTimeout());
 }
 
-#if defined(PLATFORM_WINDOWS)
-#pragma warning(disable: 4100)
-#endif
-ACTION_P(SetArg1Pointee, value) { *reinterpret_cast<std::uint8_t *>(arg1) = value; return 10; }
-#if defined(PLATFORM_WINDOWS)
-#pragma warning(default: 4100)
-#endif
-
 TEST_F(SocketTest, Receive)
 {
     testing::SocketAPIMock api;
@@ -534,7 +534,7 @@ TEST_F(SocketTest, Receive)
 
     EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
     EXPECT_CALL(api, Close(_)).Times(1);
-    EXPECT_CALL(api, Receive(_, _, _, 0)).WillOnce(SetArg1Pointee(std::uint8_t{0}));
+    EXPECT_CALL(api, Receive(_, _, _, 0)).WillOnce(Return(10));
 
     target.Open();
     const std::size_t Size = 10;
@@ -554,16 +554,8 @@ TEST_F(SocketTest, Send)
     target.Open();
     const std::size_t Size = 10;
     std::uint8_t buffer[Size];
-    EXPECT_TRUE(target.Send(buffer, Size, 0));
+    EXPECT_EQ(Size, target.Send(buffer, Size, 0));
 }
-
-#if defined(PLATFORM_WINDOWS)
-#pragma warning(disable: 4100)
-#endif
-ACTION_P(SetArg2Pointee, value) { *reinterpret_cast<std::uint8_t *>(arg2) = value; return 10; }
-#if defined(PLATFORM_WINDOWS)
-#pragma warning(default: 4100)
-#endif
 
 TEST_F(SocketTest, ReceiveFrom)
 {
@@ -572,7 +564,7 @@ TEST_F(SocketTest, ReceiveFrom)
 
     EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
     EXPECT_CALL(api, Close(_)).Times(1);
-    EXPECT_CALL(api, ReceiveFrom(_, _, _, 0, _, _)).WillOnce(SetArg1Pointee(std::uint8_t{0}));
+    EXPECT_CALL(api, ReceiveFrom(_, _, _, 0, _, _)).WillOnce(Return(10));
 
     sockaddr_in address {};
     socklen_t addressSize = sizeof(address);
@@ -596,17 +588,414 @@ TEST_F(SocketTest, SendTo)
     target.Open();
     const std::size_t Size = 10;
     std::uint8_t buffer[Size];
-    EXPECT_TRUE(target.SendTo(reinterpret_cast<sockaddr *>(&address), addressSize, buffer, Size));
+    EXPECT_EQ(Size, target.SendTo(reinterpret_cast<const sockaddr *>(&address), addressSize, buffer, Size));
 }
 
-void FillAddress(sockaddr_in & address, std::uint16_t port, std::uint32_t ipAddress)
+TEST_F(SocketTest, ReceiveBlockFourTimes5)
 {
-    address.sin_family = AF_INET;
-    address.sin_port = osal::SwapBytes(port);
-    address.sin_addr.s_addr = ipAddress;
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, Receive(_, _, _, 0)).WillOnce(Return(5)).WillOnce(Return(5)).WillOnce(Return(5)).WillOnce(Return(5));
+
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer;
+    EXPECT_TRUE(target.ReceiveBlock(buffer, Size, 0));
+    EXPECT_EQ(Size, buffer.size());
 }
 
-static const std::uint16_t TestPort = 22222;
+TEST_F(SocketTest, ReceiveBlockTwice10)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, Receive(_, _, _, 0)).WillOnce(Return(10)).WillOnce(Return(10));
+
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer;
+    EXPECT_TRUE(target.ReceiveBlock(buffer, Size, 0));
+    EXPECT_EQ(Size, buffer.size());
+}
+
+TEST_F(SocketTest, ReceiveBlockOnce20)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, Receive(_, _, _, 0)).WillOnce(Return(20));
+
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer;
+    EXPECT_TRUE(target.ReceiveBlock(buffer, Size, 0));
+    EXPECT_EQ(Size, buffer.size());
+}
+
+TEST_F(SocketTest, ReceiveBlockIncomplete)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, Receive(_, _, _, 0)).WillOnce(Return(10)).WillOnce(Return(0));
+
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer;
+    EXPECT_FALSE(target.ReceiveBlock(buffer, Size, 0));
+    EXPECT_EQ(std::size_t {10}, buffer.size());
+}
+
+TEST_F(SocketTest, ReceiveBufferFourTimes5)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, Receive(_, _, _, 0)).WillOnce(Return(5)).WillOnce(Return(5)).WillOnce(Return(5)).WillOnce(Return(5));
+
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer;
+    EXPECT_EQ(Size, target.ReceiveBuffer(buffer, Size, 0));
+    EXPECT_EQ(Size, buffer.size());
+}
+
+TEST_F(SocketTest, ReceiveBufferTwice10)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, Receive(_, _, _, 0)).WillOnce(Return(10)).WillOnce(Return(10));
+
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer;
+    EXPECT_EQ(Size, target.ReceiveBuffer(buffer, Size, 0));
+    EXPECT_EQ(Size, buffer.size());
+}
+
+TEST_F(SocketTest, ReceiveBufferOnce20)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, Receive(_, _, _, 0)).WillOnce(Return(20));
+
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer;
+    EXPECT_EQ(Size, target.ReceiveBuffer(buffer, Size, 0));
+    EXPECT_EQ(Size, buffer.size());
+}
+
+TEST_F(SocketTest, ReceiveBufferIncomplete)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, Receive(_, _, _, 0)).WillOnce(Return(10)).WillOnce(Return(0));
+
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer;
+    EXPECT_EQ(std::size_t {10}, target.ReceiveBuffer(buffer, Size, 0));
+    EXPECT_EQ(std::size_t {10}, buffer.size());
+}
+
+TEST_F(SocketTest, SendBufferFourTimes5)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, Send(_, _, _, 0)).WillOnce(Return(5)).WillOnce(Return(5)).WillOnce(Return(5)).WillOnce(Return(5));
+
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer(Size);
+    EXPECT_TRUE(target.SendBuffer(buffer, 0));
+    EXPECT_EQ(Size, buffer.size());
+}
+
+TEST_F(SocketTest, SendBufferTwice10)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, Send(_, _, _, 0)).WillOnce(Return(10)).WillOnce(Return(10));
+
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer(Size);
+    EXPECT_TRUE(target.SendBuffer(buffer, 0));
+    EXPECT_EQ(Size, buffer.size());
+}
+
+TEST_F(SocketTest, SendBufferOnce20)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, Send(_, _, _, 0)).WillOnce(Return(20));
+
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer(Size);
+    EXPECT_TRUE(target.SendBuffer(buffer, 0));
+    EXPECT_EQ(Size, buffer.size());
+}
+
+TEST_F(SocketTest, SendBufferIncomplete)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, Send(_, _, _, 0)).WillOnce(Return(10)).WillOnce(Return(0));
+
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer(Size);
+    EXPECT_FALSE(target.SendBuffer(buffer, 0));
+}
+
+TEST_F(SocketTest, ReceiveBlockFromFourTimes5)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, ReceiveFrom(_, _, _, 0, _, _)).WillOnce(Return(5)).WillOnce(Return(5)).WillOnce(Return(5)).WillOnce(Return(5));
+
+    sockaddr_in address {};
+    socklen_t addressSize = sizeof(address);
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer;
+    EXPECT_TRUE(target.ReceiveBlockFrom(reinterpret_cast<sockaddr *>(&address), &addressSize, buffer, Size));
+    EXPECT_EQ(Size, buffer.size());
+}
+
+TEST_F(SocketTest, ReceiveBlockFromTwice10)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, ReceiveFrom(_, _, _, 0, _, _)).WillOnce(Return(10)).WillOnce(Return(10));
+
+    sockaddr_in address {};
+    socklen_t addressSize = sizeof(address);
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer;
+    EXPECT_TRUE(target.ReceiveBlockFrom(reinterpret_cast<sockaddr *>(&address), &addressSize, buffer, Size));
+    EXPECT_EQ(Size, buffer.size());
+}
+
+TEST_F(SocketTest, ReceiveBlockFromOnce20)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, ReceiveFrom(_, _, _, 0, _, _)).WillOnce(Return(20));
+
+    sockaddr_in address {};
+    socklen_t addressSize = sizeof(address);
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer;
+    EXPECT_TRUE(target.ReceiveBlockFrom(reinterpret_cast<sockaddr *>(&address), &addressSize, buffer, Size));
+    EXPECT_EQ(Size, buffer.size());
+}
+
+TEST_F(SocketTest, ReceiveBlockFromIncomplete)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, ReceiveFrom(_, _, _, 0, _, _)).WillOnce(Return(10)).WillOnce(Return(0));
+
+    sockaddr_in address {};
+    socklen_t addressSize = sizeof(address);
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer;
+    EXPECT_FALSE(target.ReceiveBlockFrom(reinterpret_cast<sockaddr *>(&address), &addressSize, buffer, Size));
+    EXPECT_EQ(std::size_t {10}, buffer.size());
+}
+
+TEST_F(SocketTest, ReceiveBufferFromFourTimes5)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, ReceiveFrom(_, _, _, 0, _, _)).WillOnce(Return(5)).WillOnce(Return(5)).WillOnce(Return(5)).WillOnce(Return(5));
+
+    sockaddr_in address {};
+    socklen_t addressSize = sizeof(address);
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer;
+    EXPECT_EQ(Size, target.ReceiveBufferFrom(reinterpret_cast<sockaddr *>(&address), &addressSize, buffer, Size));
+    EXPECT_EQ(Size, buffer.size());
+}
+
+TEST_F(SocketTest, ReceiveBufferFromTwice10)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, ReceiveFrom(_, _, _, 0, _, _)).WillOnce(Return(10)).WillOnce(Return(10));
+
+    sockaddr_in address {};
+    socklen_t addressSize = sizeof(address);
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer;
+    EXPECT_EQ(Size, target.ReceiveBufferFrom(reinterpret_cast<sockaddr *>(&address), &addressSize, buffer, Size));
+    EXPECT_EQ(Size, buffer.size());
+}
+
+TEST_F(SocketTest, ReceiveBufferFromOnce20)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, ReceiveFrom(_, _, _, 0, _, _)).WillOnce(Return(20));
+
+    sockaddr_in address {};
+    socklen_t addressSize = sizeof(address);
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer;
+    EXPECT_EQ(Size, target.ReceiveBufferFrom(reinterpret_cast<sockaddr *>(&address), &addressSize, buffer, Size));
+    EXPECT_EQ(Size, buffer.size());
+}
+
+TEST_F(SocketTest, ReceiveBufferFromIncomplete)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, ReceiveFrom(_, _, _, 0, _, _)).WillOnce(Return(10)).WillOnce(Return(0));
+
+    sockaddr_in address {};
+    socklen_t addressSize = sizeof(address);
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer;
+    EXPECT_EQ(std::size_t {10}, target.ReceiveBufferFrom(reinterpret_cast<sockaddr *>(&address), &addressSize, buffer, Size));
+    EXPECT_EQ(std::size_t {10}, buffer.size());
+}
+
+TEST_F(SocketTest, SendBufferToFourTimes5)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, SendTo(_, _, _, 0, _, _)).WillOnce(Return(5)).WillOnce(Return(5)).WillOnce(Return(5)).WillOnce(Return(5));
+
+    sockaddr_in address {};
+    socklen_t addressSize = sizeof(address);
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer(Size);
+    EXPECT_TRUE(target.SendBufferTo(reinterpret_cast<const sockaddr *>(&address), addressSize, buffer));
+    EXPECT_EQ(Size, buffer.size());
+}
+
+TEST_F(SocketTest, SendBufferToTwice10)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, SendTo(_, _, _, 0, _, _)).WillOnce(Return(10)).WillOnce(Return(10));
+
+    sockaddr_in address {};
+    socklen_t addressSize = sizeof(address);
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer(Size);
+    EXPECT_TRUE(target.SendBufferTo(reinterpret_cast<const sockaddr *>(&address), addressSize, buffer));
+    EXPECT_EQ(Size, buffer.size());
+}
+
+TEST_F(SocketTest, SendBufferToOnce20)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, SendTo(_, _, _, 0, _, _)).WillOnce(Return(20));
+
+    sockaddr_in address {};
+    socklen_t addressSize = sizeof(address);
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer(Size);
+    EXPECT_TRUE(target.SendBufferTo(reinterpret_cast<const sockaddr *>(&address), addressSize, buffer));
+    EXPECT_EQ(Size, buffer.size());
+}
+
+TEST_F(SocketTest, SendBufferToIncomplete)
+{
+    testing::SocketAPIMock api;
+    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
+
+    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
+    EXPECT_CALL(api, Close(_)).Times(1);
+    EXPECT_CALL(api, SendTo(_, _, _, 0, _, _)).WillOnce(Return(10)).WillOnce(Return(0));
+
+    sockaddr_in address {};
+    socklen_t addressSize = sizeof(address);
+    target.Open();
+    const std::size_t Size = 20;
+    ByteBuffer buffer(Size);
+    EXPECT_FALSE(target.SendBufferTo(reinterpret_cast<const sockaddr *>(&address), addressSize, buffer));
+}
 
 bool TCPAcceptThread()
 {
@@ -758,7 +1147,7 @@ TEST_F(SocketTest, SerializeSockAddrSize)
     sockaddr_in address {};
     address.sin_family = AF_INET;
 
-    EXPECT_EQ("addressFamily=2, size=16", serialization::Serialize(reinterpret_cast<sockaddr *>(&address), static_cast<socklen_t>(sizeof(address))));
+    EXPECT_EQ("addressFamily=2, size=16", serialization::SerializeAddress(reinterpret_cast<const sockaddr *>(&address), static_cast<socklen_t>(sizeof(address))));
 }
 
 TEST_F(SocketTest, SerializeSockAddrSizePtr)
@@ -767,7 +1156,7 @@ TEST_F(SocketTest, SerializeSockAddrSizePtr)
     address.sin_family = AF_INET;
     socklen_t addressSize = sizeof(address);
 
-    EXPECT_EQ("addressFamily=2, size=16", serialization::Serialize(reinterpret_cast<sockaddr *>(&address), &addressSize));
+    EXPECT_EQ("addressFamily=2, size=16", serialization::SerializeAddress(reinterpret_cast<const sockaddr *>(&address), &addressSize));
 }
 
 } // namespace testing

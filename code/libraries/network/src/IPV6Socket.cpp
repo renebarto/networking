@@ -46,8 +46,7 @@ IPV6Socket & IPV6Socket::operator = (IPV6Socket && other)
 void IPV6Socket::Bind(const IPV6Address & ipAddress)
 {
     SCOPEDTRACE(nullptr, [&]{
-        return utility::FormatString("ipAddress={}",
-            serialization::Serialize(ipAddress, 0));
+        return utility::FormatString("ipAddress={}", ipAddress);
     });
     Bind(ipAddress, 0);
 }
@@ -57,10 +56,7 @@ void IPV6Socket::Bind(const IPV6Address & ipAddress, std::uint16_t port,
 {
     SCOPEDTRACE(nullptr, [&]{
         return utility::FormatString("ipAddress={} port={} flowInfo={} scopeID={}",
-            serialization::Serialize(ipAddress, 0),
-            serialization::Serialize(port, 0),
-            serialization::Serialize(flowInfo, 0),
-            serialization::Serialize(scopeID, 0));
+            ipAddress, port, flowInfo, scopeID);
     });
     sockaddr_in6 bindAddress;
     memset(&bindAddress, 0, sizeof(bindAddress));
@@ -76,8 +72,7 @@ void IPV6Socket::Bind(const IPV6Address & ipAddress, std::uint16_t port,
 void IPV6Socket::Bind(std::uint16_t port)
 {
     SCOPEDTRACE(nullptr, [&]{
-        return utility::FormatString("port={}",
-            serialization::Serialize(port, 0));
+        return utility::FormatString("port={}", port);
     });
     Bind(IPV6Address::Any, port);
 }
@@ -85,8 +80,7 @@ void IPV6Socket::Bind(std::uint16_t port)
 void IPV6Socket::Bind(const IPV6EndPoint & ipEndPoint)
 {
     SCOPEDTRACE(nullptr, [&]{
-        return utility::FormatString("ipEndPoint=[{}]",
-            serialization::Serialize(ipEndPoint, 0));
+        return utility::FormatString("ipEndPoint=[{}]", ipEndPoint);
     });
     Bind(ipEndPoint.IPAddress(), ipEndPoint.Port());
 }
@@ -96,9 +90,7 @@ bool IPV6Socket::Connect(const IPV6EndPoint & serverAddress, SocketTimeout timeo
     bool result {};
     SCOPEDTRACE(nullptr, [&]{
         return utility::FormatString("serverAddress=[{}] timeout={} result={}",
-            serialization::Serialize(serverAddress, 0),
-            serialization::Serialize(timeout, 0),
-            serialization::Serialize(result));
+            serverAddress, timeout, result);
     });
     SockAddrIPV6 serverIPAddress = serverAddress.ConvertAddress();
     result = Socket::Connect(reinterpret_cast<const sockaddr *>(&serverIPAddress), sizeof(serverIPAddress), timeout);
@@ -110,10 +102,7 @@ bool IPV6Socket::Accept(IPV6Socket & connectionSocket, IPV6EndPoint & clientAddr
     bool result {};
     SCOPEDTRACE(nullptr, [&]{
         return utility::FormatString("connectionSocket={} clientAddress=[{}] timeout={} result={}",
-            serialization::Serialize(connectionSocket, 0),
-            serialization::Serialize(clientAddress, 0),
-            serialization::Serialize(timeout, 0),
-            serialization::Serialize(result));
+            serialization::Serialize(connectionSocket, 0), clientAddress, timeout, result);
     });
     sockaddr_in6 clientIPAddress {};
     socklen_t clientIPAddressSize = sizeof(clientIPAddress);
@@ -129,8 +118,7 @@ bool IPV6Socket::Accept(IPV6Socket & connectionSocket, IPV6EndPoint & clientAddr
 void IPV6Socket::GetLocalAddress(IPV6EndPoint & ipEndPoint)
 {
     SCOPEDTRACE(nullptr, [&]{
-        return utility::FormatString("ipEndPoint={}", 
-            serialization::Serialize(ipEndPoint, 0));
+        return utility::FormatString("ipEndPoint={}", ipEndPoint);
     });
     sockaddr_in6 localAddress;
     socklen_t addressSize = sizeof(localAddress);
@@ -144,8 +132,7 @@ void IPV6Socket::GetLocalAddress(IPV6EndPoint & ipEndPoint)
 void IPV6Socket::GetRemoteAddress(IPV6EndPoint & ipEndPoint)
 {
     SCOPEDTRACE(nullptr, [&]{
-        return utility::FormatString("ipEndPoint={}",
-            serialization::Serialize(ipEndPoint, 0));
+        return utility::FormatString("ipEndPoint={}", ipEndPoint);
     });
     sockaddr_in6 localAddress;
     socklen_t addressSize = sizeof(localAddress);
@@ -161,12 +148,11 @@ size_t IPV6Socket::ReceiveFrom(IPV6EndPoint & ipEndPoint, uint8_t * data, size_t
     size_t numBytes {};
     std::vector<uint8_t> result;
     SCOPEDTRACE([&]{ 
-        return utility::FormatString("bufferSize={}",
-            serialization::Serialize(bufferSize, 0));
+        return utility::FormatString("bufferSize={}", bufferSize);
     }, [&]{ 
         return utility::FormatString("result={} ipEndPoint=[{}] data=[{}]",
-            serialization::Serialize(numBytes, 0),
-            serialization::Serialize(ipEndPoint, 0),
+            numBytes,
+            ipEndPoint,
             serialization::SerializeData(data, numBytes));
     });
     sockaddr_in6 serverAddress;
@@ -184,13 +170,13 @@ size_t IPV6Socket::ReceiveFrom(IPV6EndPoint & ipEndPoint, uint8_t * data, size_t
     return numBytes;
 }
 
-bool IPV6Socket::SendTo(const IPV6EndPoint & ipEndPoint,const uint8_t * data, size_t bytesToSend)
+std::size_t IPV6Socket::SendTo(const IPV6EndPoint & ipEndPoint,const uint8_t * data, size_t bytesToSend)
 {
-    bool result {};
-    SCOPEDTRACE(nullptr, [&]{
-        return utility::FormatString("ipEndPoint=[{}] bytesToSend={}",
-            serialization::Serialize(ipEndPoint, 0),
-            serialization::Serialize(bytesToSend, 0));
+    std::size_t result {};
+    SCOPEDTRACE([&]{
+        return utility::FormatString("ipEndPoint=[{}] bytesToSend={}", ipEndPoint, bytesToSend);
+    }, [&]{
+        return utility::FormatString("result={}", result);
     });
     sockaddr_in6 serverAddress;
     serverAddress.sin6_family = AF_INET6;
@@ -208,12 +194,11 @@ size_t IPV6Socket::ReceiveBufferFrom(IPV6EndPoint & ipEndPoint, ByteBuffer & dat
 {
     size_t numBytes {};
     SCOPEDTRACE([&]{ 
-        return utility::FormatString("bufferSize={}",
-            serialization::Serialize(bufferSize, 0));
+        return utility::FormatString("bufferSize={}", bufferSize);
     }, [&]{ 
         return utility::FormatString("result={} ipEndPoint=[{}] data=[{}]",
-            serialization::Serialize(numBytes, 0),
-            serialization::Serialize(ipEndPoint, 0),
+            numBytes,
+            ipEndPoint,
             serialization::SerializeData(data));
     });
     sockaddr_in6 serverAddress;
@@ -235,12 +220,11 @@ bool IPV6Socket::ReceiveBlockFrom(IPV6EndPoint & ipEndPoint, ByteBuffer & data, 
 {
     bool result {};
     SCOPEDTRACE([&]{ 
-        return utility::FormatString("bufferSize={}",
-            serialization::Serialize(bufferSize, 0));
+        return utility::FormatString("bufferSize={}", bufferSize);
     }, [&]{ 
         return utility::FormatString("result={} ipEndPoint=[{}] data=[{}]",
-            serialization::Serialize(result, 0),
-            serialization::Serialize(ipEndPoint, 0),
+            result,
+            ipEndPoint,
             serialization::SerializeData(data));
     });
     sockaddr_in6 serverAddress;
@@ -261,10 +245,12 @@ bool IPV6Socket::ReceiveBlockFrom(IPV6EndPoint & ipEndPoint, ByteBuffer & data, 
 bool IPV6Socket::SendBufferTo(const IPV6EndPoint & ipEndPoint, const std::vector<uint8_t> & data)
 {
     bool result {};
-    SCOPEDTRACE(nullptr, [&]{
-        return utility::FormatString("ipEndPoint=[{}] bytesToSend={}",
-            serialization::Serialize(ipEndPoint, 0),
-            serialization::Serialize(data.size(), 0));
+    SCOPEDTRACE([&]{
+        return utility::FormatString("ipEndPoint=[{}] data=[{}]",
+            ipEndPoint,
+            serialization::SerializeData(data));
+    }, [&]{
+        return utility::FormatString("result={}", result);
     });
     sockaddr_in6 serverAddress;
     serverAddress.sin6_family = AF_INET6;
@@ -274,7 +260,7 @@ bool IPV6Socket::SendBufferTo(const IPV6EndPoint & ipEndPoint, const std::vector
     serverAddress.sin6_flowinfo = utility::ToNetworkByteOrder(ipEndPoint.FlowInfo());
     serverAddress.sin6_scope_id = utility::ToNetworkByteOrder(ipEndPoint.ScopeID());
 
-    result = SendTo(ipEndPoint, data.data(), data.size());
+    result = Socket::SendBufferTo(reinterpret_cast<sockaddr *>(&serverAddress), sizeof(serverAddress), data);
     return result;
 }
 

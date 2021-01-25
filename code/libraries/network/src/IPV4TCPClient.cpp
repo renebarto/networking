@@ -62,7 +62,7 @@ std::size_t IPV4TCPClient::Receive(std::uint8_t * data, std::size_t bufferSize, 
     return m_clientSocket.Receive(data, bufferSize, flags);
 }
 
-bool IPV4TCPClient::Send(const std::uint8_t * data, std::size_t bytesToSend, int flags)
+std::size_t IPV4TCPClient::Send(const std::uint8_t * data, std::size_t bytesToSend, int flags)
 {
     return m_clientSocket.Send(data, bytesToSend, flags);
 }

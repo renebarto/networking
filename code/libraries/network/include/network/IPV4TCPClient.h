@@ -27,7 +27,7 @@ public:
     void GetRemoteAddress(IPV4EndPoint & ipEndPoint);
 
     std::size_t Receive(std::uint8_t * data, std::size_t bufferSize, int flags);
-    bool        Send(const std::uint8_t * data, std::size_t bytesToSend, int flags);
+    std::size_t Send(const std::uint8_t * data, std::size_t bytesToSend, int flags);
     bool        ReceiveBlock(ByteBuffer & data, std::size_t bufferSize, int flags);
     std::size_t ReceiveBuffer(ByteBuffer & data, std::size_t bufferSize, int flags);
     bool        SendBuffer(const ByteBuffer & data, int flags);

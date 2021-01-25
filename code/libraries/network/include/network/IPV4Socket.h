@@ -69,10 +69,10 @@ public:
     using Socket::ReceiveBlock;
     using Socket::SendBuffer;
 
-    size_t ReceiveFrom(IPV4EndPoint & ipEndPoint, std::uint8_t * data, size_t bufferSize);
-    bool SendTo(const IPV4EndPoint & ipEndPoint, const std::uint8_t * data, size_t bytesToSend);
-    size_t ReceiveBufferFrom(IPV4EndPoint & ipEndPoint, ByteBuffer & data, size_t bufferSize);
-    bool ReceiveBlockFrom(IPV4EndPoint & ipEndPoint, ByteBuffer & data, size_t bufferSize);
+    std::size_t ReceiveFrom(IPV4EndPoint & ipEndPoint, std::uint8_t * data, std::size_t bufferSize);
+    std::size_t SendTo(const IPV4EndPoint & ipEndPoint, const std::uint8_t * data, std::size_t bytesToSend);
+    std::size_t ReceiveBufferFrom(IPV4EndPoint & ipEndPoint, ByteBuffer & data, std::size_t bufferSize);
+    bool ReceiveBlockFrom(IPV4EndPoint & ipEndPoint, ByteBuffer & data, std::size_t bufferSize);
     bool SendBufferTo(const IPV4EndPoint & ipEndPoint, const ByteBuffer & data);
 };
 

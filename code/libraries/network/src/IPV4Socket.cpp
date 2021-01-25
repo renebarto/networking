@@ -46,8 +46,7 @@ IPV4Socket & IPV4Socket::operator = (IPV4Socket && other)
 void IPV4Socket::Bind(const IPV4Address & ipAddress)
 {
     SCOPEDTRACE(nullptr, [&]{
-        return utility::FormatString("ipAddress={}", 
-            serialization::Serialize(ipAddress, 0));
+        return utility::FormatString("ipAddress={}", ipAddress);
     });
     Bind(ipAddress, 0);
 }
@@ -55,9 +54,7 @@ void IPV4Socket::Bind(const IPV4Address & ipAddress)
 void IPV4Socket::Bind(const IPV4Address & ipAddress, std::uint16_t port)
 {
     SCOPEDTRACE(nullptr, [&]{
-        return utility::FormatString("ipAddress={}  port={}",
-            serialization::Serialize(ipAddress, 0),
-            serialization::Serialize(port, 0));
+        return utility::FormatString("ipAddress={} port={}", ipAddress, port);
     });
     sockaddr_in bindAddress;
     memset(&bindAddress, 0, sizeof(bindAddress));
@@ -70,8 +67,7 @@ void IPV4Socket::Bind(const IPV4Address & ipAddress, std::uint16_t port)
 void IPV4Socket::Bind(uint16_t port)
 {
     SCOPEDTRACE(nullptr, [&]{
-        return utility::FormatString("port={}",
-            serialization::Serialize(port, 0));
+        return utility::FormatString("port={}", port);
     });
     Bind(IPV4Address::Any, port);
 }
@@ -79,8 +75,7 @@ void IPV4Socket::Bind(uint16_t port)
 void IPV4Socket::Bind(const IPV4EndPoint & ipEndPoint)
 {
     SCOPEDTRACE(nullptr, [&]{
-        return utility::FormatString("ipEndPoint=[{}]",
-            serialization::Serialize(ipEndPoint, 0));
+        return utility::FormatString("ipEndPoint=[{}]", ipEndPoint);
     });
     Bind(ipEndPoint.IPAddress(), ipEndPoint.Port());
 }
@@ -90,9 +85,7 @@ bool IPV4Socket::Connect(const IPV4EndPoint & serverAddress, SocketTimeout timeo
     bool result {};
     SCOPEDTRACE(nullptr, [&]{
         return utility::FormatString("serverAddress={} timeout={} result={}",
-            serialization::Serialize(serverAddress, 0),
-            serialization::Serialize(timeout, 0),
-            serialization::Serialize(result));
+            serverAddress, timeout, result);
     });
     SockAddrIPV4 serverIPAddress = serverAddress.ConvertAddress();
     result = Socket::Connect(reinterpret_cast<const sockaddr *>(&serverIPAddress), sizeof(serverIPAddress), timeout);
@@ -104,10 +97,7 @@ bool IPV4Socket::Accept(IPV4Socket & connectionSocket, IPV4EndPoint & clientAddr
     bool result {};
     SCOPEDTRACE(nullptr, [&]{
         return utility::FormatString("connectionSocket={} clientAddress=[{}] timeout={} result={}",
-            serialization::Serialize(connectionSocket, 0),
-            serialization::Serialize(clientAddress, 0),
-            serialization::Serialize(timeout, 0),
-            serialization::Serialize(result));
+            serialization::Serialize(connectionSocket, 0), clientAddress, timeout, result);
     });
     sockaddr_in clientIPAddress {};
     socklen_t clientIPAddressSize = sizeof(clientIPAddress);
@@ -123,8 +113,7 @@ bool IPV4Socket::Accept(IPV4Socket & connectionSocket, IPV4EndPoint & clientAddr
 void IPV4Socket::GetLocalAddress(IPV4EndPoint & ipEndPoint)
 {
     SCOPEDTRACE(nullptr, [&]{
-        return utility::FormatString("ipEndPoint=[{}]",
-            serialization::Serialize(ipEndPoint, 0));
+        return utility::FormatString("ipEndPoint=[{}]", ipEndPoint);
     });
     sockaddr_in localAddress;
     socklen_t addressSize = sizeof(localAddress);
@@ -136,8 +125,7 @@ void IPV4Socket::GetLocalAddress(IPV4EndPoint & ipEndPoint)
 void IPV4Socket::GetRemoteAddress(IPV4EndPoint & ipEndPoint)
 {
     SCOPEDTRACE(nullptr, [&]{
-        return utility::FormatString("ipEndPoint=[{}]",
-            serialization::Serialize(ipEndPoint, 0));
+        return utility::FormatString("ipEndPoint=[{}]", ipEndPoint);
     });
     sockaddr_in localAddress;
     socklen_t addressSize = sizeof(localAddress);
@@ -151,12 +139,11 @@ size_t IPV4Socket::ReceiveFrom(IPV4EndPoint & ipEndPoint, std::uint8_t * data, s
     size_t numBytes {};
     std::vector<uint8_t> result;
     SCOPEDTRACE([&]{ 
-        return utility::FormatString("bufferSize={}",
-            serialization::Serialize(bufferSize, 0));
+        return utility::FormatString("bufferSize={}", bufferSize);
     }, [&]{ 
         return utility::FormatString("result={} ipEndPoint=[{}] data=[{}]",
-            serialization::Serialize(numBytes, 0),
-            serialization::Serialize(ipEndPoint, 0),
+            numBytes,
+            ipEndPoint,
             serialization::SerializeData(data, numBytes));
     });
     sockaddr_in serverAddress;
@@ -173,13 +160,13 @@ size_t IPV4Socket::ReceiveFrom(IPV4EndPoint & ipEndPoint, std::uint8_t * data, s
     return numBytes;
 }
 
-bool IPV4Socket::SendTo(const IPV4EndPoint & ipEndPoint,const std::uint8_t * data, size_t bytesToSend)
+std::size_t IPV4Socket::SendTo(const IPV4EndPoint & ipEndPoint,const std::uint8_t * data, size_t bytesToSend)
 {
-    bool result {};
-    SCOPEDTRACE(nullptr, [&]{
-        return utility::FormatString("ipEndPoint=[{}] bytesToSend={}",
-            serialization::Serialize(ipEndPoint, 0),
-            serialization::Serialize(bytesToSend, 0));
+    std::size_t result {};
+    SCOPEDTRACE([&]{
+        return utility::FormatString("ipEndPoint=[{}] bytesToSend={}", ipEndPoint, bytesToSend);
+    }, [&]{
+        return utility::FormatString("result={}", result);
     });
     sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;
@@ -194,12 +181,11 @@ size_t IPV4Socket::ReceiveBufferFrom(IPV4EndPoint & ipEndPoint, ByteBuffer & dat
 {
     size_t numBytes {};
     SCOPEDTRACE([&]{ 
-        return utility::FormatString("bufferSize={}",
-            serialization::Serialize(bufferSize, 0));
+        return utility::FormatString("bufferSize={}", bufferSize);
     }, [&]{ 
         return utility::FormatString("result={} ipEndPoint=[{}] data=[{}]",
-            serialization::Serialize(numBytes, 0),
-            serialization::Serialize(ipEndPoint, 0),
+            numBytes,
+            ipEndPoint,
             serialization::SerializeData(data));
     });
     sockaddr_in serverAddress;
@@ -220,12 +206,11 @@ bool IPV4Socket::ReceiveBlockFrom(IPV4EndPoint & ipEndPoint, ByteBuffer & data, 
 {
     bool result {};
     SCOPEDTRACE([&]{ 
-        return utility::FormatString("bufferSize={}",
-            serialization::Serialize(bufferSize, 0));
+        return utility::FormatString("bufferSize={}", bufferSize);
     }, [&]{ 
         return utility::FormatString("result={} ipEndPoint=[{}] data=[{}]",
-            serialization::Serialize(result, 0),
-            serialization::Serialize(ipEndPoint, 0),
+            result,
+            ipEndPoint,
             serialization::SerializeData(data));
     });
     sockaddr_in serverAddress;
@@ -244,10 +229,12 @@ bool IPV4Socket::ReceiveBlockFrom(IPV4EndPoint & ipEndPoint, ByteBuffer & data, 
 bool IPV4Socket::SendBufferTo(const IPV4EndPoint & ipEndPoint, const ByteBuffer & data)
 {
     bool result {};
-    SCOPEDTRACE(nullptr, [&]{
-        return utility::FormatString("ipEndPoint=[{}] bytesToSend={}",
-            serialization::Serialize(ipEndPoint, 0),
-            serialization::Serialize(data.size(), 0));
+    SCOPEDTRACE([&]{
+        return utility::FormatString("ipEndPoint=[{}] data=[{}]",
+            ipEndPoint,
+            serialization::SerializeData(data));
+    }, [&]{
+        return utility::FormatString("result={}", result);
     });
     sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;

@@ -83,12 +83,12 @@ public:
     void GetRemoteAddress(sockaddr * address, socklen_t * addressLength);
 
     std::size_t Receive(std::uint8_t * data, std::size_t bufferSize, int flags);
-    bool        Send(const std::uint8_t * data, std::size_t bytesToSend, int flags);
+    std::size_t Send(const std::uint8_t * data, std::size_t bytesToSend, int flags);
     bool        ReceiveBlock(ByteBuffer & data, std::size_t bufferSize, int flags);
     std::size_t ReceiveBuffer(ByteBuffer & data, std::size_t bufferSize, int flags);
     bool        SendBuffer(const ByteBuffer & data, int flags);
     std::size_t ReceiveFrom(sockaddr * address, socklen_t * addressLength, std::uint8_t * data, std::size_t bufferSize);
-    bool        SendTo(const sockaddr * address, socklen_t addressLength, const std::uint8_t * data, std::size_t bytesToSend);
+    std::size_t SendTo(const sockaddr * address, socklen_t addressLength, const std::uint8_t * data, std::size_t bytesToSend);
     bool        ReceiveBlockFrom(sockaddr * address, socklen_t * addressLength, ByteBuffer & data, std::size_t bufferSize);
     std::size_t ReceiveBufferFrom(sockaddr * address, socklen_t * addressLength, ByteBuffer & data, std::size_t bufferSize);
     bool        SendBufferTo(const sockaddr * address, socklen_t addressLength, const ByteBuffer & data);
@@ -109,8 +109,8 @@ struct sockaddr;
 namespace serialization {
 
 std::string Serialize(const network::Socket & value, int width);
-std::string Serialize(const sockaddr * value, socklen_t size);
-std::string Serialize(sockaddr * value, socklen_t size);
-std::string Serialize(const sockaddr * value, socklen_t * size);
+std::string SerializeAddress(const sockaddr * value, socklen_t size);
+std::string SerializeAddress(sockaddr * value, socklen_t size);
+std::string SerializeAddress(const sockaddr * value, socklen_t * size);
 
 } // namespace serialization
