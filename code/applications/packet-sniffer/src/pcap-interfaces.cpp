@@ -151,7 +151,7 @@ void Interfaces::ExtractInterfaceInfo()
             m_interfaces[name] = Interface(name, description, isLoopback, addresses);
         }
         
-        TraceMessage(__FILE__, __LINE__, __func__, "Device: {} - {} ({})", interface->name, (interface->description ? interface->description : "no description"), (interface->flags & PCAP_IF_LOOPBACK ? "loopback" : ""));
+        TraceMessage(__FILE__, __LINE__, __func__, "Device: {} - {} ({})", interface->name, (interface->description ? interface->description : "no description"), ((interface->flags & PCAP_IF_LOOPBACK) ? "loopback" : ""));
         interface = interface->next;
     }
 
