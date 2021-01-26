@@ -61,6 +61,7 @@ set(PROJECT_SOURCES
     src/IPV4AddressTest.cpp
     src/IPV6AddressTest.cpp
     src/MACAddressTest.cpp
+    src/SocketAPITest.cpp
     src/SocketDefinitionsTest.cpp
     src/SocketTest.cpp
     src/Utility.cpp
