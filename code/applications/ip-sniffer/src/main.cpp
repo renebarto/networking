@@ -1,6 +1,7 @@
 #include <vector>
 
 #include <netinet/in.h>
+#include "network/Socket.h"
 #include "tracing/Tracing.h"
 
 // import socket, sys
@@ -127,7 +128,7 @@
 //     data = packet[h_size:]
 //     print 'Data : ' + data
 
-void parse_ethernet_header(const ByteBuffer & /*packet*/)
+void parse_ethernet_header(const network::ByteBuffer & /*packet*/)
 {
     // eth_header = packet[:ETH_LENGTH]
     // eth = unpack('!6s6sH' , eth_header)
