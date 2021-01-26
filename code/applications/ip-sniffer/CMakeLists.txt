@@ -41,7 +41,7 @@ set(PROJECT_LINK_OPTIONS
 
 set(PROJECT_DEPENDENCIES
     tracing
-    network
+    network-osal
     )
 
 set(PROJECT_LIBS
