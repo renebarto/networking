@@ -389,9 +389,9 @@ std::string SerializeData(const std::uint8_t * value, std::size_t size)
 {
     std::ostringstream stream;
 
-    stream << std::endl;
     if (value != nullptr)
     {
+        stream << std::endl;
         const std::size_t LineDisplayBytes = 16;
         const std::size_t MaxDisplayBytes = 1024;
         std::size_t displayBytes = (size < MaxDisplayBytes) ? size : MaxDisplayBytes;
