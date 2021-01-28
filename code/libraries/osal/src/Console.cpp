@@ -124,13 +124,18 @@ void Console::SetTerminalColor(ConsoleColor foregroundColor, ConsoleColor backgr
     m_currentBackgroundColor = backgroundColor;
 }
 
+bool Console::IsTTY() const
+{
+    return ::IsTTY(m_handle);
+}
+
 bool Console::ShouldUseColor() const
 {
     if (ForceUseColor())
         return true;
     if (m_handle == InvalidHandle)
         return false;
-    if (!IsTTY(m_handle))
+    if (!IsTTY())
         return false;
 #if defined(PLATFORM_WINDOWS)
     return true;

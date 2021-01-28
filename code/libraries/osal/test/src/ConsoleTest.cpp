@@ -31,14 +31,14 @@ TEST(ConsoleTest, ConstructorStdOut)
     const char * termVar = GetEnvironment("TERM");
     std::string term = termVar ? termVar : "";
     bool terminalSupportsColor {};
+    Console console(std::cout);
 #if defined(PLATFORM_WINDOWS)
     terminalSupportsColor = true;
 #else
-    terminalSupportsColor = IsTTY(m_handle) &&
+    terminalSupportsColor = console.IsTTY() &&
         ((term == "xterm") || (term == "xterm-color") || (term == "xterm-256color") || 
          (term == "screen") || (term == "screen-256color") || (term == "linux") || (term == "cygwin"));
 #endif
-    Console console(std::cout);
     EXPECT_EQ(terminalSupportsColor, console.ShouldUseColor());
     EXPECT_FALSE(console.ForceUseColor());
 }

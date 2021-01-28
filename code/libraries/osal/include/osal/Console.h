@@ -87,6 +87,7 @@ public:
     {
         SetTerminalColor();
     }
+    bool IsTTY() const;
     bool ShouldUseColor() const;
     bool ForceUseColor() const;
     void ForceUseColor(bool value);
