@@ -34,9 +34,9 @@ TEST(ConsoleTest, ConstructorStdOut)
 #if defined(PLATFORM_WINDOWS)
     terminalSupportsColor = true;
 #else
-    terminalSupportsColor = (term == "xterm") || (term == "xterm-color")
-                                     || (term == "xterm-256color") || (term == "screen") || (term == "screen-256color")
-                                     || (term == "linux") || (term == "cygwin");
+    terminalSupportsColor = IsTTY(m_handle) &&
+        ((term == "xterm") || (term == "xterm-color") || (term == "xterm-256color") || 
+         (term == "screen") || (term == "screen-256color") || (term == "linux") || (term == "cygwin"));
 #endif
     Console console(std::cout);
     EXPECT_EQ(terminalSupportsColor, console.ShouldUseColor());
