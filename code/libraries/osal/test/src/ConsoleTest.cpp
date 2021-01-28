@@ -30,9 +30,14 @@ TEST(ConsoleTest, ConstructorStdOut)
 {
     const char * termVar = GetEnvironment("TERM");
     std::string term = termVar ? termVar : "";
-    const bool terminalSupportsColor = (term == "xterm") || (term == "xterm-color")
+    bool terminalSupportsColor {};
+#if defined(PLATFORM_WINDOWS)
+    terminalSupportsColor = true;
+#else
+    terminalSupportsColor = (term == "xterm") || (term == "xterm-color")
                                      || (term == "xterm-256color") || (term == "screen") || (term == "screen-256color")
                                      || (term == "linux") || (term == "cygwin");
+#endif
     Console console(std::cout);
     EXPECT_EQ(terminalSupportsColor, console.ShouldUseColor());
     EXPECT_FALSE(console.ForceUseColor());
