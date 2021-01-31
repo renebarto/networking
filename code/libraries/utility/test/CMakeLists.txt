@@ -120,7 +120,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OUTP
 
 show_target_properties(${PROJECT_NAME})
 
-if (NOT WIN_MSVC)
+if (NOT PLATFORM_WINDOWS)
     add_install_target(${PROJECT_NAME} install-components)
     add_uninstall_target(${PROJECT_NAME} uninstall-components)
 

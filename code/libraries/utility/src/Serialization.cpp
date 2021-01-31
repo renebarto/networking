@@ -385,6 +385,20 @@ std::string Serialize(void * value, int width)
     return Serialize(const_cast<const void *>(value), width);
 }
 
+std::string Serialize(std::chrono::milliseconds & value, int width)
+{
+    std::ostringstream stream;
+    stream << value.count() << " ms";
+    return utility::Align(stream.str(), width);
+}
+
+std::string Serialize(std::chrono::seconds & value, int width)
+{
+    std::ostringstream stream;
+    stream << value.count() << " s";
+    return utility::Align(stream.str(), width);
+}
+
 std::string SerializeData(const std::uint8_t * value, std::size_t size)
 {
     std::ostringstream stream;

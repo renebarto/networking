@@ -210,14 +210,14 @@ TEST(SerializationTest, SerializeCharPtrWideQuoted)
     EXPECT_EQ(expected, Serialize(value, 0, true));
 }
 
-TEST(SerializationTest, SerializeVoidPtrNull)
+TEST(SerializationTest, SerializeConstVoidPtrNull)
 {
     const void * value = nullptr;
     std::string expected = "null";
     EXPECT_EQ(expected, Serialize(value, 0));
 }
 
-TEST(SerializationTest, SerializeVoidPtr)
+TEST(SerializationTest, SerializeConstVoidPtr)
 {
     const void * value = reinterpret_cast<const void *>(0x123456789ABCDEF0llu);
     std::string expected;
@@ -230,6 +230,35 @@ TEST(SerializationTest, SerializeVoidPtr)
         expected = "0x123456789ABCDEF0";
     }
     EXPECT_EQ(expected, Serialize(value, 0));
+}
+
+TEST(SerializationTest, SerializeNonConstVoidPtr)
+{
+    void * value = reinterpret_cast<void *>(0x123456789ABCDEF0llu);
+    std::string expected;
+    if (sizeof(value) == 4)
+    {
+        expected = "0x9ABCDEF0";
+    }
+    else
+    {
+        expected = "0x123456789ABCDEF0";
+    }
+    EXPECT_EQ(expected, Serialize(value, 0));
+}
+
+TEST(SerializationTest, SerializeMilliSeconds)
+{
+    std::chrono::milliseconds duration(1);
+    std::string expected = "1 ms";
+    EXPECT_EQ(expected, Serialize(duration, 0));
+}
+
+TEST(SerializationTest, SerializeSeconds)
+{
+    std::chrono::seconds duration(1);
+    std::string expected = "1 s";
+    EXPECT_EQ(expected, Serialize(duration, 0));
 }
 
 TEST(SerializationTest, SerializeUInt8PtrNull)
