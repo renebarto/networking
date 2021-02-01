@@ -86,8 +86,8 @@ macro(setup_default_options)
         # Important! do not keep warning 4251 4275 ignored!
         # Possibly switch warning 4505 back on
         set(FLAGS_CXX
-            /Wall /WX /wd4061 /wd4127 /wd4251 /wd4275 /wd4435 /wd4505 /wd4514 /wd4548 /wd4571 /wd4592 /wd4625 /wd4626 /wd4628 /wd4710 /wd4711 /wd4774 /wd4668 /wd5045
-            /wd4820 /wd5026 /wd5027 /EHsc /Gd /GR /sdl- /Zc:wchar_t /Zc:inline /fp:precise /bigobj)
+            /Wall /WX /wd4061 /wd4127 /wd4251 /wd4275 /wd4435 /wd4505 /wd4514 /wd4548 /wd4571 /wd4592 /wd4625 /wd4626 /wd4628 /wd4710 /wd4711 /wd4774 /wd4623 /wd4668 /wd5045
+            /wd4820 /wd5026 /wd5027 /EHsc /Gd /GR /sdl- /Zc:wchar_t /Zc:inline /fp:precise /bigobj /Wv:18)
         set(FLAGS_CXX_DEBUG /Od /Gm- /Zi /RTC1 /MTd)
         set(FLAGS_CXX_RELEASE /Ox /GL- /GS /Gy /Oi /MT)
         set(FLAGS_CXX_MINSIZEREL /O1 /GL /GS /Gy /Oi /MT)
