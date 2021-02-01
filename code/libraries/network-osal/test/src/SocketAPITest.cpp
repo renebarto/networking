@@ -276,8 +276,8 @@ bool Connect(SocketAPI & api, SocketHandle handle, const sockaddr_in & address)
         result = api.GetRemoteAddress(handle, reinterpret_cast<struct sockaddr *>(&junk), &length);
 #else
         // For most platforms, the code below is all we need
-        std::uint8_t junk;
-        result = api.Send(handle, &junk, 0, 0);
+        //std::uint8_t junk;
+        //result = api.Send(handle, &junk, 0, 0);
 #endif
     }
     connected = (result != -1);
@@ -471,7 +471,7 @@ bool SocketAPITest_UDPServerFunction()
     {
         api.Close(serverHandle);
         return false;
-    }   
+    }
     const std::size_t Size = 10;
     std::uint8_t buffer[Size];
     sockaddr_in clientAddress {};
