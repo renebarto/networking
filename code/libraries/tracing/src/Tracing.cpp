@@ -56,14 +56,14 @@ static osal::ConsoleColor GetColorForCategory(TraceCategory category)
 {
     switch (category)
     {
-        case TraceCategory::FunctionEnter:  return osal::ConsoleColor::Yellow;
-        case TraceCategory::FunctionLeave:  return osal::ConsoleColor::Yellow;
-        case TraceCategory::Startup:        return osal::ConsoleColor::Green;
-        case TraceCategory::Shutdown:       return osal::ConsoleColor::Green;
-        case TraceCategory::Log:            return osal::ConsoleColor::Magenta;
-        case TraceCategory::Message:        return osal::ConsoleColor::White;
-        case TraceCategory::Data:           return osal::ConsoleColor::Cyan;
-        case TraceCategory::Debug:          return osal::ConsoleColor::Blue;
+    case TraceCategory::FunctionEnter:  return osal::ConsoleColor::Yellow;
+    case TraceCategory::FunctionLeave:  return osal::ConsoleColor::Yellow;
+    case TraceCategory::Startup:        return osal::ConsoleColor::Green;
+    case TraceCategory::Shutdown:       return osal::ConsoleColor::Green;
+    case TraceCategory::Log:            return osal::ConsoleColor::Magenta;
+    case TraceCategory::Message:        return osal::ConsoleColor::White;
+    case TraceCategory::Data:           return osal::ConsoleColor::Cyan;
+    case TraceCategory::Debug:          return osal::ConsoleColor::Intensity | osal::ConsoleColor::Blue;
 
         default: return osal::ConsoleColor::Default;
     }
