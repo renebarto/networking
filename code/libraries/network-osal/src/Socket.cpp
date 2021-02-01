@@ -16,10 +16,6 @@
 
 #elif defined(PLATFORM_WINDOWS)
 
-#ifdef min
-#undef min
-#endif
-
 #else
 
 #error Unsupported platform
@@ -743,7 +739,8 @@ std::size_t Socket::Receive(std::uint8_t * data, std::size_t bufferSize, int fla
         {
             // Read is blocking, if 0 bytes are returned the other side is closed
             tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::GenericError("recv() returned nothing, closing socket"));
-            Close();
+            if (IsOpen())
+                Close();
         } else
         {
             numBytes = static_cast<size_t>(result);

@@ -6,6 +6,17 @@
 
 #if defined(PLATFORM_LINUX)
 #include <sys/socket.h>
+
+#elif defined(PLATFORM_WINDOWS)
+
+#ifdef min
+#undef min
+#endif
+
+#ifdef max
+#undef max
+#endif
+
 #endif
 
 #include "utility/Serialization.h"
