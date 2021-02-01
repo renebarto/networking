@@ -1,7 +1,6 @@
 #pragma once
 
 #include "network/IPV4TCPSocket.h"
-#include "network/SocketBlocking.h"
 
 namespace network {
 
@@ -11,18 +10,18 @@ class IPV4TCPServerSocket
 private:
     PortType m_port;
     int m_numListeners;
-    SocketBlocking m_blockingMode;
+    std::chrono::milliseconds m_acceptTimeout;
     bool m_isInitialized;
 
 public:
-    IPV4TCPServerSocket(ISocketAPI & api, PortType port, int numListeners, SocketBlocking blockingMode);
+    IPV4TCPServerSocket(ISocketAPI & api, PortType port, int numListeners, std::chrono::milliseconds acceptTimeout);
     ~IPV4TCPServerSocket();
 
     bool Initialize();
     bool Uninitialize();
     bool IsInitialized() const;
 
-    bool Accept(IPV4TCPSocket & clientSocket, IPV4EndPoint & clientAddress, SocketTimeout timeout);
+    bool Accept(IPV4TCPSocket & clientSocket, IPV4EndPoint & clientAddress);
 
 	using IPV4TCPSocket::Open;
     using IPV4TCPSocket::Close;

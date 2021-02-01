@@ -20,11 +20,11 @@ IPV4TCPServer::~IPV4TCPServer()
         Stop();
 }
 
-void IPV4TCPServer::Start(PortType port, int numListeners, SocketBlocking blocking)
+void IPV4TCPServer::Start(PortType port, int numListeners, std::chrono::milliseconds acceptTimeout)
 {
-    SCOPEDTRACE([&] () { return utility::FormatString("port={}, numListeners={}, blocking={}", port, numListeners, blocking == SocketBlocking::On ? "On" : "Off"); }, 
+    SCOPEDTRACE([&] () { return utility::FormatString("port={}, numListeners={}, acceptTimeout={}", port, numListeners, acceptTimeout); }, 
                 nullptr);
-    m_serverThread.Start(port, numListeners, blocking);
+    m_serverThread.Start(port, numListeners, acceptTimeout);
 }
 
 void IPV4TCPServer::Stop()

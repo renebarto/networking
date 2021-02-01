@@ -15,7 +15,7 @@ public:
     IPV4TCPClientSocket(ISocketAPI & api);
     ~IPV4TCPClientSocket();
 
-    bool Connect(const IPV4EndPoint & address, SocketTimeout timeout);
+    bool Connect(const IPV4EndPoint & address, std::chrono::milliseconds timeout);
     void Disconnect();
     bool IsConnected() const;
 

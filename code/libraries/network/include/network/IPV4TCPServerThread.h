@@ -4,7 +4,6 @@
 #include "core/ActiveObject.h"
 #include "network/IPV4TCPSocket.h"
 #include "network/IPV4TCPServerConnectionThread.h"
-#include "network/SocketBlocking.h"
 
 namespace network {
 
@@ -15,15 +14,15 @@ protected:
     ISocketAPI & m_socketAPI;
     PortType m_port;
     int m_numListeners;
-    SocketBlocking m_blockingMode;
+    std::chrono::milliseconds m_acceptTimeout;
     std::atomic<bool> m_abortThread;
     static const std::chrono::milliseconds WaitTime;
 
 public:
     IPV4TCPServerThread(ISocketAPI & api);
-    ~IPV4TCPServerThread();
+    virtual ~IPV4TCPServerThread();
     
-    virtual bool Start(PortType port, int numListeners, SocketBlocking blocking);
+    virtual bool Start(PortType port, int numListeners, std::chrono::milliseconds acceptTimeout);
     virtual void Stop();
     bool IsStarted();
     

@@ -19,7 +19,7 @@ public:
     IPV4TCPClient(ISocketAPI & api, const IPV4Address & serverAddress, PortType serverPort);
 
     const IPV4EndPoint & ServerEndPoint() const { return m_serverEndPoint; }
-    bool Connect(SocketTimeout timeout);
+    bool Connect(std::chrono::milliseconds timeout);
     void Disconnect();
     bool IsConnected() const;
 

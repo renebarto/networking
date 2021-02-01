@@ -22,7 +22,7 @@ IPV4TCPClient::IPV4TCPClient(ISocketAPI & api, const IPV4Address & serverAddress
                 [this] () { return utility::FormatString("endPoint=[{}]", m_serverEndPoint); });
 }
 
-bool IPV4TCPClient::Connect(SocketTimeout timeout)
+bool IPV4TCPClient::Connect(std::chrono::milliseconds timeout)
 {
     bool result {};
     SCOPEDTRACE([&] () { return utility::FormatString("timeout={}", timeout); }, 

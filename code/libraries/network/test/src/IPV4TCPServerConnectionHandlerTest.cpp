@@ -25,7 +25,7 @@ public:
     void SetUp() override
     {
         m_savedTraceFilter = tracing::GetDefaultTraceFilter();
-        tracing::SetDefaultTraceFilter(tracing::TraceCategory::Message | tracing::TraceCategory::Data | tracing::TraceCategory::All);
+        tracing::SetDefaultTraceFilter(tracing::TraceCategory::Message | tracing::TraceCategory::Data);
         osal::SetThreadNameSelf("IPV4TCPServerConnectionHandlerTest");
     }
     void TearDown() override
@@ -34,7 +34,7 @@ public:
     }
     bool DataCallback(const ByteBuffer & dataReceived, ByteBuffer & dataToSend)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Data in: {}", serialization::SerializeData(dataReceived.data(), dataReceived.size()));
+        TraceDebug(__FILE__, __LINE__, __func__, "Data in: {}", serialization::SerializeData(dataReceived.data(), dataReceived.size()));
         dataToSend = dataReceived;
         ++m_dataCallbackInvokedTimes;
         if (m_dataCallbackInvokedTimes >= 2)
@@ -55,22 +55,14 @@ TEST_F(IPV4TCPServerConnectionHandlerTest, Construct)
     EXPECT_FALSE(handler.IsStarted());
 }
 
-#if defined(PLATFORM_WINDOWS)
-#pragma warning(disable: 4100)
-#endif
-ACTION_P(SetArg1ToMCValue, value) { *reinterpret_cast<std::uint8_t *>(arg1) = value; return 1; }
-#if defined(PLATFORM_WINDOWS)
-#pragma warning(default: 4100)
-#endif
-
 TEST_F(IPV4TCPServerConnectionHandlerTest, Start)
 {
     testing::SocketAPIMock api;
 
     EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
     EXPECT_CALL(api, Close(_)).Times(1);
-    EXPECT_CALL(api, Receive(0, _, _, 0)).WillOnce(SetArg1ToMCValue(std::uint8_t {0x00})).WillOnce(SetArg1ToMCValue(std::uint8_t {0x00}));
-    EXPECT_CALL(api, Send(0, _, _, 0)).WillOnce(Return(1));
+    EXPECT_CALL(api, Receive(0, _, _, 0)).WillOnce(Return(4096)).WillOnce(Return(0));
+    EXPECT_CALL(api, Send(0, _, _, 0)).WillOnce(Return(4096));
 
     IPV4TCPServerConnectionHandler handler(api, std::bind(&IPV4TCPServerConnectionHandlerTest::DataCallback, this, _1, _2));
     IPV4TCPSocket clientSocket(api);
@@ -88,8 +80,8 @@ TEST_F(IPV4TCPServerConnectionHandlerTest, Stop)
 
     EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(1);
     EXPECT_CALL(api, Close(_)).Times(1);
-    EXPECT_CALL(api, Receive(_, _, _, 0)).WillOnce(SetArg1ToMCValue(std::uint8_t {0x00})).WillOnce(SetArg1ToMCValue(std::uint8_t {0x00}));
-    EXPECT_CALL(api, Send(_, _, _, 0)).WillOnce(Return(1));
+    EXPECT_CALL(api, Receive(0, _, _, 0)).WillOnce(Return(4096)).WillOnce(Return(0));
+    EXPECT_CALL(api, Send(0, _, _, 0)).WillOnce(Return(4096));
 
     IPV4TCPServerConnectionHandler handler(api, std::bind(&IPV4TCPServerConnectionHandlerTest::DataCallback, this, _1, _2));
     IPV4TCPSocket clientSocket(api);

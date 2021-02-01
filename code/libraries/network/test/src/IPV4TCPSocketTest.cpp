@@ -328,7 +328,8 @@ TEST_F(IPV4TCPSocketTest, ConnectAcceptSendReceiveTCP)
         const std::size_t BufferSize = 10;
         std::uint8_t bufferOut[BufferSize] = { 'H', 'e', 'l', 'l', 'o', 'W', 'o', 'r', 'l', 'd'};
         std::uint8_t bufferIn[BufferSize];
-        EXPECT_TRUE(clientSocket.Send(bufferOut, BufferSize, 0));
+        std::size_t bytesSent = clientSocket.Send(bufferOut, BufferSize, 0);
+        EXPECT_EQ(BufferSize, bytesSent);
         std::size_t bytesReceived = clientSocket.Receive(bufferIn, BufferSize, 0);
         EXPECT_EQ(BufferSize, bytesReceived);
         EXPECT_TRUE(std::equal(std::begin(bufferIn), std::end(bufferIn), std::begin(bufferOut)));

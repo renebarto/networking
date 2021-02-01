@@ -84,7 +84,7 @@ int Application::Run()
     network::SocketAPI api;
     network::IPV4TCPServerHandler serverHandler(api, std::bind(&Application::DataCallback, this, _1, _2));
     network::IPV4TCPServer server(serverHandler);
-    server.Start(port, 1, network::SocketBlocking::On);
+    server.Start(port, 1, std::chrono::seconds(2));
     while (!m_interrupted)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));

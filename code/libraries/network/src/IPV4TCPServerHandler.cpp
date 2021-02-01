@@ -16,13 +16,17 @@ IPV4TCPServerHandler::IPV4TCPServerHandler(ISocketAPI & api, DataCallback dataCa
 IPV4TCPServerHandler::~IPV4TCPServerHandler()
 {
     SCOPEDTRACE(nullptr, nullptr);
+    if (IsStarted())
+        Stop();
+    ForceConnectionClose();
+    DoConnectionCleanup();
 }
 
-bool IPV4TCPServerHandler::Start(PortType port, int numListeners, SocketBlocking blocking)
+bool IPV4TCPServerHandler::Start(PortType port, int numListeners, std::chrono::milliseconds acceptTimeout)
 {
-    SCOPEDTRACE([&] () { return utility::FormatString("port={}, numListeners={}, blocking={}", port, numListeners, blocking == SocketBlocking::On ? "On" : "Off"); }, 
+    SCOPEDTRACE([&] () { return utility::FormatString("port={}, numListeners={}, acceptTimeout={}", port, numListeners, acceptTimeout); }, 
                 nullptr);
-    return IPV4TCPServerThread::Start(port, numListeners, blocking);
+    return IPV4TCPServerThread::Start(port, numListeners, acceptTimeout);
 }
 void IPV4TCPServerHandler::DoConnectionCleanup()
 {
@@ -46,6 +50,7 @@ void IPV4TCPServerHandler::ForceConnectionClose()
     Lock lock(m_mutex);
     for (auto & connectionHandler : m_connectionHandlers)
     {
+        connectionHandler->Unsubscribe(this);
         connectionHandler->FlushThread();
         TraceMessage(__FILE__, __LINE__, __func__, "Stop old connection {}", connectionHandler->GetName());
         connectionHandler->Stop();
@@ -94,6 +99,7 @@ void IPV4TCPServerHandler::OnConnectionClosed(IPV4TCPServerConnectionThread * co
         if (it->get() == connectionHandler)
         {
             found = true;
+            break;
         }
         ++it;
     }

@@ -59,12 +59,12 @@ bool IPV4TCPSocketAcceptThread()
 
     SocketAPI api;
 
-    IPV4TCPServerSocket server(api, ServerPort, NumListeners, SocketBlocking::On);
+    IPV4TCPServerSocket server(api, ServerPort, NumListeners, std::chrono::seconds(1));
     server.Initialize();
 
     IPV4TCPSocket client(api);
     IPV4EndPoint clientAddress;
-    accepted = server.Accept(client, clientAddress, 1000);
+    accepted = server.Accept(client, clientAddress);
     EXPECT_TRUE(accepted);
     if (accepted)
     {
@@ -93,7 +93,7 @@ TEST_F(IPV4TCPClientTest, ConnectAcceptSendReceiveTCP)
     IPV4TCPClient client(api, serverAddress, ServerPort);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    connected = client.Connect(5000);
+    connected = client.Connect(std::chrono::seconds(5));
     EXPECT_TRUE(connected);
     if (connected)
     {
@@ -101,7 +101,8 @@ TEST_F(IPV4TCPClientTest, ConnectAcceptSendReceiveTCP)
         const std::size_t BufferSize = 10;
         std::uint8_t bufferOut[BufferSize] = { 'H', 'e', 'l', 'l', 'o', 'W', 'o', 'r', 'l', 'd'};
         std::uint8_t bufferIn[BufferSize];
-        EXPECT_TRUE(client.Send(bufferOut, BufferSize, 0));
+        std::size_t bytesSent = client.Send(bufferOut, BufferSize, 0);
+        EXPECT_EQ(BufferSize, bytesSent);
         std::size_t bytesReceived = client.Receive(bufferIn, BufferSize, 0);
         EXPECT_EQ(BufferSize, bytesReceived);
         EXPECT_TRUE(std::equal(std::begin(bufferIn), std::end(bufferIn), std::begin(bufferOut)));

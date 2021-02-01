@@ -17,6 +17,7 @@ protected:
 
 public:
     IPV4TCPServerConnectionThread(ISocketAPI & api);
+    virtual ~IPV4TCPServerConnectionThread();
     
     bool Start(IPV4TCPSocket && clientSocket, const IPV4EndPoint & clientEndPoint);
     void Stop();

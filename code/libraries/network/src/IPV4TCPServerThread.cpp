@@ -8,11 +8,11 @@ namespace network {
 const std::chrono::milliseconds IPV4TCPServerThread::WaitTime(1000);
 
 IPV4TCPServerThread::IPV4TCPServerThread(ISocketAPI & api)
-    : core::ActiveObject("TCPServer")
+    : core::ActiveObject("IPV4TCPServerThread")
     , m_socketAPI(api)
     , m_port()
     , m_numListeners()
-    , m_blockingMode()
+    , m_acceptTimeout()
     , m_abortThread()
 {
     SCOPEDTRACE([this] () { return utility::FormatString("name={}", GetName()); }, nullptr);
@@ -21,13 +21,15 @@ IPV4TCPServerThread::IPV4TCPServerThread(ISocketAPI & api)
 IPV4TCPServerThread::~IPV4TCPServerThread()
 {
     SCOPEDTRACE(nullptr, nullptr);
+    if (IsStarted())
+        Stop();
 }
 
-bool IPV4TCPServerThread::Start(PortType port, int numListeners, SocketBlocking blockingMode)
+bool IPV4TCPServerThread::Start(PortType port, int numListeners, std::chrono::milliseconds acceptTimeout)
 {
     m_port = port;
     m_numListeners = numListeners;
-    m_blockingMode = blockingMode;
+    m_acceptTimeout = acceptTimeout;
     SCOPEDTRACE([this] () { return utility::FormatString("Thread starting on port {}", m_port); }, nullptr);
     Create();
 
@@ -50,7 +52,7 @@ void IPV4TCPServerThread::Run()
 {
     SCOPEDTRACE([this] () { return utility::FormatString("Run starting"); }, 
                 [this] () { return utility::FormatString("Run stopped"); });
-    IPV4TCPServerSocket serverSocket(m_socketAPI, m_port, m_numListeners, m_blockingMode);
+    IPV4TCPServerSocket serverSocket(m_socketAPI, m_port, m_numListeners, m_acceptTimeout);
     serverSocket.Initialize();
     m_abortThread = false;
     TraceMessage(__FILE__, __LINE__, __func__, "Starting {}", GetName());
@@ -61,8 +63,7 @@ void IPV4TCPServerThread::Run()
         {
             IPV4TCPSocket clientSocket(m_socketAPI);
             IPV4EndPoint clientAddress;
-            SocketTimeout waitTime = static_cast<SocketTimeout>(std::chrono::duration_cast<std::chrono::milliseconds>(WaitTime).count());
-            bool accepted = serverSocket.Accept(clientSocket, clientAddress, waitTime);
+            bool accepted = serverSocket.Accept(clientSocket, clientAddress);
             if (accepted)
             {
                 if (!OnAccepted(std::move(clientSocket), clientAddress))
@@ -81,7 +82,7 @@ void IPV4TCPServerThread::Run()
         }
         else
         {
-            std::this_thread::sleep_for(WaitTime);
+            std::this_thread::sleep_for(m_acceptTimeout);
         }
     }
     ForceConnectionClose();

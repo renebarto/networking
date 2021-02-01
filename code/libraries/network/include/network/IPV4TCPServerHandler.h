@@ -24,7 +24,7 @@ public:
     IPV4TCPServerHandler(ISocketAPI & api, DataCallback dataCallback);
     ~IPV4TCPServerHandler();
     
-    bool Start(PortType port, int numListeners, SocketBlocking blocking);
+    bool Start(PortType port, int numListeners, std::chrono::milliseconds acceptTimeout);
     void DoConnectionCleanup() override;
     void ForceConnectionClose() override;
     bool ReadyToAccept() override;

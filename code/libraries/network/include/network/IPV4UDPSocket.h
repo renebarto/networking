@@ -57,11 +57,6 @@ public:
     using IPV4Socket::GetLocalAddress;
     using IPV4Socket::GetRemoteAddress;
 
-    void SendTo(const IPV4EndPoint & ipEndPoint, const std::vector<uint8_t> & data, size_t bytesToSend);
-    void SendTo(const IPV4Address & ipAddress, std::uint16_t port, const std::vector<uint8_t> & data, size_t bytesToSend);
-    void SendTo(const IPV4EndPoint & ipEndPoint, const uint8_t * data, size_t bytesToSend);
-    void SendTo(const IPV4Address & ipAddress, std::uint16_t port, const uint8_t * data, size_t bytesToSend);
-
     using IPV4Socket::Receive;
     using IPV4Socket::Send;
     using IPV4Socket::ReceiveBuffer;

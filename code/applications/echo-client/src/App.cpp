@@ -55,7 +55,7 @@ int Application::Run()
     network::IPV4EndPoint serverEndPoint(network::IPV4Address::Parse(serverIPAddress), 7);
     network::SocketAPI api;
     network::IPV4TCPClient client(api, serverEndPoint);
-    if (client.Connect(1000))
+    if (client.Connect(std::chrono::seconds(1)))
     {
         network::ByteBuffer bufferOut;
         network::ByteBuffer bufferIn;

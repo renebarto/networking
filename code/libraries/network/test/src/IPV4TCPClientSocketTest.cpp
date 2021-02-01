@@ -55,7 +55,7 @@ TEST_F(IPV4TCPClientSocketTest, ConnectNoTimeout)
 
     IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
     IPV4TCPClientSocket client(api);
-    EXPECT_TRUE(client.Connect(serverAddress, InfiniteTimeout));
+    EXPECT_TRUE(client.Connect(serverAddress, std::chrono::milliseconds::max()));
     EXPECT_TRUE(client.IsConnected());
 }
 
@@ -70,7 +70,7 @@ TEST_F(IPV4TCPClientSocketTest, ConnectWithTimeout)
 
     IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
     IPV4TCPClientSocket client(api);
-    EXPECT_TRUE(client.Connect(serverAddress, 1000));
+    EXPECT_TRUE(client.Connect(serverAddress, std::chrono::seconds(1)));
     EXPECT_TRUE(client.IsConnected());
 }
 
@@ -85,9 +85,9 @@ TEST_F(IPV4TCPClientSocketTest, ConnectTwiceFails)
 
     IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
     IPV4TCPClientSocket client(api);
-    EXPECT_TRUE(client.Connect(serverAddress, 1000));
+    EXPECT_TRUE(client.Connect(serverAddress, std::chrono::seconds(1)));
     EXPECT_TRUE(client.IsConnected());
-    EXPECT_FALSE(client.Connect(serverAddress, 1000));
+    EXPECT_FALSE(client.Connect(serverAddress, std::chrono::seconds(1)));
     EXPECT_TRUE(client.IsConnected());
 }
 
@@ -102,11 +102,11 @@ TEST_F(IPV4TCPClientSocketTest, ConnectAfterConnectAndDisconnectSucceeds)
 
     IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
     IPV4TCPClientSocket client(api);
-    EXPECT_TRUE(client.Connect(serverAddress, 1000));
+    EXPECT_TRUE(client.Connect(serverAddress, std::chrono::seconds(1)));
     EXPECT_TRUE(client.IsConnected());
     client.Disconnect();
     EXPECT_FALSE(client.IsConnected());
-    EXPECT_TRUE(client.Connect(serverAddress, 1000));
+    EXPECT_TRUE(client.Connect(serverAddress, std::chrono::seconds(1)));
     EXPECT_TRUE(client.IsConnected());
 }
 

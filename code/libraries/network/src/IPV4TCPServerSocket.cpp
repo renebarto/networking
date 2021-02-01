@@ -5,11 +5,11 @@
 
 namespace network {
 
-IPV4TCPServerSocket::IPV4TCPServerSocket(ISocketAPI & api, PortType port, int numListeners, SocketBlocking blockingMode)
+IPV4TCPServerSocket::IPV4TCPServerSocket(ISocketAPI & api, PortType port, int numListeners, std::chrono::milliseconds acceptTimeout)
     : IPV4TCPSocket(api)
     , m_port(port)
     , m_numListeners(numListeners)
-    , m_blockingMode(blockingMode)
+    , m_acceptTimeout(acceptTimeout)
     , m_isInitialized()
 {
     SCOPEDTRACE(nullptr, nullptr);
@@ -34,8 +34,6 @@ bool IPV4TCPServerSocket::Initialize()
     {
         try {
             Open();
-            if (m_blockingMode == SocketBlocking::Off)
-                SetBlockingMode(false);
             Bind(m_port);
             Listen(m_numListeners);
             m_isInitialized = true;
@@ -69,16 +67,16 @@ bool IPV4TCPServerSocket::IsInitialized() const
     return m_isInitialized;
 }
 
-bool IPV4TCPServerSocket::Accept(IPV4TCPSocket & clientSocket, IPV4EndPoint & clientAddress, SocketTimeout timeout)
+bool IPV4TCPServerSocket::Accept(IPV4TCPSocket & clientSocket, IPV4EndPoint & clientAddress)
 {
     bool result {};
-    SCOPEDTRACE([&] () { return utility::FormatString("timeout={}", timeout); }, 
+    SCOPEDTRACE([&] () { return utility::FormatString("m_acceptTimeout={}", m_acceptTimeout); }, 
                 [&] () { return utility::FormatString("clientAddress=[{}] result={}", clientAddress, result); });
     if (!IsInitialized())
         result = false;
     else
     {
-        result = IPV4TCPSocket::Accept(clientSocket, clientAddress, timeout);
+        result = IPV4TCPSocket::Accept(clientSocket, clientAddress, (m_acceptTimeout == std::chrono::milliseconds::max()) ? InfiniteTimeout : static_cast<SocketTimeout>(m_acceptTimeout.count()));
     }
     return result;
 }

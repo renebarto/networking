@@ -16,7 +16,6 @@ IPV4TCPServerConnectionHandler::IPV4TCPServerConnectionHandler(ISocketAPI & api,
 IPV4TCPServerConnectionHandler::~IPV4TCPServerConnectionHandler()
 {
     SCOPEDTRACE(nullptr, nullptr);
-    Stop();
 }
 
 void IPV4TCPServerConnectionHandler::Run()

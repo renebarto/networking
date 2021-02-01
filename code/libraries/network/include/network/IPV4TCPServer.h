@@ -16,7 +16,7 @@ public:
     IPV4TCPServer(IPV4TCPServerThread & serverThread);
     ~IPV4TCPServer();
     
-    void Start(PortType port, int numListeners, SocketBlocking blocking);
+    void Start(PortType port, int numListeners, std::chrono::milliseconds acceptTimeout);
     void Stop();
     bool IsStarted();
 };
