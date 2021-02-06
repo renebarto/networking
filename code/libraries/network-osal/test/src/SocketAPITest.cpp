@@ -180,7 +180,6 @@ bool Connect(SocketAPI & api, SocketHandle handle, const sockaddr_in & address)
 {
     bool connected {};
     SocketTimeout timeout = 5000;
-    SocketTimeout waitTime = timeout;
     int result {};
     TraceMessage(__FILE__, __LINE__, __func__, "Client Connect start");
 #if defined(PLATFORM_LINUX)
@@ -214,6 +213,7 @@ bool Connect(SocketAPI & api, SocketHandle handle, const sockaddr_in & address)
             tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Client Connect() failed"));
     }
 #elif defined(PLATFORM_WINDOWS)
+    SocketTimeout waitTime = timeout;
     result = api.Connect(handle, reinterpret_cast<const sockaddr *>(&address), sizeof(address));
     if (result == -1)
     {
