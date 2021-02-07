@@ -610,12 +610,12 @@ bool Socket::Accept(Socket & connectionSocket, sockaddr * clientAddress, socklen
     Lock lock(m_mutex);
     if (timeout != InfiniteTimeout)
     {
-        // tracing::Tracing::Trace(tracing::TraceCategory::Information, __FILE__, __LINE__, __func__, "Accept non-blocking");
+        TraceMessage(__FILE__, __LINE__, __func__, "Accept non-blocking");
         SetBlockingMode(false);
     }
     else
     {
-        // tracing::Tracing::Trace(tracing::TraceCategory::Information, __FILE__, __LINE__, __func__, "Accept blocking");
+        TraceMessage(__FILE__, __LINE__, __func__, "Accept blocking");
         SetBlockingMode(true);
     }
 
@@ -866,7 +866,7 @@ std::size_t Socket::ReceiveBuffer(ByteBuffer & data, std::size_t bufferSize, int
             TraceDebug(__FILE__, __LINE__, __func__, "numBytesToReceiveTotal={}, numBytesReceivedTotal={} numBytesToReceive={} numBytesReceived={}", 
                 numBytesToReceiveTotal, numBytesReceivedTotal, numBytesToReceive, numBytesReceived);
         }
-        while ((numBytesToReceiveTotal > 0) && (numBytesReceived > 0));
+        while ((numBytesToReceiveTotal > 0) && (numBytesReceived == BufferSize));
     }
     catch (std::exception & e)
     {

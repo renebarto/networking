@@ -58,10 +58,10 @@ set(PROJECT_SOURCES
     src/IPV4SocketTest.cpp
     src/IPV4TCPClientTest.cpp
     src/IPV4TCPClientSocketTest.cpp
-    # src/IPV4TCPServerTest.cpp
+    src/IPV4TCPServerTest.cpp
     src/IPV4TCPServerConnectionHandlerTest.cpp
     src/IPV4TCPServerHandlerTest.cpp
-    # src/IPV4TCPServerSocketTest.cpp
+    src/IPV4TCPServerSocketTest.cpp
     src/IPV4TCPSocketTest.cpp
     src/IPV4UDPSocketTest.cpp
     src/IPV6EndPointTest.cpp

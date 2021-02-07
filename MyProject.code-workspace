@@ -102,7 +102,8 @@
             "string_view": "cpp",
             "optional": "cpp",
             "memory_resource": "cpp",
-            "regex": "cpp"
+            "regex": "cpp",
+            "compare": "cpp"
         }
     },
     "cmake.generator": ""

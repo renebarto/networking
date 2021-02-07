@@ -76,7 +76,7 @@ bool IPV4TCPServerSocket::Accept(IPV4TCPSocket & clientSocket, IPV4EndPoint & cl
         result = false;
     else
     {
-        result = IPV4TCPSocket::Accept(clientSocket, clientAddress, (m_acceptTimeout == std::chrono::milliseconds::max()) ? InfiniteTimeout : static_cast<SocketTimeout>(m_acceptTimeout.count()));
+        result = IPV4TCPSocket::Accept(clientSocket, clientAddress, (m_acceptTimeout.count() < 0) ? InfiniteTimeout : static_cast<SocketTimeout>(m_acceptTimeout.count()));
     }
     return result;
 }

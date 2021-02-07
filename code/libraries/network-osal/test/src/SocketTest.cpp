@@ -655,38 +655,6 @@ TEST_F(SocketTest, ReceiveBlockIncomplete)
     EXPECT_EQ(std::size_t {10}, buffer.size());
 }
 
-TEST_F(SocketTest, ReceiveBufferFourTimes5)
-{
-    testing::SocketAPIMock api;
-    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
-
-    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
-    EXPECT_CALL(api, Close(_)).Times(1);
-    EXPECT_CALL(api, Receive(_, _, _, 0)).WillOnce(Return(5)).WillOnce(Return(5)).WillOnce(Return(5)).WillOnce(Return(5));
-
-    target.Open();
-    const std::size_t Size = 20;
-    ByteBuffer buffer;
-    EXPECT_EQ(Size, target.ReceiveBuffer(buffer, Size, 0));
-    EXPECT_EQ(Size, buffer.size());
-}
-
-TEST_F(SocketTest, ReceiveBufferTwice10)
-{
-    testing::SocketAPIMock api;
-    Socket target(api, SocketFamily::InternetV4, SocketType::Datagram);
-
-    EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
-    EXPECT_CALL(api, Close(_)).Times(1);
-    EXPECT_CALL(api, Receive(_, _, _, 0)).WillOnce(Return(10)).WillOnce(Return(10));
-
-    target.Open();
-    const std::size_t Size = 20;
-    ByteBuffer buffer;
-    EXPECT_EQ(Size, target.ReceiveBuffer(buffer, Size, 0));
-    EXPECT_EQ(Size, buffer.size());
-}
-
 TEST_F(SocketTest, ReceiveBufferOnce20)
 {
     testing::SocketAPIMock api;
@@ -710,7 +678,7 @@ TEST_F(SocketTest, ReceiveBufferIncomplete)
 
     EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Datagram, _)).Times(1);
     EXPECT_CALL(api, Close(_)).Times(1);
-    EXPECT_CALL(api, Receive(_, _, _, 0)).WillOnce(Return(10)).WillOnce(Return(0));
+    EXPECT_CALL(api, Receive(_, _, _, 0)).WillOnce(Return(10));
 
     target.Open();
     const std::size_t Size = 20;

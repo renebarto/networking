@@ -35,7 +35,7 @@ bool IPV4TCPClientSocket::Connect(const IPV4EndPoint & address, std::chrono::mil
         // Open socket in case it was closed
         if (!IsOpen())
             Open();
-        bool connected = IPV4TCPSocket::Connect(address, (timeout == std::chrono::milliseconds::max()) ? InfiniteTimeout: static_cast<SocketTimeout>(timeout.count()));
+        bool connected = IPV4TCPSocket::Connect(address, (timeout.count() < 0) ? InfiniteTimeout: static_cast<SocketTimeout>(timeout.count()));
         if (connected)
         {
             m_serverEndPoint = address;

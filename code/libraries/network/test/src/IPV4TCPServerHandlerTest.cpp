@@ -124,6 +124,7 @@ TEST_F(IPV4TCPServerHandlerTest, Start)
     EXPECT_CALL(api, SetBlockingMode(0, false)).Times(2); // Will twice to Accept, second will fail
     EXPECT_CALL(api, SetBlockingMode(0, true)).Times(2);
     EXPECT_CALL(api, Accept(0, _, _)).WillOnce(Return(0)).WillRepeatedly(DoAll(InvokeWithoutArgs([]() { std::this_thread::sleep_for(std::chrono::seconds(1)); }), Return(-1)));
+    EXPECT_CALL(api, Receive(0, _, 4096, 0)).Times(1);
 
     IPV4TCPServerHandlerForTest handler(api, std::bind(&IPV4TCPServerHandlerTest::DataCallback, this, _1, _2));
     EXPECT_TRUE(handler.Start(TestPort, NumListeners, std::chrono::seconds(1)));
@@ -147,6 +148,7 @@ TEST_F(IPV4TCPServerHandlerTest, StartStop)
     EXPECT_CALL(api, SetBlockingMode(0, false)).Times(2); // Will twice to Accept, second will fail
     EXPECT_CALL(api, SetBlockingMode(0, true)).Times(2);
     EXPECT_CALL(api, Accept(0, _, _)).WillOnce(Return(0)).WillRepeatedly(DoAll(InvokeWithoutArgs([]() { std::this_thread::sleep_for(std::chrono::seconds(1)); }), Return(-1)));
+    EXPECT_CALL(api, Receive(0, _, 4096, 0)).Times(1);
 
     IPV4TCPServerHandlerForTest handler(api, std::bind(&IPV4TCPServerHandlerTest::DataCallback, this, _1, _2));
     EXPECT_TRUE(handler.Start(TestPort, NumListeners, std::chrono::seconds(1)));

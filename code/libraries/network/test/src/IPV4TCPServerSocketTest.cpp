@@ -11,7 +11,6 @@
 namespace network {
 
 using ::testing::_;
-// using ::testing::DoAll;
 using ::testing::Return;
 
 class IPV4TCPServerSocketTest : public ::testing::Test
@@ -41,7 +40,7 @@ TEST_F(IPV4TCPServerSocketTest, Construct)
     EXPECT_CALL(api, Open(SocketFamily::InternetV4, SocketType::Stream, _)).Times(0);
     EXPECT_CALL(api, Close(_)).Times(0);
 
-    IPV4TCPServerSocket server(api, 8080, 1, SocketBlocking::On);
+    IPV4TCPServerSocket server(api, 8080, 1, std::chrono::seconds::max());
     EXPECT_FALSE(server.IsInitialized());
 }
 
@@ -54,7 +53,7 @@ TEST_F(IPV4TCPServerSocketTest, Initialize)
     EXPECT_CALL(api, Bind(_, _, _)).Times(1);
     EXPECT_CALL(api, Listen(_, NumListeners)).Times(1);
 
-    IPV4TCPServerSocket server(api, TestPort, NumListeners, SocketBlocking::On);
+    IPV4TCPServerSocket server(api, TestPort, NumListeners, std::chrono::seconds::max());
     EXPECT_TRUE(server.Initialize());
     EXPECT_TRUE(server.IsInitialized());
 }
@@ -68,7 +67,7 @@ TEST_F(IPV4TCPServerSocketTest, InitializeTwiceSucceeds)
     EXPECT_CALL(api, Bind(_, _, _)).Times(1);
     EXPECT_CALL(api, Listen(_, NumListeners)).Times(1);
 
-    IPV4TCPServerSocket server(api, TestPort, NumListeners, SocketBlocking::On);
+    IPV4TCPServerSocket server(api, TestPort, NumListeners, std::chrono::seconds::max());
     EXPECT_TRUE(server.Initialize());
     EXPECT_TRUE(server.IsInitialized());
     EXPECT_TRUE(server.Initialize());
@@ -84,7 +83,7 @@ TEST_F(IPV4TCPServerSocketTest, Uninitialize)
     EXPECT_CALL(api, Bind(_, _, _)).Times(1);
     EXPECT_CALL(api, Listen(_, NumListeners)).Times(1);
 
-    IPV4TCPServerSocket server(api, TestPort, NumListeners, SocketBlocking::On);
+    IPV4TCPServerSocket server(api, TestPort, NumListeners, std::chrono::seconds::max());
     EXPECT_TRUE(server.Initialize());
     EXPECT_TRUE(server.IsInitialized());
     EXPECT_TRUE(server.Uninitialize());
@@ -100,7 +99,7 @@ TEST_F(IPV4TCPServerSocketTest, UninitializeIfNotInitializedFails)
     EXPECT_CALL(api, Bind(_, _, _)).Times(0);
     EXPECT_CALL(api, Listen(_, NumListeners)).Times(0);
 
-    IPV4TCPServerSocket server(api, TestPort, NumListeners, SocketBlocking::On);
+    IPV4TCPServerSocket server(api, TestPort, NumListeners, std::chrono::seconds::max());
     EXPECT_FALSE(server.IsInitialized());
     EXPECT_FALSE(server.Uninitialize());
     EXPECT_FALSE(server.IsInitialized());
@@ -118,12 +117,12 @@ TEST_F(IPV4TCPServerSocketTest, AcceptNoTimeout)
     EXPECT_CALL(api, SetBlockingMode(_, true)).Times(2);
     EXPECT_CALL(api, Accept(_, _, _)).WillOnce(Return(1));
 
-    IPV4TCPServerSocket server(api, TestPort, NumListeners, SocketBlocking::On);
+    IPV4TCPServerSocket server(api, TestPort, NumListeners, std::chrono::seconds::max());
     EXPECT_TRUE(server.Initialize());
     EXPECT_TRUE(server.IsInitialized());
     IPV4TCPSocket client(api);
     IPV4EndPoint clientAddress;
-    EXPECT_TRUE(server.Accept(client, clientAddress, InfiniteTimeout));
+    EXPECT_TRUE(server.Accept(client, clientAddress));
 }
 
 TEST_F(IPV4TCPServerSocketTest, AcceptWithTimeout)
@@ -138,12 +137,12 @@ TEST_F(IPV4TCPServerSocketTest, AcceptWithTimeout)
     EXPECT_CALL(api, SetBlockingMode(_, true)).Times(1);
     EXPECT_CALL(api, Accept(_, _, _)).WillOnce(Return(1));
 
-    IPV4TCPServerSocket server(api, TestPort, NumListeners, SocketBlocking::On);
+    IPV4TCPServerSocket server(api, TestPort, NumListeners, std::chrono::seconds(1));
     EXPECT_TRUE(server.Initialize());
     EXPECT_TRUE(server.IsInitialized());
     IPV4TCPSocket client(api);
     IPV4EndPoint clientAddress;
-    EXPECT_TRUE(server.Accept(client, clientAddress, 1000));
+    EXPECT_TRUE(server.Accept(client, clientAddress));
 }
 
 TEST_F(IPV4TCPServerSocketTest, AcceptWithTimeoutFails)
@@ -158,12 +157,12 @@ TEST_F(IPV4TCPServerSocketTest, AcceptWithTimeoutFails)
     EXPECT_CALL(api, SetBlockingMode(_, true)).Times(1);
     EXPECT_CALL(api, Accept(_, _, _)).WillOnce(Return(-1));
 
-    IPV4TCPServerSocket server(api, TestPort, NumListeners, SocketBlocking::On);
+    IPV4TCPServerSocket server(api, TestPort, NumListeners, std::chrono::seconds(1));
     EXPECT_TRUE(server.Initialize());
     EXPECT_TRUE(server.IsInitialized());
     IPV4TCPSocket client(api);
     IPV4EndPoint clientAddress;
-    EXPECT_FALSE(server.Accept(client, clientAddress, 1000));
+    EXPECT_FALSE(server.Accept(client, clientAddress));
 }
 
 bool IPV4TCPSocketConnectThread()
@@ -188,8 +187,9 @@ bool IPV4TCPSocketConnectThread()
         const std::size_t BufferSize = 10;
         std::uint8_t bufferOut[BufferSize] = { 'H', 'e', 'l', 'l', 'o', 'W', 'o', 'r', 'l', 'd'};
         std::uint8_t bufferIn[BufferSize];
-        EXPECT_TRUE(clientSocket.Send(bufferOut, BufferSize, 0));
-        std::size_t bytesReceived = clientSocket.Receive(bufferIn, BufferSize, 0);
+        std::size_t bytesSent = clientSocket.Send(bufferOut, BufferSize, 0);
+        EXPECT_EQ(BufferSize, bytesSent);
+        std::size_t bytesReceived = clientSocket.Receive(bufferIn, bytesSent, 0);
         EXPECT_EQ(BufferSize, bytesReceived);
         EXPECT_TRUE(std::equal(std::begin(bufferIn), std::end(bufferIn), std::begin(bufferOut)));
         // Make sure to close client before server ends, otherwise we'll end up in TIME_WAIT status
@@ -209,14 +209,14 @@ TEST_F(IPV4TCPServerSocketTest, ConnectAcceptSendReceiveTCP)
     SocketAPI api;
 
     const int NumListeners = 1;
-    IPV4TCPServerSocket server(api, TestPort, NumListeners, SocketBlocking::On);
+    IPV4TCPServerSocket server(api, TestPort, NumListeners, std::chrono::seconds(1));
     server.Initialize();
     core::TypedReturnThread<bool> connectorThread(IPV4TCPSocketConnectThread, "IPV4TCPSocketConnectThread");
 
     IPV4TCPSocket client(api);
     client.Open();
     IPV4EndPoint clientAddress;
-    accepted = server.Accept(client, clientAddress, 1000);
+    accepted = server.Accept(client, clientAddress);
     EXPECT_TRUE(accepted);
     if (accepted)
     {

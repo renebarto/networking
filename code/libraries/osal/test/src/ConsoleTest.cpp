@@ -75,7 +75,11 @@ TEST(ConsoleTest, OutputColor)
             << fgcolor(ConsoleColor::Green | ConsoleColor::Intensity)
             << bgcolor(ConsoleColor::White | ConsoleColor::Intensity) << "green on black\n"
             << fgcolor(ConsoleColor::Default) << bgcolor(ConsoleColor::Default) << "no color\n";
+#if defined(PLATFORM_LINUX)
     std::string expected("no color\n\033[0;31mred\n\033[0;92m\033[0;92;107mgreen on black\n\033[0;107m\033[0mno color\n");
+#else
+    std::string expected("no color\nred\ngreen on black\nno color\n");
+#endif
     EXPECT_EQ(expected, stream.str());
 }
 
@@ -100,7 +104,11 @@ TEST(ConsoleTest, SetForegroundColorWithColor)
     console << "text";
     console.SetForegroundColor(ConsoleColor::Default);
     console << "text";
+#if defined(PLATFORM_LINUX)
     std::string expected("\033[0;34;1mtext\033[0mtext");
+#else
+    std::string expected("texttext");
+#endif
     EXPECT_EQ(expected, stream.str());
 }
 
@@ -125,7 +133,11 @@ TEST(ConsoleTest, SetBackgroundColorWithColor)
     console << "text";
     console.SetBackgroundColor(ConsoleColor::Default);
     console << "text";
+#if defined(PLATFORM_LINUX)
     std::string expected("\033[0;44;1mtext\033[0mtext");
+#else
+    std::string expected("texttext");
+#endif
     EXPECT_EQ(expected, stream.str());
 }
 
@@ -150,7 +162,11 @@ TEST(ConsoleTest, SetResetTerminalColorWithColor)
     console << "text";
     console.ResetTerminalColor();
     console << "text";
+#if defined(PLATFORM_LINUX)
     std::string expected("\033[0;34;1;101mtext\033[0mtext");
+#else
+    std::string expected("texttext");
+#endif
     EXPECT_EQ(expected, stream.str());
 }
 
