@@ -1,9 +1,20 @@
 #include "utility/StringFunctions.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cstring>
 
 namespace utility {
+
+std::wstring StringToWString(const std::string & value)
+{
+    return std::wstring(value.begin(), value.end());
+}
+
+std::string WStringToString(const std::wstring & value)
+{
+    return std::string(value.begin(), value.end());
+}
 
 std::string Align(const std::string & text, int width)
 {

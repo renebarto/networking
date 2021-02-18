@@ -4,6 +4,34 @@
 
 namespace utility {
 
+TEST(StringFunctionsTest, StringToWString)
+{
+    EXPECT_EQ(L"ABCDEF", StringToWString("ABCDEF"));
+}
+
+TEST(StringFunctionsTest, WStringToString)
+{
+    EXPECT_EQ("ABCDEF", WStringToString(L"ABCDEF"));
+}
+
+TEST(StringFunctionsTest, StringToWString2)
+{
+    std::string asciiString = "Control AcceptGeoMovementButton reported Runtime error.\nControl ShuttersJoystick reported Runtime error. ";
+    std::wstring expectedWideString = L"Control AcceptGeoMovementButton reported Runtime error.\nControl ShuttersJoystick reported Runtime error. ";
+    
+    std::wstring actualWideString = StringToWString(asciiString);
+    EXPECT_EQ(actualWideString, expectedWideString);
+}
+
+TEST(StringFunctionsTest, WStringToString2)
+{
+    std::wstring wideString = L"Control AcceptGeoMovementButton reported Runtime error.\nControl ShuttersJoystick reported Runtime error. ";
+    std::string expectedAsciiString = "Control AcceptGeoMovementButton reported Runtime error.\nControl ShuttersJoystick reported Runtime error. ";
+    
+    std::string actualAsciiString = WStringToString(wideString);
+    EXPECT_EQ(actualAsciiString, expectedAsciiString);
+}
+
 TEST(StringFunctionsTest, AlignDefault)
 {
     std::string expected = "ABCD";

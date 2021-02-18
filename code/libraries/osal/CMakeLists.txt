@@ -52,7 +52,6 @@ set(PROJECT_SOURCES
     src/Console.cpp
     src/FileHandling.cpp
     src/Signal.cpp
-    src/StringConversion.cpp
     src/Thread.cpp
     src/TypeInfo.cpp
     )
@@ -65,7 +64,6 @@ set(PROJECT_INCLUDES_PUBLIC
     include/osal/ManualEvent.h
     include/osal/Semaphore.h
     include/osal/Signal.h
-    include/osal/StringConversion.h
     include/osal/Thread.h
     include/osal/TypeInfo.h
     include/osal/Utilities.h

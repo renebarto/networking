@@ -221,6 +221,11 @@ TEST(SerializationTest, SerializeConstVoidPtr)
 {
     const void * value = reinterpret_cast<const void *>(0x123456789ABCDEF0llu);
     std::string expected;
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable : 4127) //TICS !POR#018 !POR#037 Expression is constant
+#endif
+//TICS +POR#021
     if (sizeof(value) == 4)
     {
         expected = "0x9ABCDEF0";
@@ -229,6 +234,11 @@ TEST(SerializationTest, SerializeConstVoidPtr)
     {
         expected = "0x123456789ABCDEF0";
     }
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default : 4127) //TICS !POR#018 !POR#037
+#endif
+//TICS +POR#021
     EXPECT_EQ(expected, Serialize(value, 0));
 }
 
@@ -236,6 +246,11 @@ TEST(SerializationTest, SerializeNonConstVoidPtr)
 {
     void * value = reinterpret_cast<void *>(0x123456789ABCDEF0llu);
     std::string expected;
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable : 4127) //TICS !POR#018 !POR#037 Expression is constant
+#endif
+//TICS +POR#021
     if (sizeof(value) == 4)
     {
         expected = "0x9ABCDEF0";
@@ -244,6 +259,11 @@ TEST(SerializationTest, SerializeNonConstVoidPtr)
     {
         expected = "0x123456789ABCDEF0";
     }
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default : 4127) //TICS !POR#018 !POR#037
+#endif
+//TICS +POR#021
     EXPECT_EQ(expected, Serialize(value, 0));
 }
 
@@ -280,8 +300,18 @@ TEST(SerializationTest, SerializeUInt8PtrOneByte)
     const std::uint8_t value[] { 0x41 };
     
     std::string expected = "\n";
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable : 4127) //TICS !POR#018 !POR#037 Expression is constant
+#endif
+//TICS +POR#021
     if (sizeof(std::size_t) == 8)
         expected += "00000000";
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default : 4127) //TICS !POR#018 !POR#037
+#endif
+//TICS +POR#021
     expected += "00000000  41                                               A                              \n";
     EXPECT_EQ(expected, SerializeData(value, sizeof(value)));
 }
@@ -290,8 +320,18 @@ TEST(SerializationTest, SerializeUInt8PtrFifteenBytes)
 {
     const std::uint8_t value[] { 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F };
     std::string expected = "\n";
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable : 4127) //TICS !POR#018 !POR#037 Expression is constant
+#endif
+//TICS +POR#021
     if (sizeof(std::size_t) == 8)
         expected += "00000000";
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default : 4127) //TICS !POR#018 !POR#037
+#endif
+//TICS +POR#021
     expected += "00000000  41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F     A B C D E F G H I J K L M N O  \n";
     EXPECT_EQ(expected, SerializeData(value, sizeof(value)));
 }
@@ -300,8 +340,18 @@ TEST(SerializationTest, SerializeUInt8PtrSixteenBytes)
 {
     const std::uint8_t value[] { 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50 };
     std::string expected = "\n";
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable : 4127) //TICS !POR#018 !POR#037 Expression is constant
+#endif
+//TICS +POR#021
     if (sizeof(std::size_t) == 8)
         expected += "00000000";
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default : 4127) //TICS !POR#018 !POR#037
+#endif
+//TICS +POR#021
     expected += "00000000  41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F 50  A B C D E F G H I J K L M N O P\n";
     EXPECT_EQ(expected, SerializeData(value, sizeof(value)));
 }
@@ -311,11 +361,31 @@ TEST(SerializationTest, SerializeUInt8PtrThirtyTwoBytesWithNonPrintables)
     const std::uint8_t value[] { 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50,
                                  0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20 };
     std::string expected = "\n";
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable : 4127) //TICS !POR#018 !POR#037 Expression is constant
+#endif
+//TICS +POR#021
     if (sizeof(std::size_t) == 8)
         expected += "00000000";
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default : 4127) //TICS !POR#018 !POR#037
+#endif
+//TICS +POR#021
     expected += "00000000  41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F 50  A B C D E F G H I J K L M N O P\n";
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable : 4127) //TICS !POR#018 !POR#037 Expression is constant
+#endif
+//TICS +POR#021
     if (sizeof(std::size_t) == 8)
         expected += "00000000";
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default : 4127) //TICS !POR#018 !POR#037
+#endif
+//TICS +POR#021
     expected += "00000010  11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20  . . . . . . . . . . . . . . .  \n";
     EXPECT_EQ(expected, SerializeData(value, sizeof(value)));
 }
@@ -334,11 +404,31 @@ TEST(SerializationTest, SerializeVectorThirtyTwoBytesWithNonPrintables)
         0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x20
     };
     std::string expected = "\n";
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable : 4127) //TICS !POR#018 !POR#037 Expression is constant
+#endif
+//TICS +POR#021
     if (sizeof(std::size_t) == 8)
         expected += "00000000";
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default : 4127) //TICS !POR#018 !POR#037
+#endif
+//TICS +POR#021
     expected += "00000000  41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F 50  A B C D E F G H I J K L M N O P\n";
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable : 4127) //TICS !POR#018 !POR#037 Expression is constant
+#endif
+//TICS +POR#021
     if (sizeof(std::size_t) == 8)
         expected += "00000000";
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default : 4127) //TICS !POR#018 !POR#037
+#endif
+//TICS +POR#021
     expected += "00000010  11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20  . . . . . . . . . . . . . . .  \n";
     EXPECT_EQ(expected, SerializeData(value));
 }
@@ -562,13 +652,15 @@ TEST(SerializationTest, SerializeBinaryLongDoubleLittleEndian)
     SerializeBinary(value, buffer, offset, utility::Endianness::LittleEndian);
     EXPECT_EQ(std::size_t {16}, offset);
     EXPECT_EQ(offset, buffer.size());
-#if defined(PLATFORM_LINUX) && !defined(PLATFORM_LINUX_RPI)
+//TICS -POR#021 Platform specific
+#if defined(PLATFORM_LINUX) && !defined(PLATFORM_LINUX_WRL)
     EXPECT_EQ(std::vector<std::uint8_t>({ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 
                                           0xFE, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }), buffer);
 #else
     EXPECT_EQ(std::vector<std::uint8_t>({ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE0, 0x3F, 
                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }), buffer);
 #endif
+//TICS +POR#021
 }
 
 TEST(SerializationTest, SerializeBinaryLongDoubleBigEndian)
@@ -579,6 +671,7 @@ TEST(SerializationTest, SerializeBinaryLongDoubleBigEndian)
     SerializeBinary(value, buffer, offset, utility::Endianness::BigEndian);
     EXPECT_EQ(std::size_t {16}, offset);
     EXPECT_EQ(offset, buffer.size());
+//TICS -POR#021 Platform specific
 #if defined(PLATFORM_LINUX) && !defined(PLATFORM_LINUX_RPI)
     EXPECT_EQ(std::vector<std::uint8_t>({ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3F, 0xFE, 
                                           0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }), buffer);
@@ -586,6 +679,7 @@ TEST(SerializationTest, SerializeBinaryLongDoubleBigEndian)
     EXPECT_EQ(std::vector<std::uint8_t>({ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
                                           0x3F, 0xE0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }), buffer);
 #endif
+//TICS +POR#021
 }
 
 TEST(SerializationTest, SerializeBinaryStringLittleEndian)
@@ -628,6 +722,11 @@ TEST(SerializationTest, SerializeBinaryWStringLittleEndian)
     EXPECT_EQ(offset, buffer.size());
     std::vector<std::uint8_t> expected = { 0x0C, 0x00, 0x00, 0x00 };
 
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable : 4127) //TICS !POR#018 !POR#037 Expression is constant
+#endif
+//TICS +POR#021
     if (sizeof(wchar_t) == 2)
     {
         expected.insert(expected.end(), { 0x48, 0x00, 0x65, 0x00, 0x6C, 0x00, 0x6C, 0x00, 
@@ -643,6 +742,11 @@ TEST(SerializationTest, SerializeBinaryWStringLittleEndian)
                                           0x72, 0x00, 0x00, 0x00, 0x6C, 0x00, 0x00, 0x00, 
                                           0x64, 0x00, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00 });
     }
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default : 4127) //TICS !POR#018 !POR#037
+#endif
+//TICS +POR#021
     EXPECT_EQ(expected, buffer);
 }
 
@@ -656,6 +760,11 @@ TEST(SerializationTest, SerializeBinaryWStringBigEndian)
     EXPECT_EQ(offset, buffer.size());
     std::vector<std::uint8_t> expected = { 0x00, 0x00, 0x00, 0x0C };
     
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable : 4127) //TICS !POR#018 !POR#037 Expression is constant
+#endif
+//TICS +POR#021
     if (sizeof(wchar_t) == 2)
     {
         expected.insert(expected.end(), { 0x00, 0x48, 0x00, 0x65, 0x00, 0x6C, 0x00, 0x6C, 
@@ -671,6 +780,11 @@ TEST(SerializationTest, SerializeBinaryWStringBigEndian)
                                           0x00, 0x00, 0x00, 0x72, 0x00, 0x00, 0x00, 0x6C, 
                                           0x00, 0x00, 0x00, 0x64, 0x00, 0x00, 0x00, 0x21 });
     }
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default : 4127) //TICS !POR#018 !POR#037
+#endif
+//TICS +POR#021
 
     EXPECT_EQ(expected, buffer);
 }
@@ -715,6 +829,11 @@ TEST(SerializationTest, SerializeBinaryWCharPtrLittleEndian)
     EXPECT_EQ(offset, buffer.size());
     std::vector<std::uint8_t> expected = { 0x0C, 0x00, 0x00, 0x00 };
 
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable : 4127) //TICS !POR#018 !POR#037 Expression is constant
+#endif
+//TICS +POR#021
     if (sizeof(wchar_t) == 2)
     {
         expected.insert(expected.end(), { 0x48, 0x00, 0x65, 0x00, 0x6C, 0x00, 0x6C, 0x00, 
@@ -730,6 +849,11 @@ TEST(SerializationTest, SerializeBinaryWCharPtrLittleEndian)
                                           0x72, 0x00, 0x00, 0x00, 0x6C, 0x00, 0x00, 0x00, 
                                           0x64, 0x00, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00 });
     }
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default : 4127) //TICS !POR#018 !POR#037
+#endif
+//TICS +POR#021
 
     EXPECT_EQ(expected, buffer);
 }
@@ -744,6 +868,11 @@ TEST(SerializationTest, SerializeBinaryWCharPtrBigEndian)
     EXPECT_EQ(offset, buffer.size());
     std::vector<std::uint8_t> expected = { 0x00, 0x00, 0x00, 0x0C };
 
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable : 4127) //TICS !POR#018 !POR#037 Expression is constant
+#endif
+//TICS +POR#021
     if (sizeof(wchar_t) == 2)
     {
         expected.insert(expected.end(), { 0x00, 0x48, 0x00, 0x65, 0x00, 0x6C, 0x00, 0x6C,
@@ -759,6 +888,11 @@ TEST(SerializationTest, SerializeBinaryWCharPtrBigEndian)
                                           0x00, 0x00, 0x00, 0x72, 0x00, 0x00, 0x00, 0x6C, 
                                           0x00, 0x00, 0x00, 0x64, 0x00, 0x00, 0x00, 0x21 });
     }
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default : 4127) //TICS !POR#018 !POR#037
+#endif
+//TICS +POR#021
 
     EXPECT_EQ(expected, buffer);
 }

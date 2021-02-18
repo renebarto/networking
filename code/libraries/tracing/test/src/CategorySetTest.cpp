@@ -85,7 +85,7 @@ TEST(CategorySetTest, Set)
     }
 }
 
-TEST(CategorySetTest, reset)
+TEST(CategorySetTest, Reset)
 {
     CategorySet<TraceCategory> set(0xFFFF);
     set.reset(TraceCategory::FunctionEnter);

@@ -6,57 +6,57 @@ namespace utility {
 
 TEST(TriBoolTest, Construct) {
     TriBool value;
-    EXPECT_EQ(TriBool::false_value, value.value);
+    EXPECT_EQ(TriBool::Value::False, value.m_value);
     EXPECT_FALSE(value.IsTrue());
     EXPECT_TRUE(value.IsFalse());
     EXPECT_FALSE(value.IsIndeterminate());
     EXPECT_FALSE(static_cast<bool>(value));
-    EXPECT_FALSE(indeterminate(value));
+    EXPECT_FALSE(value.IsIndeterminate());
 }
 
 TEST(TriBoolTest, ConstructBoolFalse) {
     TriBool value(false);
-    EXPECT_EQ(TriBool::false_value, value.value);
+    EXPECT_EQ(TriBool::Value::False, value.m_value);
     EXPECT_FALSE(value.IsTrue());
     EXPECT_TRUE(value.IsFalse());
     EXPECT_FALSE(value.IsIndeterminate());
     EXPECT_FALSE(static_cast<bool>(value));
-    EXPECT_FALSE(indeterminate(value));
+    EXPECT_FALSE(value.IsIndeterminate());
 }
 
 TEST(TriBoolTest, ConstructBoolTrue) {
     TriBool value(true);
-    EXPECT_EQ(TriBool::true_value, value.value);
+    EXPECT_EQ(TriBool::Value::True, value.m_value);
     EXPECT_TRUE(value.IsTrue());
     EXPECT_FALSE(value.IsFalse());
     EXPECT_FALSE(value.IsIndeterminate());
     EXPECT_TRUE(static_cast<bool>(value));
-    EXPECT_FALSE(indeterminate(value));
+    EXPECT_FALSE(value.IsIndeterminate());
 }
 
 TEST(TriBoolTest, ConstructIndeterminate) {
-    TriBool value(indeterminate);
-    EXPECT_EQ(TriBool::indeterminate_value, value.value);
+    TriBool value(TriBool::Value::Indeterminate);
+    EXPECT_EQ(TriBool::Value::Indeterminate, value.m_value);
     EXPECT_FALSE(value.IsTrue());
     EXPECT_FALSE(value.IsFalse());
     EXPECT_TRUE(value.IsIndeterminate());
     EXPECT_FALSE(static_cast<bool>(value));
-    EXPECT_TRUE(indeterminate(value));
+    EXPECT_TRUE(value.IsIndeterminate());
 }
 
 TEST(TriBoolTest, OperatorNot) {
     EXPECT_EQ(TriBool(true), !TriBool(false));
     EXPECT_EQ(TriBool(false), !TriBool(true));
-    EXPECT_TRUE((!TriBool(indeterminate)).IsIndeterminate());
+    EXPECT_TRUE((!TriBool(TriBool::Value::Indeterminate)).IsIndeterminate());
 }
 
 TEST(TriBoolTest, OperatorEquals) {
     TriBool falseValue(false);
     TriBool trueValue(true);
-    TriBool indeterminateValue(indeterminate);
+    TriBool indeterminateValue(TriBool::Value::Indeterminate);
     TriBool falseValue2(false);
     TriBool trueValue2(true);
-    TriBool indeterminateValue2(indeterminate);
+    TriBool indeterminateValue2(TriBool::Value::Indeterminate);
 
     EXPECT_TRUE(falseValue == falseValue2);
     EXPECT_TRUE(trueValue == trueValue2);
@@ -70,10 +70,10 @@ TEST(TriBoolTest, OperatorEquals) {
 TEST(TriBoolTest, OperatorNotEquals) {
     TriBool falseValue(false);
     TriBool trueValue(true);
-    TriBool indeterminateValue(indeterminate);
+    TriBool indeterminateValue(TriBool::Value::Indeterminate);
     TriBool falseValue2(false);
     TriBool trueValue2(true);
-    TriBool indeterminateValue2(indeterminate);
+    TriBool indeterminateValue2(TriBool::Value::Indeterminate);
 
     EXPECT_FALSE(falseValue != falseValue2);
     EXPECT_FALSE(trueValue != trueValue2);
@@ -87,10 +87,10 @@ TEST(TriBoolTest, OperatorNotEquals) {
 TEST(TriBoolTest, OperatorLogicalAnd) {
     TriBool falseValue(false);
     TriBool trueValue(true);
-    TriBool indeterminateValue(indeterminate);
+    TriBool indeterminateValue(TriBool::Value::Indeterminate);
     TriBool falseValue2(false);
     TriBool trueValue2(true);
-    TriBool indeterminateValue2(indeterminate);
+    TriBool indeterminateValue2(TriBool::Value::Indeterminate);
 
     EXPECT_FALSE(falseValue && falseValue2);
     EXPECT_FALSE(falseValue && trueValue2);
@@ -104,20 +104,25 @@ TEST(TriBoolTest, OperatorLogicalAnd) {
     EXPECT_FALSE(true && falseValue);
     EXPECT_FALSE(false && trueValue);
     EXPECT_TRUE(true && trueValue);
-    EXPECT_TRUE((indeterminateValue && indeterminateValue2).IsIndeterminate());
-    EXPECT_FALSE(falseValue && indeterminateValue);
-    EXPECT_TRUE((trueValue && indeterminateValue).IsIndeterminate());
-    EXPECT_FALSE(indeterminateValue && falseValue);
-    EXPECT_TRUE((indeterminateValue && trueValue).IsIndeterminate());
+    TriBool result = indeterminateValue && indeterminateValue2;
+    EXPECT_TRUE(result.IsIndeterminate());
+    result = falseValue && indeterminateValue;
+    EXPECT_FALSE(result);
+    result = trueValue && indeterminateValue;
+    EXPECT_TRUE(result.IsIndeterminate());
+    result = indeterminateValue && falseValue;
+    EXPECT_FALSE(result);
+    result = indeterminateValue && trueValue;
+    EXPECT_TRUE(result.IsIndeterminate());
 }
 
 TEST(TriBoolTest, OperatorLogicalOr) {
     TriBool falseValue(false);
     TriBool trueValue(true);
-    TriBool indeterminateValue(indeterminate);
+    TriBool indeterminateValue(TriBool::Value::Indeterminate);
     TriBool falseValue2(false);
     TriBool trueValue2(true);
-    TriBool indeterminateValue2(indeterminate);
+    TriBool indeterminateValue2(TriBool::Value::Indeterminate);
 
     EXPECT_FALSE(falseValue || falseValue2);
     EXPECT_TRUE(falseValue || trueValue2);
@@ -141,7 +146,7 @@ TEST(TriBoolTest, OperatorLogicalOr) {
 TEST(TriBoolTest, StreamingOutOperator) {
     TriBool falseValue(false);
     TriBool trueValue(true);
-    TriBool indeterminateValue(indeterminate);
+    TriBool indeterminateValue(TriBool::Value::Indeterminate);
     std::string falseString("false");
     std::string trueString("true");
     std::string indeterminateString("indeterminate");
@@ -157,7 +162,7 @@ TEST(TriBoolTest, StreamingOutOperatorIndeterminate) {
     std::ostringstream str;
     std::string indeterminateString("indeterminate");
 
-    str << indeterminate;
+    str << TriBool::Value::Indeterminate;
 
     EXPECT_EQ(indeterminateString, str.str());
 }
@@ -178,7 +183,7 @@ TEST(TriBoolTest, StreamingInOperator) {
 
     EXPECT_EQ(falseValue, falseValue2);
     EXPECT_EQ(trueValue, trueValue2);
-    EXPECT_TRUE(indeterminate(indeterminateValue2));
+    EXPECT_TRUE(indeterminateValue2.IsIndeterminate());
 }
 
 } // namespace utility

@@ -12,7 +12,7 @@ std::string FormatStandard(std::streamsize width, std::streamsize /*integralDigi
     std::ostringstream stream;
     valuePrint << std::setfill('0') << std::setprecision(width) << value;
     if (static_cast<size_t>(width) > valuePrint.str().length())
-        stream << std::string(width - valuePrint.str().length(), ' ');
+        stream << std::string(static_cast<size_t>(width) - valuePrint.str().length(), ' ');
     stream << valuePrint.str();
     return stream.str();
 }
@@ -23,7 +23,7 @@ std::string FormatFixed(std::streamsize width, std::streamsize integralDigits, s
     std::ostringstream stream;
     valuePrint << std::fixed << std::setfill('0') << std::setw(integralDigits + fractionalDigits + 1) << std::setprecision(fractionalDigits) << value;
     if (static_cast<size_t>(width) > valuePrint.str().length())
-        stream << std::string(width - valuePrint.str().length(), ' ');
+        stream << std::string(static_cast<size_t>(width) - valuePrint.str().length(), ' ');
     stream << valuePrint.str();
     return stream.str();
 }
@@ -34,7 +34,7 @@ std::string FormatScientific(std::streamsize width, std::streamsize integralDigi
     std::ostringstream stream;
     valuePrint << std::scientific << std::setfill('0') << std::setw(integralDigits + fractionalDigits + 1) << std::setprecision(fractionalDigits) << value;
     if (static_cast<size_t>(width) > valuePrint.str().length())
-        stream << std::string(width - valuePrint.str().length(), ' ');
+        stream << std::string(static_cast<size_t>(width) - valuePrint.str().length(), ' ');
     stream << valuePrint.str();
     return stream.str();
 }
@@ -192,6 +192,28 @@ TEST(FormatTest, FormatInvalidWidth)
     EXPECT_EQ(text, str);
     ASSERT_TRUE(HaveFormatError());
     EXPECT_EQ("Invalid width specified: a", GetFormatError());
+}
+
+TEST(FormatTest, FormatTooFewParameters)
+{
+    const std::string text = "123 ";
+    std::string str;
+    Format(str, "{0} {1}", 123);
+
+    EXPECT_EQ(text, str);
+    ASSERT_TRUE(HaveFormatError());
+    EXPECT_EQ("Invalid index specified: 1 should be between 0 and 0", GetFormatError());
+}
+
+TEST(FormatTest, FormatUnusedParameters)
+{
+    const std::string text = "123";
+    std::string str;
+    Format(str, "{0}", 123, 456);
+
+    EXPECT_EQ(text, str);
+    ASSERT_TRUE(HaveFormatError());
+    EXPECT_EQ("Not all parameters have been used. Parameters not used: 1", GetFormatError());
 }
 
 namespace {

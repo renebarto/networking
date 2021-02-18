@@ -1,6 +1,6 @@
 project(core-test
     VERSION ${MSI_NUMBER}
-    DESCRIPTION "Core Test"
+    DESCRIPTION "Core Library Test"
     LANGUAGES CXX)
 
 message(STATUS "\n**********************************************************************************\n")

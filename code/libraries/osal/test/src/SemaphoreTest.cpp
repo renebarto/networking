@@ -17,14 +17,15 @@
 
 #include <thread>
 #if defined(PLATFORM_WINDOWS)
-#pragma warning(disable: 4265)
-#pragma warning(disable: 4355)
+#pragma warning(disable: 4265) //TICS !POR#018 !POR#037
+#pragma warning(disable: 4355) //TICS !POR#018 !POR#037 Suppress compilation warnings for Windows only
 #endif
 #include <future>
 #if defined(PLATFORM_WINDOWS)
-#pragma warning(default: 4265)
-#pragma warning(default: 4355)
+#pragma warning(default: 4265) //TICS !POR#018 !POR#037
+#pragma warning(default: 4355) //TICS !POR#018 !POR#037 Suppress compilation warnings for Windows only
 #endif
+//TICS +POR#021
 
 namespace osal {
 

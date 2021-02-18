@@ -59,7 +59,6 @@ set(PROJECT_SOURCES
     src/ManualEventTest.cpp
     src/SemaphoreTest.cpp
     src/SignalTest.cpp
-    src/StringConversionTest.cpp
     src/ThreadTest.cpp
     src/TypeInfoTest.cpp
     )

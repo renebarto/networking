@@ -64,4 +64,3 @@ Deserialize(const std::string & text, EnumType & value)
 }
 
 } // namespace serialization
-

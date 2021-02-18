@@ -3,12 +3,18 @@
 #include <map>
 #include <sstream>
 
+//TICS -POR#021 Platform dependent
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_LINUX_RPI)
 #include  <pthread.h>
 #else
-#pragma warning(disable: 5039)
+#if _MSC_VER > 1900 // Versions after VS 2015
+#pragma warning(disable: 5039) //TICS !POR#018 !POR#037
+#endif
 #include <windows.h>
-#pragma warning(default: 5039)
+#if _MSC_VER > 1900 // Versions after VS 2015
+#pragma warning(default: 5039) //TICS !POR#018 !POR#037
+#endif
+//TICS +POR#021
 
 #undef min
 #endif
@@ -42,6 +48,7 @@ std::string GetThreadNameSelf()
     return stream.str();
 }
 
+//TICS -POR#021 Platform dependent
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_LINUX_RPI)
 
 static void SetThreadName(std::thread::native_handle_type nativeHandle, const std::thread::id & id, const std::string & name)
@@ -155,6 +162,9 @@ void SetThreadPrioritySelf(ThreadPriority priority)
         case ThreadPriority::REALTIME:
             sched.sched_priority = 99;
             break;
+        default:
+            // Do no change priority
+            break;
     }
 
     int result = pthread_setschedparam(pthread_self(), policy, &sched);
@@ -189,6 +199,9 @@ void SetThreadPriority(std::thread & thread, ThreadPriority priority)
             break;
         case ThreadPriority::REALTIME:
             sched.sched_priority = 99;
+            break;
+        default:
+            // Do no change priority
             break;
     }
 
@@ -374,5 +387,6 @@ void SetThreadPriority(std::thread & thread, ThreadPriority priority)
 #error Unsupported platform
 
 #endif
+//TICS +POR#021
 
 } // namespace osal

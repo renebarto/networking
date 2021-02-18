@@ -2,11 +2,18 @@
 
 #include <algorithm>
 #include <climits>
+#include <cctype>
 #include <cfloat>
 #include <cstring>
 #include <sstream>
-#include "osal/StringConversion.h"
 #include "utility/StringFunctions.h"
+
+//TICS -POR#021 Platform specific
+#if defined(PLATFORM_LINUX)
+#pragma GCC diagnostic ignored "-Wcast-align"
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif
+//TICS +POR#021
 
 namespace serialization {
 
@@ -152,9 +159,9 @@ bool Deserialize(const std::string & text, int32_t & value, int base /*= 10*/)
 
     long result = std::strtol(text.c_str(), nullptr, base);
     unsigned long result_ul = std::strtoul(text.c_str(), nullptr, base);
-    if (result < INT_MIN)
+    if (((result == LONG_MIN) || (result == LONG_MAX)) && (errno == ERANGE))
         return false;
-    if ((base == 10) && (result >= 0) && (result_ul > INT_MAX))
+    if ((base == 10) && ((result < INT_MIN) || (result > INT_MAX)))
         return false;
     if ((base != 10) && (result_ul > INT_MAX))
         value = static_cast<int32_t>(result_ul);
@@ -187,7 +194,7 @@ bool Deserialize(const std::string & text, int64_t & value, int base /*= 10*/)
     // For some strange reason stroull behaves incorrectly in some cases.
     long long result = std::strtoll(text.c_str(), nullptr, base);
     unsigned long long result_ull = std::strtoull(text.c_str(), nullptr, base);
-    if (result < LLONG_MIN)
+    if (((result == LLONG_MIN) || (result == LLONG_MAX)) && (errno == ERANGE))
         return false;
     if ((base == 10) && (result >= 0) && (result_ull > LLONG_MAX))
         return false;
@@ -241,7 +248,7 @@ bool Deserialize(const std::string & text, double & value)
 
 bool Deserialize(const std::string & text, std::wstring & value)
 {
-    value = osal::StringToWString(text);
+    value = utility::StringToWString(text);
     return true;
 }
 
@@ -362,16 +369,28 @@ bool DeserializeBinary(double & value, const std::vector<std::uint8_t> & buffer,
     return true;
 }
 
+template<int N>
+struct AlignedByteArray
+{
+//TICS -POR#021 Platform specific
+#if defined(PLATFORM_LINUX)
+    std::uint8_t __attribute__((aligned(4))) data[N];
+#else
+    std::uint8_t data[N];
+#endif
+//TICS +POR#021
+};
+
 bool DeserializeBinary(long double & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
 {
-    std::uint8_t data[16] {};
-    if (!Extract(buffer, offset, data, sizeof(data)))
+    AlignedByteArray<16> temp;
+    if (!Extract(buffer, offset, temp.data, sizeof(temp.data)))
         return false;
     if (endianness != utility::PlatformEndianness())
     {
-        std::reverse(std::begin(data), std::end(data));
+        std::reverse(std::begin(temp.data), std::end(temp.data));
     }
-    value = *reinterpret_cast<long double *>(data);
+    value = *reinterpret_cast<long double *>(temp.data);
     return true;
 }
 
@@ -399,6 +418,10 @@ bool DeserializeBinary(std::wstring & value, const std::vector<std::uint8_t> & b
         return false;
     for (uint32_t i = 0; i < length; ++i)
     {
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable : 4127) //TICS !POR#018 !POR#037 Expression is constant
+#endif
         if (sizeof(wchar_t) == 2)
         {
             std::uint16_t ch;
@@ -414,6 +437,10 @@ bool DeserializeBinary(std::wstring & value, const std::vector<std::uint8_t> & b
             value += static_cast<wchar_t>(ch);
         }
     }
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default : 4127) //TICS !POR#018 !POR#037
+#endif
     return true;
 }
 

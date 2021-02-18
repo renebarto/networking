@@ -1,6 +1,6 @@
 project(utility-test
     VERSION ${MSI_NUMBER}
-    DESCRIPTION "Utility Test"
+    DESCRIPTION "Utility Library Test"
     LANGUAGES CXX)
 
 message(STATUS "\n**********************************************************************************\n")

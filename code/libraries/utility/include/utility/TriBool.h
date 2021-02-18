@@ -5,52 +5,33 @@
 
 namespace utility {
 
-namespace internal {
-
-struct indeterminate_type
-{
-};
-
-} // namespace internal
-
-class TriBool;
-
-typedef bool (*indeterminate_keyword_t)(TriBool, internal::indeterminate_type);
-
-inline bool
-indeterminate(TriBool x,
-              internal::indeterminate_type dummy = internal::indeterminate_type());
-
 class TriBool
 {
 public:
-    enum value_t { false_value, true_value, indeterminate_value };
+    enum class Value { False, True, Indeterminate };
     TriBool() noexcept
-        : value(false_value)
+        : m_value(Value::False)
     {}
-    TriBool(bool initial_value) noexcept
-        : value(initial_value ? true_value : false_value)
+    TriBool(bool value) noexcept
+        : m_value(value ? Value::True : Value::False)
     {}
-    TriBool(indeterminate_keyword_t) noexcept
-        : value(indeterminate_value)
-    {}
-    TriBool(value_t initial_value) noexcept
-        : value(initial_value)
+    TriBool(Value value) noexcept
+        : m_value(value)
     {}
 
     bool IsTrue() const
     {
-        return value == true_value;
+        return m_value == Value::True;
     }
 
     bool IsFalse() const
     {
-        return value == false_value;
+        return m_value == Value::False;
     }
 
     bool IsIndeterminate() const
     {
-        return value == indeterminate_value;
+        return m_value == Value::Indeterminate;
     }
 
     explicit operator bool() const noexcept
@@ -58,21 +39,16 @@ public:
         return IsTrue();
     }
 
-    value_t value;
+    Value m_value;
 };
-
-inline bool indeterminate(TriBool x, internal::indeterminate_type)
-{
-    return x.IsIndeterminate();
-}
 
 inline TriBool operator!(TriBool x)
 {
-    return x.value == TriBool::false_value
+    return x.m_value == TriBool::Value::False
         ? TriBool(true)
-        : x.value == TriBool::true_value
+        : x.m_value == TriBool::Value::True
             ? TriBool(false)
-            : TriBool(indeterminate);
+            : TriBool(TriBool::Value::Indeterminate);
 }
 
 inline TriBool operator &&(TriBool x, TriBool y)
@@ -82,7 +58,7 @@ inline TriBool operator &&(TriBool x, TriBool y)
     else if (static_cast<bool>(x) && static_cast<bool>(y))
         return true;
     else
-        return indeterminate;
+        return TriBool::Value::Indeterminate;
 }
 
 inline TriBool operator &&(TriBool x, bool y)
@@ -95,16 +71,6 @@ inline TriBool operator &&(bool x, TriBool y)
     return x ? y : TriBool(false);
 }
 
-inline TriBool operator &&(indeterminate_keyword_t, TriBool x)
-{ 
-    return !x ? TriBool(false) : TriBool(indeterminate);
-}
-
-inline TriBool operator &&(TriBool x, indeterminate_keyword_t)
-{
-    return !x ? TriBool(false) : TriBool(indeterminate);
-}
-
 inline TriBool operator ||(TriBool x, TriBool y)
 {
     if (static_cast<bool>(!x) && static_cast<bool>(!y))
@@ -112,7 +78,7 @@ inline TriBool operator ||(TriBool x, TriBool y)
     else if (static_cast<bool>(x) || static_cast<bool>(y))
         return true;
     else
-        return indeterminate;
+        return TriBool::Value::Indeterminate;
 }
 
 inline TriBool operator ||(TriBool x, bool y)
@@ -125,15 +91,10 @@ inline TriBool operator ||(bool x, TriBool y)
     return x ? TriBool(true) : y;
 }
 
-inline TriBool operator ||(indeterminate_keyword_t, TriBool x)
-{
-    return x ? TriBool(true) : TriBool(indeterminate);
-}
-
 inline TriBool operator ==(TriBool x, TriBool y)
 {
-  if (indeterminate(x) || indeterminate(y))
-    return indeterminate;
+  if (x.IsIndeterminate() || y.IsIndeterminate())
+    return TriBool::Value::Indeterminate;
   else
     return (x && y) || (!x && !y);
 }
@@ -148,20 +109,10 @@ inline TriBool operator ==(bool x, TriBool y)
     return TriBool(x) == y;
 }
 
-inline TriBool operator ==(indeterminate_keyword_t, TriBool x)
-{
-    return TriBool(indeterminate) == x;
-}
-
-inline TriBool operator ==(TriBool x, indeterminate_keyword_t)
-{
-    return TriBool(indeterminate) == x;
-}
-
 inline TriBool operator !=(TriBool x, TriBool y)
 {
-  if (indeterminate(x) || indeterminate(y))
-    return indeterminate;
+  if (x.IsIndeterminate() || y.IsIndeterminate())
+    return TriBool::Value::Indeterminate;
   else
     return !((x && y) || (!x && !y));
 }
@@ -176,17 +127,8 @@ inline TriBool operator !=(bool x, TriBool y)
     return TriBool(x) != y;
 }
 
-inline TriBool operator !=(indeterminate_keyword_t, TriBool x)
-{
-    return TriBool(indeterminate) != x;
-}
-
-inline TriBool operator !=(TriBool x, indeterminate_keyword_t)
-{
-    return x != TriBool(indeterminate);
-}
-
-template<typename T> std::basic_string<T> default_false_name();
+template<typename T>
+std::basic_string<T> default_false_name();
 
 template<>
 inline std::basic_string<char> default_false_name<char>()
@@ -196,7 +138,8 @@ template<>
 inline std::basic_string<wchar_t> default_false_name<wchar_t>()
 { return L"false"; }
 
-template<typename T> std::basic_string<T> default_true_name();
+template<typename T>
+std::basic_string<T> default_true_name();
 
 template<>
 inline std::basic_string<char> default_true_name<char>()
@@ -206,21 +149,21 @@ template<>
 inline std::basic_string<wchar_t> default_true_name<wchar_t>()
 { return L"true"; }
 
-template<typename T> std::basic_string<T> get_default_indeterminate_name();
+template<typename T> std::basic_string<T> default_indeterminate_name();
 
 template<>
-inline std::basic_string<char> get_default_indeterminate_name<char>()
+inline std::basic_string<char> default_indeterminate_name<char>()
 { return "indeterminate"; }
 
 template<>
-inline std::basic_string<wchar_t> get_default_indeterminate_name<wchar_t>()
+inline std::basic_string<wchar_t> default_indeterminate_name<wchar_t>()
 { return L"indeterminate"; }
 
 template<typename CharT, typename Traits>
 inline std::basic_ostream<CharT, Traits> &
-operator<<(std::basic_ostream<CharT, Traits> & out, TriBool x)
+operator << (std::basic_ostream<CharT, Traits> & out, TriBool x)
 {
-    if (!indeterminate(x))
+    if (!x.IsIndeterminate())
     {
         if (static_cast<bool>(x))
             out << default_true_name<CharT>();
@@ -229,81 +172,76 @@ operator<<(std::basic_ostream<CharT, Traits> & out, TriBool x)
     }
     else
     {
-        out << get_default_indeterminate_name<CharT>();
+        out << default_indeterminate_name<CharT>();
     }
     return out;
 }
 
 template<typename CharT, typename Traits>
-inline std::basic_ostream<CharT, Traits> &
-operator<<(std::basic_ostream<CharT, Traits> & out, 
-           bool (*)(TriBool, internal::indeterminate_type))
-{ 
-    return out << TriBool(indeterminate);
-} 
-
-template<typename CharT, typename Traits>
 inline std::basic_istream<CharT, Traits> &
-operator>>(std::basic_istream<CharT, Traits> & in, TriBool & x)
+operator >> (std::basic_istream<CharT, Traits> & in, TriBool & x)
 {
     typename std::basic_istream<CharT, Traits>::sentry cerberus(in);
-    if (cerberus) {
+    if (cerberus)
+    {
         typedef std::basic_string<CharT> string_type;
 
-        string_type falsename = default_false_name<CharT>();
-        string_type truename = default_true_name<CharT>();
-        string_type othername = get_default_indeterminate_name<CharT>();
+        string_type falseName = default_false_name<CharT>();
+        string_type trueName = default_true_name<CharT>();
+        string_type indeterminateName = default_indeterminate_name<CharT>();
 
         typename string_type::size_type pos = 0;
-        bool falsename_ok = true, truename_ok = true, othername_ok = true;
+        bool falseNameOk = true;
+        bool trueNameOk = true;
+        bool indeterminateNameOk = true;
 
         // Modeled after the code from Library DR 17
-        while ((falsename_ok && pos < falsename.size()) || 
-               (truename_ok && pos < truename.size()) ||
-               (othername_ok && pos < othername.size()))
+        while ((falseNameOk && pos < falseName.size()) || 
+               (trueNameOk && pos < trueName.size()) ||
+               (indeterminateNameOk && pos < indeterminateName.size()))
         {
             typename Traits::int_type c = in.get();
             if (c == Traits::eof())
                 return in;
 
             bool matched = false;
-            if (falsename_ok && pos < falsename.size())
+            if (falseNameOk && pos < falseName.size())
             {
-                if (Traits::eq(Traits::to_char_type(c), falsename[pos]))
+                if (Traits::eq(Traits::to_char_type(c), falseName[pos]))
                     matched = true;
                 else
-                    falsename_ok = false;
+                    falseNameOk = false;
             }
 
-            if (truename_ok && pos < truename.size())
+            if (trueNameOk && pos < trueName.size())
             {
-                if (Traits::eq(Traits::to_char_type(c), truename[pos]))
+                if (Traits::eq(Traits::to_char_type(c), trueName[pos]))
                     matched = true;
                 else
-                    truename_ok = false;
+                    trueNameOk = false;
             }
 
-            if (othername_ok && pos < othername.size())
+            if (indeterminateNameOk && pos < indeterminateName.size())
             {
-                if (Traits::eq(Traits::to_char_type(c), othername[pos]))
+                if (Traits::eq(Traits::to_char_type(c), indeterminateName[pos]))
                     matched = true;
                 else
-                    othername_ok = false;
+                    indeterminateNameOk = false;
             }
 
             if (matched) { ++pos; }
-            if (pos > falsename.size()) falsename_ok = false;
-            if (pos > truename.size())  truename_ok = false;
-            if (pos > othername.size()) othername_ok = false;
+            if (pos > falseName.size()) falseNameOk = false;
+            if (pos > trueName.size())  trueNameOk = false;
+            if (pos > indeterminateName.size()) indeterminateNameOk = false;
         }
 
         if (pos == 0)
             in.setstate(std::ios_base::failbit);
         else
         {
-            if (falsename_ok)      x = false;
-            else if (truename_ok)  x = true;
-            else if (othername_ok) x = indeterminate;
+            if (falseNameOk)      x = false;
+            else if (trueNameOk)  x = true;
+            else if (indeterminateNameOk) x = TriBool::Value::Indeterminate;
             else in.setstate(std::ios_base::failbit);
         }
     }

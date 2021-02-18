@@ -1,6 +1,6 @@
 project(core
     VERSION ${MSI_NUMBER}
-    DESCRIPTION "Core funtionality"
+    DESCRIPTION "Core library"
     LANGUAGES CXX)
 
 message(STATUS "\n**********************************************************************************\n")
@@ -39,7 +39,7 @@ set(PROJECT_LINK_OPTIONS
     )
 
 set(PROJECT_DEPENDENCIES
-    osal
+    utility
     tracing
     )
 

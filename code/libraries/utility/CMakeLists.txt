@@ -1,6 +1,6 @@
 project(utility
     VERSION ${MSI_NUMBER}
-    DESCRIPTION "Utility classes"
+    DESCRIPTION "Utility library"
     LANGUAGES CXX)
 
 message(STATUS "\n**********************************************************************************\n")

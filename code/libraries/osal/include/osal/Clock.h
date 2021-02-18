@@ -22,17 +22,16 @@ public:
 
     static void
     SetOffset(
-        std::chrono::nanoseconds offset);
-
-    static bool
-    SetCurrentTime(
-        const EpochTime & newTime);
+        std::chrono::microseconds offset);
 
     EpochTime
     CurrentTime() const;       // typically used by logging, tracing, ...
 
     EpochTime
     EtxTime() const;           // typically used by SW if absolute time is not important
+
+    std::chrono::microseconds
+    UnixTime() const;           // typically used by logging
 
     static bool
     Sleep(

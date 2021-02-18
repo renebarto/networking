@@ -2,9 +2,7 @@
 
 #include "GoogleTest.h"
 
-#include "tracing/Tracing.h"
-
-namespace utility {
+namespace {
 
 enum class TestBool
 {
@@ -12,15 +10,15 @@ enum class TestBool
     False
 };
 
-} // namespace utility
+} // namespace anonymous
 
 namespace serialization {
 
 template<>
-const utility::BidirectionalMap<utility::TestBool, std::string> EnumSerializationMap<utility::TestBool>::ConversionMap = 
+const utility::BidirectionalMap<TestBool, std::string> EnumSerializationMap<TestBool>::ConversionMap = 
 {
-    { utility::TestBool::True, "True"},
-    { utility::TestBool::False, "False"},
+    { TestBool::True, "True"},
+    { TestBool::False, "False"},
 };
 
 } // namespace serialization

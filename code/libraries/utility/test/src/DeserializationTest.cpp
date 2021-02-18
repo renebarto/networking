@@ -56,13 +56,14 @@ TEST(DeserializationTest, DeserializeInt16)
     EXPECT_TRUE(Deserialize("12345", actual));
     EXPECT_EQ(expected, actual);
 
+//TICS -POR#021 We suppress warnings for Windows only
 #if defined(PLATFORM_WINDOWS)
-    #pragma warning(push)
-    #pragma warning(disable : 4309)
+    #pragma warning(disable : 4309) //TICS !POR#018 !POR#037 truncation of constant value
 #endif
     expected = static_cast<int16_t>(0xabcd);
+//TICS -POR#021 We suppress warnings for Windows only
 #if defined(PLATFORM_WINDOWS)
-    #pragma warning(pop)
+    #pragma warning(default : 4309) //TICS !POR#018 !POR#037
 #endif
     EXPECT_TRUE(Deserialize("aBcD", actual, 16));
     EXPECT_EQ(expected, actual);
@@ -93,8 +94,12 @@ TEST(DeserializationTest, DeserializeInt32)
     EXPECT_TRUE(Deserialize("12345678", actual));
     EXPECT_EQ(expected, actual);
 
-    expected = (int32_t) 0xabcdefef;
-    EXPECT_TRUE(Deserialize("aBcDEfeF", actual, 16));
+    expected = static_cast<int32_t>(0x7bcdefef);
+    EXPECT_TRUE(Deserialize("7BcDEfeF", actual, 16));
+    EXPECT_EQ(expected, actual);
+
+    expected = 0;
+    EXPECT_FALSE(Deserialize("aBcDEfeF", actual, 16));
     EXPECT_EQ(expected, actual);
 
     EXPECT_FALSE(Deserialize("xyz", actual));
@@ -123,8 +128,12 @@ TEST(DeserializationTest, DeserializeInt64)
     EXPECT_TRUE(Deserialize("987654321", actual));
     EXPECT_EQ(expected, actual);
 
-    expected = 0xfedcba9876543210;
-    EXPECT_TRUE(Deserialize("fEdCbA9876543210", actual, 16));
+    expected = 0x7edcba9876543210;
+    EXPECT_TRUE(Deserialize("7EdCbA9876543210", actual, 16));
+    EXPECT_EQ(expected, actual);
+
+    expected = 0;
+    EXPECT_FALSE(Deserialize("fEdCbA9876543210", actual, 16));
     EXPECT_EQ(expected, actual);
 
     EXPECT_FALSE(Deserialize("xyz", actual));
@@ -151,11 +160,11 @@ TEST(DeserializationTest, DeserializeFloat)
     float expected = 1002;
     float actual {};
     EXPECT_TRUE(Deserialize("1.002E+03", actual));
-    EXPECT_EQ(expected, actual);
+    EXPECT_NEAR(expected, actual, 0.0F);
 
     expected = 5.0E-37F;
     EXPECT_TRUE(Deserialize("5e-37", actual));
-    EXPECT_EQ(expected, actual);
+    EXPECT_NEAR(expected, actual, 0.0F);
 
     EXPECT_FALSE(Deserialize("xyz", actual));
 }
@@ -165,11 +174,11 @@ TEST(DeserializationTest, DeserializeDouble)
     double expected = 1000002;
     double actual {};
     EXPECT_TRUE(Deserialize("1.000002E+06", actual));
-    EXPECT_EQ(expected, actual);
+    EXPECT_NEAR(expected, actual, 0.0);
 
     expected = 1e-200;
     EXPECT_TRUE(Deserialize("1e-200", actual));
-    EXPECT_EQ(expected, actual);
+    EXPECT_NEAR(expected, actual, 0.0);
 
     EXPECT_FALSE(Deserialize("xyz", actual));
 }
@@ -350,7 +359,7 @@ TEST(DeserializationTest, DeserializeBinaryFloatLittleEndian)
     std::size_t offset = 0;
     EXPECT_TRUE(DeserializeBinary(value, buffer, offset, utility::Endianness::LittleEndian));
     EXPECT_EQ(offset, buffer.size());
-    EXPECT_EQ(0.5F, value);
+    EXPECT_NEAR(0.5F, value, 0.0F);
 }
 
 TEST(DeserializationTest, DeserializeBinaryFloatBigEndian)
@@ -360,7 +369,7 @@ TEST(DeserializationTest, DeserializeBinaryFloatBigEndian)
     std::size_t offset = 0;
     EXPECT_TRUE(DeserializeBinary(value, buffer, offset, utility::Endianness::BigEndian));
     EXPECT_EQ(offset, buffer.size());
-    EXPECT_EQ(0.5F, value);
+    EXPECT_NEAR(0.5F, value, 0.0F);
 }
 
 TEST(DeserializationTest, DeserializeBinaryDoubleLittleEndian)
@@ -370,7 +379,7 @@ TEST(DeserializationTest, DeserializeBinaryDoubleLittleEndian)
     std::size_t offset = 0;
     EXPECT_TRUE(DeserializeBinary(value, buffer, offset, utility::Endianness::LittleEndian));
     EXPECT_EQ(offset, buffer.size());
-    EXPECT_EQ(0.5, value);
+    EXPECT_NEAR(0.5, value, 0.0);
 }
 
 TEST(DeserializationTest, DeserializeBinaryDoubleBigEndian)
@@ -380,30 +389,41 @@ TEST(DeserializationTest, DeserializeBinaryDoubleBigEndian)
     std::size_t offset = 0;
     EXPECT_TRUE(DeserializeBinary(value, buffer, offset, utility::Endianness::BigEndian));
     EXPECT_EQ(offset, buffer.size());
-    EXPECT_EQ(0.5, value);
+    EXPECT_NEAR(0.5, value, 0.0);
 }
 
 TEST(DeserializationTest, DeserializeBinaryLongDoubleLittleEndian)
 {
     long double value {};
     std::vector<std::uint8_t> buffer;
-#if defined(PLATFORM_LINUX) && !defined(PLATFORM_LINUX_RPI)
+//TICS -POR#021 Platform specific
+#if defined(PLATFORM_LINUX) && !defined(PLATFORM_LINUX_WRL)
     buffer = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 
                0xFE, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 #else
     buffer = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE0, 0x3F, 
                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 #endif
+//TICS +POR#021
     std::size_t offset = 0;
     EXPECT_TRUE(DeserializeBinary(value, buffer, offset, utility::Endianness::LittleEndian));
     EXPECT_EQ(offset, buffer.size());
-    EXPECT_EQ(0.5L, value);
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS) //TICS !POR#018 !POR#037 conversion from 'long double' to 'double', possible loss of data
+#pragma warning(disable: 4244)
+#endif
+    EXPECT_NEAR(0.5L, value, 0.0L);
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS) //TICS !POR#018 !POR#037
+#pragma warning(default: 4244)
+#endif
 }
 
 TEST(DeserializationTest, DeserializeBinaryLongDoubleBigEndian)
 {
     long double value {};
     std::vector<std::uint8_t> buffer;
+//TICS -POR#021 Platform specific
 #if defined(PLATFORM_LINUX) && !defined(PLATFORM_LINUX_RPI)
     buffer = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3F, 0xFE, 
                0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -411,10 +431,20 @@ TEST(DeserializationTest, DeserializeBinaryLongDoubleBigEndian)
     buffer = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
                0x3F, 0xE0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 #endif
+//TICS +POR#021
     std::size_t offset = 0;
     EXPECT_TRUE(DeserializeBinary(value, buffer, offset, utility::Endianness::BigEndian));
     EXPECT_EQ(offset, buffer.size());
-    EXPECT_EQ(0.5L, value);
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable: 4244) //TICS !POR#018 !POR#037 conversion from 'long double' to 'double', possible loss of data
+#endif
+    EXPECT_NEAR(0.5L, value, 0.0L);
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default: 4244) //TICS !POR#018 !POR#037
+#endif
+//TICS +POR#021
 }
 
 TEST(DeserializationTest, DeserializeBinaryStringLittleEndian)
@@ -449,6 +479,11 @@ TEST(DeserializationTest, DeserializeBinaryWStringLittleEndian)
     std::wstring value {};
     std::vector<std::uint8_t> buffer = { 0x0C, 0x00, 0x00, 0x00 };
 
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable : 4127) //TICS !POR#018 !POR#037 Expression is constant
+#endif
+//TICS +POR#021
     if (sizeof(wchar_t) == 2)
     {
         buffer.insert(buffer.end(), { 0x48, 0x00, 0x65, 0x00, 0x6C, 0x00, 0x6C, 0x00, 
@@ -464,6 +499,11 @@ TEST(DeserializationTest, DeserializeBinaryWStringLittleEndian)
                                       0x72, 0x00, 0x00, 0x00, 0x6C, 0x00, 0x00, 0x00, 
                                       0x64, 0x00, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00 });
     }
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default : 4127) //TICS !POR#018 !POR#037
+#endif
+//TICS +POR#021
 
     std::size_t offset = 0;
     EXPECT_TRUE(DeserializeBinary(value, buffer, offset, utility::Endianness::LittleEndian));
@@ -476,6 +516,11 @@ TEST(DeserializationTest, DeserializeBinaryWStringBigEndian)
     std::wstring value {};
     std::vector<std::uint8_t> buffer = { 0x00, 0x00, 0x00, 0x0C };
 
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(disable : 4127) //TICS !POR#018 !POR#037 Expression is constant
+#endif
+//TICS +POR#021
     if (sizeof(wchar_t) == 2)
     {
         buffer.insert(buffer.end(), { 0x00, 0x48, 0x00, 0x65, 0x00, 0x6C, 0x00, 0x6C,
@@ -491,6 +536,11 @@ TEST(DeserializationTest, DeserializeBinaryWStringBigEndian)
                                       0x00, 0x00, 0x00, 0x72, 0x00, 0x00, 0x00, 0x6C, 
                                       0x00, 0x00, 0x00, 0x64, 0x00, 0x00, 0x00, 0x21 });
     }
+//TICS -POR#021 We suppress warnings for Windows only
+#if defined(PLATFORM_WINDOWS)
+#pragma warning(default : 4127) //TICS !POR#018 !POR#037
+#endif
+//TICS +POR#021
 
     std::size_t offset = 0;
     EXPECT_TRUE(DeserializeBinary(value, buffer, offset, utility::Endianness::BigEndian));

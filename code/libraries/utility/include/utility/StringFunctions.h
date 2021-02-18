@@ -5,6 +5,9 @@
 
 namespace utility {
 
+std::wstring StringToWString(const std::string & value);
+std::string WStringToString(const std::wstring & value);
+
 std::string Align(const std::string & text, int width = 0);
 
 std::string Trim(const std::string & value, const std::string & stripChars);

@@ -2,12 +2,18 @@
 
 #include <algorithm>
 #include <bitset>
+#include <cctype>
 #include <cstring>
 #include <iomanip>
 #include <sstream>
-#include "osal/StringConversion.h"
-#include "utility/Assert.h"
+#include "utility/StringFunctions.h"
 #include "utility/TypeCast.h"
+
+//TICS -POR#021 Platform specific
+#if defined(PLATFORM_LINUX)
+#pragma GCC diagnostic ignored "-Wstrict-aliasing" //TICS !POR#018 !POR#037
+#endif
+//TICS +POR#021
 
 namespace serialization {
 
@@ -44,7 +50,9 @@ std::string Serialize(int8_t value, int width, int base)
             }
             break;
         default:
-            ASSERT(false);
+            {
+                throw std::logic_error("Invalid base specified: " + std::to_string(base));
+            }
     }
     return utility::Align(stream.str(), width);
 }
@@ -77,7 +85,9 @@ std::string Serialize(uint8_t value, int width, int base)
             }
             break;
         default:
-            ASSERT(false);
+            {
+                throw std::logic_error("Invalid base specified: " + std::to_string(base));
+            }
     }
     return utility::Align(stream.str(), width);
 }
@@ -110,7 +120,9 @@ std::string Serialize(int16_t value, int width, int base)
             }
             break;
         default:
-            ASSERT(false);
+            {
+                throw std::logic_error("Invalid base specified: " + std::to_string(base));
+            }
     }
     return utility::Align(stream.str(), width);
 }
@@ -143,7 +155,9 @@ std::string Serialize(uint16_t value, int width, int base)
             }
             break;
         default:
-            ASSERT(false);
+            {
+                throw std::logic_error("Invalid base specified: " + std::to_string(base));
+            }
     }
     return utility::Align(stream.str(), width);
 }
@@ -176,7 +190,9 @@ std::string Serialize(int32_t value, int width, int base)
             }
             break;
         default:
-            ASSERT(false);
+            {
+                throw std::logic_error("Invalid base specified: " + std::to_string(base));
+            }
     }
     return utility::Align(stream.str(), width);
 }
@@ -209,7 +225,9 @@ std::string Serialize(uint32_t value, int width, int base)
             }
             break;
         default:
-            ASSERT(false);
+            {
+                throw std::logic_error("Invalid base specified: " + std::to_string(base));
+            }
     }
     return utility::Align(stream.str(), width);
 }
@@ -242,7 +260,9 @@ std::string Serialize(int64_t value, int width, int base)
             }
             break;
         default:
-            ASSERT(false);
+            {
+                throw std::logic_error("Invalid base specified: " + std::to_string(base));
+            }
     }
     return utility::Align(stream.str(), width);
 }
@@ -275,7 +295,9 @@ std::string Serialize(uint64_t value, int width, int base)
             }
             break;
         default:
-            ASSERT(false);
+            {
+                throw std::logic_error("Invalid base specified: " + std::to_string(base));
+            }
     }
     return utility::Align(stream.str(), width);
 }
@@ -298,6 +320,10 @@ std::string Serialize(float value, int width, int precision, FloatingPointRepres
             stream.unsetf(std::ios_base::floatfield);
             stream << std::setfill('0') << std::setprecision(precision) << value;
             break;
+        default:
+            {
+                throw std::logic_error("Invalid representation specified: " + std::to_string(static_cast<int>(representation)));
+            }
     }
 
     return utility::Align(stream.str(), width);
@@ -321,6 +347,10 @@ std::string Serialize(double value, int width, int precision, FloatingPointRepre
             stream.unsetf(std::ios_base::floatfield);
             stream << std::setfill('0') << std::setprecision(precision) << value;
             break;
+        default:
+            {
+                throw std::logic_error("Invalid representation specified: " + std::to_string(static_cast<int>(representation)));
+            }
     }
 
     return utility::Align(stream.str(), width);
@@ -343,7 +373,7 @@ std::string Serialize(const std::wstring & value, int width, bool quote)
 {
     std::ostringstream stream;
 
-    stream << Serialize(osal::WStringToString(value), width, quote);
+    stream << Serialize(utility::WStringToString(value), width, quote);
 
     return utility::Align(stream.str(), width);
 }
@@ -543,7 +573,8 @@ void SerializeBinary(long double value, std::vector<std::uint8_t> & buffer, std:
     {
         std::reverse(std::begin(convertedValue), std::end(convertedValue));
     }
-#if defined(PLATFORM_LINUX) && !defined(PLATFORM_LINUX_RPI)
+//TICS -POR#021 Platform specific
+#if defined(PLATFORM_LINUX) && !defined(PLATFORM_LINUX_WRL)
     // For Linux (Debian etc.) long double is implemented as 80 bit floating point, but serialized to 128 bit, with 6 bytes of garbage at the end
     // (or begin for Big Endian). So we clear these 6 bytes.
     if (endianness == utility::Endianness::LittleEndian)
@@ -555,6 +586,7 @@ void SerializeBinary(long double value, std::vector<std::uint8_t> & buffer, std:
         std::fill_n(std::begin(convertedValue), 6, 0);
     }     
 #endif
+//TICS +POR#021
     
     const std::uint8_t * data = convertedValue;
     AppendOrReplace(buffer, offset, data, sizeof(convertedValue));

@@ -43,6 +43,7 @@ static FileDescriptor DetermineHandle(std::ostream * stream)
     return InvalidHandle;
 }
 
+//TICS -POR#021 Platform dependent
 #if defined(PLATFORM_LINUX)
 static std::map<ConsoleColor, const char *> s_colorLookup {
     { ConsoleColor::Black, "0" },
@@ -62,9 +63,14 @@ static const char * GetAnsiColorCode(ConsoleColor color)
     return "";
 }
 #else
-#include <consoleapi2.h>
+#if _MSC_VER > 1900 // Versions after VS 2015
+#pragma warning(disable: 5039) //TICS !POR#018 !POR#037
+#endif
+#include <windows.h>
+#if _MSC_VER > 1900 // Versions after VS 2015
+#pragma warning(default: 5039) //TICS !POR#018 !POR#037
+#endif
 #include <processenv.h>
-#include <winbase.h>
 
 static std::map<ConsoleColor, int> s_colorLookup {
     { ConsoleColor::Black, 0 },
@@ -84,6 +90,7 @@ static std::uint16_t GetColorCode(ConsoleColor color)
     return 0;
 }
 #endif
+//TICS +POR#021
 
 Console::Console(int handle)
     : m_handle(handle)
@@ -117,6 +124,7 @@ void Console::SetTerminalColor(ConsoleColor foregroundColor, ConsoleColor backgr
     if (!ShouldUseColor())
         return;
     m_stream->flush();
+//TICS -POR#021 Platform dependent
 #if defined(PLATFORM_WINDOWS)
     if (m_handle != -1)
     {
@@ -166,6 +174,7 @@ void Console::SetTerminalColor(ConsoleColor foregroundColor, ConsoleColor backgr
     if (m_stream)
         *m_stream << command;
 #endif
+//TICS +POR#021
     m_currentForegroundColor = foregroundColor;
     m_currentBackgroundColor = backgroundColor;
 }
@@ -183,6 +192,7 @@ bool Console::ShouldUseColor() const
         return false;
     if (!IsTTY())
         return false;
+//TICS -POR#021 Platform dependent
 #if defined(PLATFORM_WINDOWS)
     return true;
 #else
@@ -195,6 +205,7 @@ bool Console::ShouldUseColor() const
         || (term == "linux") || (term == "cygwin");
     return terminalSupportsColor;
 #endif
+//TICS +POR#021
 }
 
 bool Console::ForceUseColor() const

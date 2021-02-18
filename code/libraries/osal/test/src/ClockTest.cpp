@@ -1,7 +1,8 @@
 #include "GoogleTest.h"
 
 #include <ctime>
-
+#include <thread>
+#include <vector>
 #include "osal/Clock.h"
 
 namespace osal {
@@ -89,7 +90,7 @@ TEST_F(ClockTest, WhenOffsetSetWithSpecifiedTimeProviderReturningZeroReturnsOffs
     Clock clock;
     const auto offset = std::chrono::nanoseconds(1001001000);
     clock.SetTimeProvider(std::bind(&ClockTest::TimeProviderZero, this));
-    clock.SetOffset(offset);
+    clock.SetOffset(std::chrono::duration_cast<std::chrono::microseconds>(offset));
     EXPECT_EQ(offset, clock.CurrentTime());
 }
 
@@ -112,17 +113,71 @@ TEST_F(ClockTest, ToStringFor2020TimeReturnsCorrectDateTime)
     EXPECT_EQ(EpochDateTime, Clock::ToString(TimeProviderYear2020()));
 }
 
-TEST_F(ClockTest, SleepFor5SecWhenTimeProviderReturningZero)
+TEST_F(ClockTest, SleepFor1SecWhenTimeProviderReturningZero)
 {
     Clock clock;
     auto timeInSecondsBefore = clock.CurrentTime();
-    std::int64_t sleepTimeSeconds = 5;
+    std::int64_t sleepTimeSeconds = 1;
     Clock::Sleep(std::chrono::seconds(sleepTimeSeconds));
     auto timeInSecondsAfter = clock.CurrentTime();
     auto timeInMilliSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(timeInSecondsAfter - timeInSecondsBefore);
     std::cout << timeInMilliSeconds.count() << std::endl;
     auto timeInSeconds = std::chrono::duration_cast<std::chrono::seconds>(timeInSecondsAfter - timeInSecondsBefore);
     EXPECT_EQ(sleepTimeSeconds, timeInSeconds.count());
+}
+
+TEST_F(ClockTest, UnixTimeWithTimeProviderReturningZeroReturnsZero)
+{
+    Clock clock;
+    clock.SetTimeProvider(std::bind(&ClockTest::TimeProviderZero, this));
+    clock.SetOffset(std::chrono::microseconds {0});
+    EXPECT_EQ(std::chrono::microseconds {0}, clock.UnixTime());
+}
+
+TEST_F(ClockTest, UnixTimeWithNoTimeProviderReturnsNonZero)
+{
+    Clock clock;
+    EXPECT_NE(std::chrono::microseconds {0}, clock.UnixTime());
+}
+
+void ToStringThreadFunc(int /*threadId*/)
+{
+    for (int i = 0; i < 10000; ++i)
+    {
+        std::string timeString = Clock().ToString();
+        // std::cout << threadId << ": " << timeString << std::endl;
+    }
+}
+
+TEST_F(ClockTest, ParallelToString)
+{
+    const std::size_t numThreads = 20;
+    std::vector<std::thread> threads;
+    for (std::size_t i = 0; i < numThreads; ++i)
+        threads.push_back(std::thread(ToStringThreadFunc, i));
+    for (std::size_t i = 0; i < numThreads; ++i)
+        threads[i].join();
+}
+
+void UnixTimeThreadFunc(int /*threadId*/)
+{
+    std::int64_t dummy = 0;
+    for (int i = 0; i < 10000; ++i)
+    {
+        auto time = Clock().UnixTime();
+        dummy += time.count();
+        // std::cout << threadId << ": " << time.count() << std::endl;
+    }
+}
+
+TEST_F(ClockTest, ParallelUnixTime)
+{
+    const std::size_t numThreads = 20;
+    std::vector<std::thread> threads;
+    for (std::size_t i = 0; i < numThreads; ++i)
+        threads.push_back(std::thread(UnixTimeThreadFunc, i));
+    for (std::size_t i = 0; i < numThreads; ++i)
+        threads[i].join();
 }
 
 } // namespace osal

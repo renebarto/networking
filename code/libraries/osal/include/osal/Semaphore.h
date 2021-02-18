@@ -58,8 +58,8 @@ public:
     friend std::ostream & operator << (std::ostream & stream, const Semaphore & semaphore);
 
 protected:
-    typedef std::mutex Mutex;
-    typedef std::unique_lock<Mutex> Lock;
+    using Mutex = std::mutex;
+    using Lock = std::unique_lock<Mutex>;
     Mutex m_mutex;
     std::condition_variable m_condition;
     int m_value;

@@ -25,28 +25,11 @@ Clock::SetTimeProvider(
     m_timeProvider = timeProvider;
 }
 
-bool
-Clock::SetCurrentTime(
-    const EpochTime & time)
-{
-    // TODO: Phoenix set time in clock driver if NTP not present (surgery ?)
-    try
-    {
-        m_timeOffset = time - Clock().CurrentTime();
-    }
-    catch (std::exception &)
-    {
-        m_timeOffset = {};
-        return false;
-    }
-    return true;
-}
-
 void
 Clock::SetOffset(
-    std::chrono::nanoseconds offset)
+    std::chrono::microseconds offset)
 {
-    m_timeOffset = offset;
+    m_timeOffset = std::chrono::duration_cast<std::chrono::nanoseconds>(offset);
 }
 
 // Abstract  : Retrieve the current (as set by the client or NTP protocol) time
@@ -93,6 +76,22 @@ Clock::EtxTime() const
         time = EpochTime(0);
     }
     return time;
+}
+
+//
+// Abstract  : Retrieve the current (as set by the client or NTP protocol) time in Unix time format;
+//             the number of microseconds that have elapsed since 00:00:00 Coordinated Universal Time (UTC), Thursday, 1 January 1970
+//
+// Pre       :
+//
+// Post      :
+//
+// Exceptions:
+//
+std::chrono::microseconds
+Clock::UnixTime() const
+{
+    return std::chrono::duration_cast<std::chrono::microseconds>(CurrentTime());
 }
 
 // Abstract  : Use nanosleep to sleep for the given time duration.
