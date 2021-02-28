@@ -45,7 +45,6 @@ extern const HMIDIOUT InvalidMidiOutHandle;
 
 class MidiAPIWindows
     : public IMidiAPI
-    , std::enable_shared_from_this<MidiAPIWindows>
 {
 private:
     using DeviceMap = std::map<std::string, std::size_t>;
