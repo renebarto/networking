@@ -29,13 +29,13 @@
 #endif
 
 #include <vector>
-#include "osal/StringConversion.h"
 #include "tracing/Logging.h"
 #include "tracing/Tracing.h"
 #include "utility/Assert.h"
 #include "utility/Endian.h"
 #include "utility/Error.h"
 #include "utility/GenericError.h"
+#include "utility/StringFunctions.h"
 #include "network-osal/Interface.h"
 #include "network-osal/Network.h"
 
@@ -295,7 +295,7 @@ void Interfaces::ExtractInterfaceInfo(void * info, const std::string & interface
     auto interface = interfaces;
     while (interface)
     {
-        std::string name = osal::WStringToString(interface->FriendlyName);
+        std::string name = utility::WStringToString(interface->FriendlyName);
         if (interfaceName.empty() || (name == interfaceName))
         {
             auto interfaceIndex = interface->IfIndex;
