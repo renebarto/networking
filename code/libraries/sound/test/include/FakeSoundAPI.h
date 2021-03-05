@@ -31,7 +31,7 @@ public:
     FakeSoundAPI();
     ~FakeSoundAPI();
 
-    bool Initialize() override;
+    bool Initialize(const std::string & deviceName) override;
     void Uninitialize() override;
     bool IsInitialized() override;
 };

@@ -25,7 +25,7 @@ FakeSoundAPI::~FakeSoundAPI()
     Uninitialize();
 }
 
-bool FakeSoundAPI::Initialize()
+bool FakeSoundAPI::Initialize(const std::string & /*deviceName*/)
 {
     if (m_isInitialized)
         return true;

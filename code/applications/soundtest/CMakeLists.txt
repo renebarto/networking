@@ -1,6 +1,6 @@
-project(sound
+project(soundtest
     VERSION ${MSI_NUMBER}
-    DESCRIPTION "Sound interface API"
+    DESCRIPTION "Sound test"
     LANGUAGES CXX)
 
 message(STATUS "\n**********************************************************************************\n")
@@ -28,11 +28,11 @@ set(PROJECT_COMPILER_OPTIONS_PUBLIC
     )
 
 set(PROJECT_INCLUDE_DIRS_PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/src
     )
 
 set(PROJECT_INCLUDE_DIRS_PUBLIC
-    ${PROJECT_SOURCE_DIR}/include
     )
 
 set(PROJECT_LINK_OPTIONS
@@ -40,38 +40,24 @@ set(PROJECT_LINK_OPTIONS
     )
 
 set(PROJECT_DEPENDENCIES
-    core
-    utility
-    tracing
+    sound
     )
 
 set(PROJECT_LIBS
     ${LINKER_LIBRARIES}
     ${PROJECT_DEPENDENCIES}
-    Threads::Threads
-    Winmm
     )
 
-set(PROJECT_SOURCES
-    src/AudioSessionControl.cpp
-    src/DeviceCollection.cpp
-    src/PropertyVariant.cpp
-    src/RenderThread.cpp
-    src/SoundClient.cpp
-    src/SoundAPIWindows.cpp
-    src/WindowsCOM.cpp
+set(PROJECT_SOURCES 
+    src/App.cpp
+    src/main.cpp
     )
+
 set(PROJECT_INCLUDES_PRIVATE
+    include/App.h
     )
+
 set(PROJECT_INCLUDES_PUBLIC
-    include/sound/ISoundAPI.h
-    src/AudioSessionControl.h
-    src/DeviceCollection.h
-    src/PropertyVariant.h
-    src/RenderThread.h
-    src/SoundClient.h
-    src/SoundAPIWindows.h
-    src/WindowsCOM.h
     )
 
 display_list("Package                           : " ${PROJECT_NAME} )
@@ -95,7 +81,8 @@ display_list("Source files                      : " ${PROJECT_SOURCES} )
 display_list("Include files - public            : " ${PROJECT_INCLUDES_PUBLIC} )
 display_list("Include files - private           : " ${PROJECT_INCLUDES_PRIVATE} )
 
-add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES} ${PROJECT_INCLUDES_PUBLIC} ${PROJECT_INCLUDES_PRIVATE})
+link_directories(${LINK_DIRECTORIES})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_INCLUDES_PUBLIC} ${PROJECT_INCLUDES_PRIVATE})
 target_link_libraries(${PROJECT_NAME} ${PROJECT_LIBS})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDE_DIRS_PRIVATE})
 target_include_directories(${PROJECT_NAME} PUBLIC  ${PROJECT_INCLUDE_DIRS_PUBLIC})
@@ -113,12 +100,21 @@ if (NOT "${PROJECT_LINK_OPTIONS_STRING}" STREQUAL "")
     set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "${PROJECT_LINK_OPTIONS_STRING}")
 endif()
 
-link_directories(${LINK_DIRECTORIES})
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR})
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME ${TARGET_NAME})
 set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_BASE_DIR}/${CONFIG_DIR}/lib)
+set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_BASE_DIR}/${CONFIG_DIR}/bin)
 
 show_target_properties(${PROJECT_NAME})
 
-add_subdirectory(test)
+if (NOT PLATFORM_WINDOWS)
+    add_install_target(${PROJECT_NAME} install-components)
+    add_uninstall_target(${PROJECT_NAME} uninstall-components)
+
+    message(STATUS "Deploy to ${DEPLOYMENT_DIR}/${PROJECT_NAME}/${CONFIG_DIR}")
+    install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION ${DEPLOYMENT_DIR}/${PROJECT_NAME}/${CONFIG_DIR}
+        COMPONENT ${PROJECT_NAME}
+        )
+endif()

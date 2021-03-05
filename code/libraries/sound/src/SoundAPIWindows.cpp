@@ -3,7 +3,7 @@
 //
 // File        : SoundAPIWindows.cpp
 //
-// Namespace   : midi
+// Namespace   : sound
 //
 // Class       : -
 //
@@ -14,11 +14,17 @@
 #if defined(PLATFORM_WINDOWS)
 
 #include "tracing/ScopedTracing.h"
+#include "tracing/Logging.h"
 #include "utility/EnumSerialization.h"
+#include "utility/Error.h"
 
 #include "SoundAPIWindows.h"
+#include "DeviceCollection.h"
+#include "SoundClient.h"
 
 namespace sound {
+
+static const int TargetLatency = 30; // msec
 
 ISoundAPIPtr CreateAPI()
 {
@@ -27,7 +33,11 @@ ISoundAPIPtr CreateAPI()
 }
 
 SoundAPIWindows::SoundAPIWindows()
-    : m_isInitialized()
+    : m_comBase()
+    , m_isInitialized()
+    , m_device()
+    , m_deviceCollection()
+    , m_audioClient()
 {
     SCOPEDTRACE(
         nullptr, 
@@ -42,20 +52,60 @@ SoundAPIWindows::~SoundAPIWindows()
     Uninitialize();
 }
 
-bool SoundAPIWindows::Initialize()
+bool SoundAPIWindows::Initialize(const std::string & deviceName)
 {
     bool result {};
     SCOPEDTRACE(
         nullptr, 
         [&] () { return utility::FormatString("result={}", result); });
+
     if (m_isInitialized)
     {
         result = true;
         return result;
     }
+    if (!m_comBase.Initialize())
+        return result;
+
+    m_deviceCollection = std::make_unique<DeviceCollection>();
+    if (m_deviceCollection == nullptr)
+        return result;
+
+    if (!m_deviceCollection->Initialize())
+        return result;
+
+    auto deviceNames = m_deviceCollection->GetDeviceNames();
+    for (auto const & name : deviceNames)
+    {
+        TraceMessage(__FILE__, __LINE__, __func__, "Device name {}", name);
+    }
+    auto deviceIDs = m_deviceCollection->GetDeviceIDs();
+    for (auto const & id : deviceIDs)
+    {
+        TraceMessage(__FILE__, __LINE__, __func__, "Device ID {}", id);
+    }
+
+    if (deviceName.empty())
+    {
+        m_device = m_deviceCollection->GetDefaultDevice();
+    }
+    else
+    {
+        m_device = m_deviceCollection->GetDevice(deviceName);
+    }
+    if (m_device == nullptr)
+        return result;
+
+    m_audioClient = std::make_unique<SoundClient>(std::move(m_device));
+    if (m_audioClient == nullptr)
+        return result;
+
+    if (!m_audioClient->Initialize())
+        return result;
 
     m_isInitialized = true;
     result = true;
+
     return result;
 }
 
@@ -64,6 +114,16 @@ void SoundAPIWindows::Uninitialize()
     SCOPEDTRACE(
         nullptr, 
         nullptr);
+
+    if (!m_isInitialized)
+        return;
+
+    m_audioClient->Uninitialize();    
+    m_audioClient.reset();
+    m_device.reset();
+    m_deviceCollection->Uninitialize();    
+    m_deviceCollection.reset();
+
     m_isInitialized = false;
 }
 

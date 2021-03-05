@@ -9,13 +9,13 @@ TEST(FakeSoundAPITest, Initialize)
 {
     FakeSoundAPI api;
 
-    EXPECT_TRUE(api.Initialize());
+    EXPECT_TRUE(api.Initialize(""));
     EXPECT_TRUE(api.IsInitialized());
-    EXPECT_TRUE(api.Initialize());
+    EXPECT_TRUE(api.Initialize(""));
     EXPECT_TRUE(api.IsInitialized());
     api.Uninitialize();
     EXPECT_FALSE(api.IsInitialized());
-    EXPECT_TRUE(api.Initialize());
+    EXPECT_TRUE(api.Initialize(""));
     EXPECT_TRUE(api.IsInitialized());
 }
 

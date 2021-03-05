@@ -23,7 +23,7 @@ class ISoundAPI
 public:
     virtual ~ISoundAPI() = default;
 
-    virtual bool Initialize() = 0;
+    virtual bool Initialize(const std::string & deviceName) = 0;
     virtual void Uninitialize() = 0;
     virtual bool IsInitialized() = 0;
 };
