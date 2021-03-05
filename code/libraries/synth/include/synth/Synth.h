@@ -30,6 +30,8 @@ public:
     bool Initialize();
     void Uninitialize();
     bool IsInitialized();
+
+    // std::uint16_t GetAudio();
 };
 
 } // namespace synth
