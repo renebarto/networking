@@ -50,12 +50,13 @@ set(PROJECT_LIBS
     ${PROJECT_DEPENDENCIES}
     Threads::Threads
     Winmm
+    Avrt.lib
     )
 
 set(PROJECT_SOURCES
-    src/AudioSessionControl.cpp
     src/DeviceCollection.cpp
     src/PropertyVariant.cpp
+    src/RenderBuffer.cpp
     src/RenderThread.cpp
     src/SoundClient.cpp
     src/SoundAPIWindows.cpp
@@ -64,10 +65,11 @@ set(PROJECT_SOURCES
 set(PROJECT_INCLUDES_PRIVATE
     )
 set(PROJECT_INCLUDES_PUBLIC
+    include/sound/IAudioSource.h
     include/sound/ISoundAPI.h
-    src/AudioSessionControl.h
     src/DeviceCollection.h
     src/PropertyVariant.h
+    src/RenderBuffer.h
     src/RenderThread.h
     src/SoundClient.h
     src/SoundAPIWindows.h

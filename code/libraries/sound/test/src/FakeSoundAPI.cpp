@@ -44,4 +44,14 @@ bool FakeSoundAPI::IsInitialized()
     return m_isInitialized;
 }
 
+bool FakeSoundAPI::Start(IAudioSource * /*audioSource*/)
+{
+    return true;
+}
+
+void FakeSoundAPI::Stop()
+{
+
+}
+
 } // namespace sound

@@ -132,6 +132,26 @@ bool SoundAPIWindows::IsInitialized()
     return m_isInitialized;
 }
 
+bool SoundAPIWindows::Start(IAudioSource * audioSource)
+{
+    bool result {};
+    SCOPEDTRACE(
+        nullptr, 
+        [&] () { return utility::FormatString("result={}", result); });
+
+    result = m_audioClient->Start(audioSource);
+    return result;
+}
+
+void SoundAPIWindows::Stop()
+{
+    SCOPEDTRACE(
+        nullptr, 
+        nullptr);
+
+    m_audioClient->Stop();
+}
+
 } // namespace sound
 
 #endif

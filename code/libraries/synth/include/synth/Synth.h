@@ -13,15 +13,24 @@
 
 #pragma once
 
-#include <iostream>
-#include <memory>
+#include <random>
+#include "sound/IAudioSource.h"
 
 namespace synth {
 
 class Synth
+    : public sound::IAudioSource
 {
 private:
     bool m_isInitialized;
+    std::uint32_t m_samplesPerSecond;
+    std::uint16_t m_numChannels;
+    std::uint32_t m_bufferSize;
+    float m_phase;
+    float m_phaseStep;
+    unsigned m_seed;
+    std::default_random_engine m_generator;
+    std::uniform_real_distribution<float> m_distribution;
 
 public:
     Synth();
@@ -31,7 +40,8 @@ public:
     void Uninitialize();
     bool IsInitialized();
 
-    // std::uint16_t GetAudio();
+    void Prepare(std::uint32_t samplesPerSecond, std::uint16_t numChannels, std::uint32_t bufferSize) override;
+    void GetSamples(std::vector<std::vector<float>> & buffer) override;
 };
 
 } // namespace synth

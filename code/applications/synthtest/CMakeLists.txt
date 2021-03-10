@@ -1,6 +1,6 @@
-project(soundtest
+project(synthtest
     VERSION ${MSI_NUMBER}
-    DESCRIPTION "Sound test"
+    DESCRIPTION "Synth test"
     LANGUAGES CXX)
 
 message(STATUS "\n**********************************************************************************\n")
@@ -40,13 +40,12 @@ set(PROJECT_LINK_OPTIONS
     )
 
 set(PROJECT_DEPENDENCIES
-    sound
+    synth
     )
 
 set(PROJECT_LIBS
     ${LINKER_LIBRARIES}
     ${PROJECT_DEPENDENCIES}
-    Avrt.lib
     )
 
 set(PROJECT_SOURCES 

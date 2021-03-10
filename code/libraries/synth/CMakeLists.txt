@@ -40,6 +40,7 @@ set(PROJECT_LINK_OPTIONS
     )
 
 set(PROJECT_DEPENDENCIES
+    sound
     utility
     tracing
     )

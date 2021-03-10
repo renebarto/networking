@@ -18,6 +18,8 @@
 
 namespace sound {
 
+class IAudioSource;
+
 class ISoundAPI
 {
 public:
@@ -26,6 +28,9 @@ public:
     virtual bool Initialize(const std::string & deviceName) = 0;
     virtual void Uninitialize() = 0;
     virtual bool IsInitialized() = 0;
+
+    virtual bool Start(IAudioSource * audioSource) = 0;
+    virtual void Stop() = 0;
 };
 
 using ISoundAPIPtr = std::unique_ptr<ISoundAPI>;

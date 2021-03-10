@@ -34,6 +34,9 @@ public:
     bool Initialize(const std::string & deviceName) override;
     void Uninitialize() override;
     bool IsInitialized() override;
+
+    bool Start(IAudioSource * audioSource) override;
+    void Stop() override;
 };
 
 } // namespace sound

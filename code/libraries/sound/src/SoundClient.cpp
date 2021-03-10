@@ -19,11 +19,11 @@
 #include "tracing/Logging.h"
 #include "utility/EnumSerialization.h"
 #include "utility/Error.h"
+#include "utility/GenericError.h"
 
 #include "WindowsCOM.h"
 #include "SoundClient.h"
 #include "RenderThread.h"
-#include "AudioSessionControl.h"
 
 namespace sound {
 
@@ -34,15 +34,11 @@ SoundClient::SoundClient(std::unique_ptr<DeviceWrapper> && device)
     , m_isInitialized()
     , m_device(std::move(device))
     , m_audioClient()
-    , m_renderClient()
     , m_renderThread()
     , m_mixFormat()
-    , m_frameSize()
     , m_bufferSize()
     , m_renderSampleType()
     , m_engineLatency(TargetLatency)
-    , m_shutdownEvent()
-    , m_enableStreamSwitch(false)
 {
     SCOPEDTRACE(
         nullptr, 
@@ -76,17 +72,6 @@ bool SoundClient::Initialize()
     }
 
     //
-    //  Create our shutdown event - we want auto reset events that start in the not-signaled state.
-    //
-    m_shutdownEvent = ::CreateEventEx(nullptr, nullptr, 0, EVENT_MODIFY_STATE | SYNCHRONIZE);
-    if (m_shutdownEvent == nullptr)
-    {
-        auto errorCode = static_cast<int>(GetLastError());
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Unable to create shutdown event"));
-        return result;
-    }
-
-    //
     //  Now activate an IAudioClient object on our preferred endpoint and retrieve the mix format for that endpoint.
     //
     IAudioClient * audioClient {};
@@ -104,13 +89,6 @@ bool SoundClient::Initialize()
     if (!InitializeAudioEngine())
         return result;
 
-    if (m_enableStreamSwitch)
-    {
-        m_audioSessionControl = std::make_unique<AudioSessionControl>(audioClient);
-        if ((m_audioSessionControl == nullptr) || !m_audioSessionControl->Initialize())
-           return result;
-    }
-
     m_isInitialized = true;
     result = true;
     return result;
@@ -125,11 +103,6 @@ void SoundClient::Uninitialize()
     if (!m_isInitialized)
         return;
         
-    if (m_audioSessionControl != nullptr)
-    {
-        m_audioSessionControl->Uninitialize();
-        m_audioSessionControl.reset();
-    }
     UninitializeAudioEngine();
     if (m_mixFormat != nullptr)
     {
@@ -137,12 +110,78 @@ void SoundClient::Uninitialize()
         m_mixFormat = nullptr;
     }
     m_audioClient.reset();
-    if (m_shutdownEvent != nullptr)
-    {
-        ::CloseHandle(m_shutdownEvent);
-        m_shutdownEvent = nullptr;
-    }
     m_isInitialized = false;
+}
+
+bool SoundClient::Start(IAudioSource * audioSource)
+{
+       
+    bool result {};
+    SCOPEDTRACE(
+        nullptr, 
+        [&] () { return utility::FormatString("result={}", result); });
+
+    if (!m_isInitialized)
+    {
+        LogError(__FILE__, __LINE__, __func__, "Not initialized");
+        return result;
+    }
+
+    m_renderThread = std::make_unique<RenderThread>(*this);
+    if (!m_renderThread->Initialize(audioSource))
+    {
+        LogError(__FILE__, __LINE__, __func__, "Unable to initialize render thread");
+        return result;
+    }
+
+    m_renderThread->Create();
+
+    //
+    //  We're ready to go, start rendering!
+    //
+    HRESULT hr = m_audioClient->Get()->Start();
+    if (FAILED(hr))
+    {
+        LogError(__FILE__, __LINE__, __func__, "Unable to start render client: {,X:8}", hr);
+        return result;
+    }
+    
+    result = true;
+    return result;
+}
+
+void SoundClient::Stop()
+{
+    SCOPEDTRACE(
+        nullptr, 
+        nullptr);
+
+    if (!m_isInitialized)
+    {
+        LogError(__FILE__, __LINE__, __func__, "Not initialized");
+        return;
+    }
+
+    if (m_renderThread)
+    {
+        m_renderThread->Kill();
+        m_renderThread->Uninitialize();
+    }
+    if (m_audioClient)
+    {
+        HRESULT hr = m_audioClient->Get()->Stop();
+        if (FAILED(hr))
+        {
+            LogError(__FILE__, __LINE__, __func__, "Unable to stop audio client: {,X:8}", hr);
+            return;
+        }
+    }
+
+    if (m_renderThread != nullptr)
+    {
+        m_renderThread->Kill();
+        m_renderThread.reset();
+    }
 }
 
 //
@@ -165,7 +204,6 @@ bool SoundClient::DetermineAudioFormat()
     }
 
     TraceMessage(__FILE__, __LINE__, __func__, "Audio format: {}, blockalign={}, bits/sample={}", m_mixFormat->wFormatTag, m_mixFormat->nBlockAlign, m_mixFormat->wBitsPerSample);
-    m_frameSize = m_mixFormat->nBlockAlign;
 
     if (m_mixFormat->wFormatTag == WAVE_FORMAT_PCM || 
         m_mixFormat->wFormatTag == WAVE_FORMAT_EXTENSIBLE &&
@@ -223,15 +261,6 @@ bool SoundClient::InitializeAudioEngine()
         return result;
     }
 
-    IAudioRenderClient * renderClient {};
-    hr = m_audioClient->Get()->GetService(IID_PPV_ARGS(&renderClient));
-    if (FAILED(hr))
-    {
-        LogError(__FILE__, __LINE__, __func__, "Unable to get new render client: {,X:8}", hr);
-        return result;
-    }
-    m_renderClient = std::make_unique<AudioRenderClientWrapper>(renderClient);
-
     result = true;
     return result;
 }
@@ -241,8 +270,15 @@ void SoundClient::UninitializeAudioEngine()
     SCOPEDTRACE(
         nullptr, 
         nullptr);
+}
 
-    m_renderClient.reset();
+const WAVEFORMATEX & SoundClient::GetMixFormat() const
+{
+    if (m_mixFormat == nullptr)
+    {
+        tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Not correctly initialized"));
+    }
+    return *m_mixFormat; 
 }
 
 } // namespace sound
