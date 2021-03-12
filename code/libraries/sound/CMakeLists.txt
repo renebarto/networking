@@ -65,7 +65,7 @@ set(PROJECT_SOURCES
 set(PROJECT_INCLUDES_PRIVATE
     )
 set(PROJECT_INCLUDES_PUBLIC
-    include/sound/IAudioSource.h
+    include/sound/ISoundSource.h
     include/sound/ISoundAPI.h
     src/DeviceCollection.h
     src/PropertyVariant.h

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "osal/Signal.h"
+#include "midi/IMidiAPI.h"
 #include "sound/ISoundAPI.h"
 #include "synth/Synth.h"
 
@@ -13,8 +14,10 @@ private:
     std::string m_applicationName;
     std::vector<std::string> m_commandLineArguments;
     bool m_interrupted;
-    sound::ISoundAPIPtr m_api;
+    sound::ISoundAPIPtr m_soundAPI;
     synth::Synth m_synth;
+    midi::IMidiAPIPtr m_midiAPI;
+    midi::IMidiInDevicePtr m_midiDeviceIn;
 
 public:
     Application(int argc, char *argv[]);

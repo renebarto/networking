@@ -14,7 +14,7 @@
 #include <mutex>
 #include <ostream>
 #include <thread>
-#include "osal/Thread.h"
+#include "osal/ThreadFunctions.h"
 #include "osal/TypeInfo.h"
 
 namespace core {

@@ -44,7 +44,7 @@ bool FakeSoundAPI::IsInitialized()
     return m_isInitialized;
 }
 
-bool FakeSoundAPI::Start(IAudioSource * /*audioSource*/)
+bool FakeSoundAPI::Start(ISoundSource * /*audioSource*/)
 {
     return true;
 }

@@ -51,7 +51,7 @@ public:
     void Uninitialize() override;
     bool IsInitialized() override;
 
-    bool Start(IAudioSource * audioSource) override;
+    bool Start(ISoundSource * audioSource) override;
     void Stop() override;
 };
 

@@ -206,7 +206,7 @@ void RenderThread::FlushThread()
 
 }
 
-bool RenderThread::Initialize(IAudioSource * audioSource)
+bool RenderThread::Initialize(ISoundSource * audioSource)
 {
     bool result {};
     SCOPEDTRACE(

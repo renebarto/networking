@@ -5,10 +5,10 @@
 #include <vector>
 #include "osal/Signal.h"
 #include "sound/ISoundAPI.h"
-#include "sound/IAudioSource.h"
+#include "sound/ISoundSource.h"
 
 class Application
-    : public sound::IAudioSource
+    : public sound::ISoundSource
 {
 private:
     std::string m_applicationName;

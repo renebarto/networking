@@ -14,12 +14,18 @@
 #pragma once
 
 #include <random>
-#include "sound/IAudioSource.h"
+#include "sound/ISoundSource.h"
+
+namespace midi {
+
+class MidiEvent;
+
+} // namespace midi
 
 namespace synth {
 
 class Synth
-    : public sound::IAudioSource
+    : public sound::ISoundSource
 {
 private:
     bool m_isInitialized;
@@ -42,6 +48,8 @@ public:
 
     void Prepare(std::uint32_t samplesPerSecond, std::uint16_t numChannels, std::uint32_t bufferSize) override;
     void GetSamples(std::vector<std::vector<float>> & buffer) override;
+
+    void OnMidiEvent(const midi::MidiEvent & event);
 };
 
 } // namespace synth

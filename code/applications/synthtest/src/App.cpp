@@ -2,16 +2,20 @@
 
 #include <functional>
 #include <conio.h>
-#include "osal/Thread.h"
+#include "osal/ThreadFunctions.h"
 #include "tracing/Logging.h"
 #include "tracing/Tracing.h"
 #include "utility/GenericError.h"
+#include "midi/IMidiInDevice.h"
 
 Application::Application(int argc, char *argv[])
     : m_applicationName(argv[0])
     , m_commandLineArguments()
     , m_interrupted()
-    , m_api()
+    , m_soundAPI()
+    , m_synth()
+    , m_midiAPI()
+    , m_midiDeviceIn()
 {
     for (int i = 1; i < argc; ++i)
     {
@@ -53,13 +57,22 @@ int Application::Run()
     osal::SetThreadNameSelf("Main");
     osal::SetSignalHandler(osal::SignalType::Interrupt, std::bind(&Application::SignalHandler, this, std::placeholders::_1));
 
-    m_api = sound::CreateAPI();
-    if (!m_api->Initialize("Digital Audio (S/PDIF) (High Definition Audio Device)"))
+    m_soundAPI = sound::CreateAPI();
+    if (!m_soundAPI->Initialize("Digital Audio (S/PDIF) (High Definition Audio Device)"))
     {
         tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::GenericError("Cannot initialize Sound API"));
     }
 
-    m_api->Start(&m_synth);
+    m_midiAPI = midi::CreateAPI();
+    if (!m_midiAPI->Initialize())
+    {
+        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::GenericError("Cannot initialize MIDI API"));
+    }
+
+    m_midiDeviceIn = m_midiAPI->OpenInputDevice("ESI KeyControl 25 XT");
+    m_midiDeviceIn->SetEventCallback(std::bind(&synth::Synth::OnMidiEvent, &m_synth, std::placeholders::_1));
+    m_soundAPI->Start(&m_synth);
+    m_midiDeviceIn->Start();
 
     bool quit = false;
     while (!quit)
@@ -69,10 +82,14 @@ int Application::Run()
             quit = true;
     }
 
-    m_api->Stop();
+    m_soundAPI->Stop();
+    m_midiDeviceIn->Stop();
+    m_midiDeviceIn.reset();
 
-    m_api->Uninitialize();
-    m_api.reset();
+    m_soundAPI->Uninitialize();
+    m_soundAPI.reset();
+    m_midiAPI->Uninitialize();
+    m_midiAPI.reset();
     
     return 0;
 }

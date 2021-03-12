@@ -22,7 +22,7 @@
 #include <AudioClient.h>
 #include <AudioPolicy.h>
 #include "WindowsCOM.h"
-#include "sound/IAudioSource.h"
+#include "sound/ISoundSource.h"
 
 struct IMMDevice;
 struct IAudioClient;
@@ -55,7 +55,7 @@ public:
     bool Initialize();
     void Uninitialize();
 
-    bool Start(IAudioSource * audioSource);
+    bool Start(ISoundSource * audioSource);
     void Stop();
 
     bool DetermineAudioFormat();

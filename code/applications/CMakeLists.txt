@@ -1,4 +1,5 @@
 add_subdirectory(helloworld)
+add_subdirectory(tracingtest)
 add_subdirectory(echo-client)
 add_subdirectory(echo-server)
 add_subdirectory(miditest)

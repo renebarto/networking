@@ -18,7 +18,7 @@
 #include "core/ActiveObject.h"
 #include "RenderBuffer.h"
 #include "WindowsCOM.h"
-#include "sound/IAudioSource.h"
+#include "sound/ISoundSource.h"
 
 struct IAudioRenderClient;
 
@@ -51,7 +51,7 @@ private:
     std::size_t m_renderBufferReadIndex;
     std::size_t m_renderBufferWriteIndex;
     RenderSampleType m_renderSampleType;
-    IAudioSource * m_audioSource;
+    ISoundSource * m_audioSource;
 
 public:
     RenderThread(SoundClient & soundClient);
@@ -62,7 +62,7 @@ public:
     void ExitThread() override;
     void FlushThread() override;
 
-    bool Initialize(IAudioSource * audioSource);
+    bool Initialize(ISoundSource * audioSource);
     void Uninitialize();
 
     void AddAudioSamples();

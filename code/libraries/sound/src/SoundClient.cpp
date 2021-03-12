@@ -113,7 +113,7 @@ void SoundClient::Uninitialize()
     m_isInitialized = false;
 }
 
-bool SoundClient::Start(IAudioSource * audioSource)
+bool SoundClient::Start(ISoundSource * audioSource)
 {
        
     bool result {};

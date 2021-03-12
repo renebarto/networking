@@ -53,6 +53,7 @@ set(PROJECT_LIBS
     )
 
 set(PROJECT_SOURCES 
+    src/OscillatorTest.cpp
     src/SynthTest.cpp
     )
 

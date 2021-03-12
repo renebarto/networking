@@ -1,6 +1,6 @@
 #include "GoogleTest.h"
 
-#include "osal/Thread.h"
+#include "osal/ThreadFunctions.h"
 #include "core/Regex.h"
 #include "utility/Error.h"
 #include "utility/GenericError.h"

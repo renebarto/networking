@@ -52,7 +52,7 @@ set(PROJECT_SOURCES
     src/Console.cpp
     src/FileHandling.cpp
     src/Signal.cpp
-    src/Thread.cpp
+    src/ThreadFunctions.cpp
     src/TypeInfo.cpp
     )
 set(PROJECT_INCLUDES_PRIVATE
@@ -64,7 +64,7 @@ set(PROJECT_INCLUDES_PUBLIC
     include/osal/ManualEvent.h
     include/osal/Semaphore.h
     include/osal/Signal.h
-    include/osal/Thread.h
+    include/osal/ThreadFunctions.h
     include/osal/TypeInfo.h
     include/osal/Utilities.h
     )

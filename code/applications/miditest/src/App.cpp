@@ -1,7 +1,7 @@
 #include "App.h"
 
 #include <functional>
-#include "osal/Thread.h"
+#include "osal/ThreadFunctions.h"
 #include "tracing/Logging.h"
 #include "tracing/Tracing.h"
 #include "utility/GenericError.h"

@@ -59,7 +59,7 @@ set(PROJECT_SOURCES
     src/ManualEventTest.cpp
     src/SemaphoreTest.cpp
     src/SignalTest.cpp
-    src/ThreadTest.cpp
+    src/ThreadFunctionsTest.cpp
     src/TypeInfoTest.cpp
     )
 

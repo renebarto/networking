@@ -2,7 +2,7 @@
 
 #include <iomanip>
 #include "osal/Console.h"
-#include "osal/Thread.h"
+#include "osal/ThreadFunctions.h"
 #include "utility/Error.h"
 #include "utility/GenericError.h"
 #include "tracing/TraceHelpers.h"

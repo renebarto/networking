@@ -2,7 +2,7 @@
 
 #include "tracing/Logging.h"
 #include "tracing/Tracing.h"
-#include "osal/Thread.h"
+#include "osal/ThreadFunctions.h"
 #include "network-osal/SocketAPI.h"
 #include "utility/GenericError.h"
 #include "network/IPV4TCPClient.h"

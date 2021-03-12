@@ -23,10 +23,10 @@ enum RenderSampleType
     SampleType16BitPCM,
 };
 
-class IAudioSource
+class ISoundSource
 {
 public:
-    virtual ~IAudioSource() = default;
+    virtual ~ISoundSource() = default;
 
     virtual void Prepare(std::uint32_t samplesPerSecond, std::uint16_t numChannels, std::uint32_t bufferSize) = 0;
 

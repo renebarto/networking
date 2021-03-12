@@ -1,4 +1,4 @@
-#include "osal/Thread.h"
+#include "osal/ThreadFunctions.h"
 
 #include <map>
 #include <sstream>

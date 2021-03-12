@@ -18,7 +18,7 @@
 
 namespace sound {
 
-class IAudioSource;
+class ISoundSource;
 
 class ISoundAPI
 {
@@ -29,7 +29,7 @@ public:
     virtual void Uninitialize() = 0;
     virtual bool IsInitialized() = 0;
 
-    virtual bool Start(IAudioSource * audioSource) = 0;
+    virtual bool Start(ISoundSource * audioSource) = 0;
     virtual void Stop() = 0;
 };
 

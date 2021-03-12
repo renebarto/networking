@@ -1,6 +1,6 @@
 #include "GoogleTest.h"
 
-#include "osal/Thread.h"
+#include "osal/ThreadFunctions.h"
 #include "core/Observable.h"
 #include "network-osal/SocketAPIMock.h"
 #include "tracing/ScopedTracing.h"

@@ -11,9 +11,11 @@
 //
 //------------------------------------------------------------------------------
 
+#include "tracing/Logging.h"
+#include "tracing/Tracing.h"
 #include "tracing/ScopedTracing.h"
 #include "utility/EnumSerialization.h"
-
+#include "midi/IMidiAPI.h"
 #include "synth/Synth.h"
 
 namespace synth {
@@ -76,11 +78,17 @@ static const float TwoPi = 8 * atan(1.0F);
 
 void Synth::Prepare(std::uint32_t samplesPerSecond, std::uint16_t numChannels, std::uint32_t bufferSize)
 {
+    if (m_isInitialized)
+        Uninitialize();
     m_samplesPerSecond = samplesPerSecond;
     m_numChannels = numChannels;
     m_bufferSize = bufferSize;
     m_phase = 0;
     m_phaseStep = TwoPi * 1000.0F / m_samplesPerSecond;
+    if (!Initialize())
+    {
+        LogError(__FILE__, __LINE__, __func__, "Initialize failed");
+    }
 }
 
 void Synth::GetSamples(std::vector<std::vector<float>> & buffer)
@@ -98,6 +106,26 @@ void Synth::GetSamples(std::vector<std::vector<float>> & buffer)
         m_phase += m_phaseStep;
         if (m_phase > TwoPi)
             m_phase -= TwoPi;
+    }
+}
+
+void Synth::OnMidiEvent(const midi::MidiEvent & event)
+{
+    TraceMessage(__FILE__, __LINE__, __func__, "event={}", event);
+    switch (event.type)
+    {
+        case midi::MidiEventType::NoteOn:
+        case midi::MidiEventType::NoteOff:
+            // m_deviceOut->SendMidiOutEvent(midi::MidiEvent(event.type, event.channel, static_cast<midi::Key>(event.key + 12), event.velocity, event.timestamp));
+            // m_deviceOut->SendMidiOutEvent(midi::MidiEvent(event.type, event.channel, static_cast<midi::Key>(event.key + 16), event.velocity, event.timestamp));
+            // m_deviceOut->SendMidiOutEvent(midi::MidiEvent(event.type, event.channel, static_cast<midi::Key>(event.key + 21), event.velocity, event.timestamp));
+            break;
+        case midi::MidiEventType::ControlChange:
+            break;
+        case midi::MidiEventType::PitchBend:
+            break;
+        default:
+            break;
     }
 }
 

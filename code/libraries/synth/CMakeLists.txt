@@ -41,6 +41,7 @@ set(PROJECT_LINK_OPTIONS
 
 set(PROJECT_DEPENDENCIES
     sound
+    midi
     utility
     tracing
     )
@@ -52,11 +53,13 @@ set(PROJECT_LIBS
     )
 
 set(PROJECT_SOURCES 
+    src/Oscillator.cpp
     src/Synth.cpp
     )
 set(PROJECT_INCLUDES_PRIVATE
     )
 set(PROJECT_INCLUDES_PUBLIC
+    include/synth/Oscillator.h
     include/synth/Synth.h
     )
 

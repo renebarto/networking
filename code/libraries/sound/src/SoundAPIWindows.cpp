@@ -132,7 +132,7 @@ bool SoundAPIWindows::IsInitialized()
     return m_isInitialized;
 }
 
-bool SoundAPIWindows::Start(IAudioSource * audioSource)
+bool SoundAPIWindows::Start(ISoundSource * audioSource)
 {
     bool result {};
     SCOPEDTRACE(

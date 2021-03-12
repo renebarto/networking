@@ -1,7 +1,7 @@
 #include "GoogleTest.h"
 
 #include <sstream>
-#include "osal/Thread.h"
+#include "osal/ThreadFunctions.h"
 #include "core/Thread.h"
 
 namespace osal

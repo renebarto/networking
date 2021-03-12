@@ -1,6 +1,6 @@
 #include "GoogleTest.h"
 
-#include "osal/Thread.h"
+#include "osal/ThreadFunctions.h"
 #include "core/Thread.h"
 #include "tracing/Tracing.h"
 
