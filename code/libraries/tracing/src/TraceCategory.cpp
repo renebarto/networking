@@ -1,6 +1,7 @@
 #include "tracing/TraceCategory.h"
 
 #include "utility/EnumSerialization.h"
+#include "tracing/TraceEntry.h"
 
 namespace serialization {
 

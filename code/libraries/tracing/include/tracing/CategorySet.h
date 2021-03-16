@@ -52,7 +52,6 @@ public:
 
     bool is_set(Category traceCategory) const
     {
-
         return m_set.find(traceCategory) != m_set.end();
     }
 

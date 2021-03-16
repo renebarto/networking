@@ -5,6 +5,7 @@
 #include "osal/ThreadFunctions.h"
 #include "utility/Error.h"
 #include "utility/GenericError.h"
+#include "tracing/TraceEntry.h"
 #include "tracing/TraceHelpers.h"
 
 namespace tracing {

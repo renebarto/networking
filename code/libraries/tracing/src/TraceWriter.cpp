@@ -4,6 +4,7 @@
 
 #include "osal/ThreadFunctions.h"
 #include "utility/Serialization.h"
+#include "tracing/TraceEntry.h"
 
 namespace tracing {
 

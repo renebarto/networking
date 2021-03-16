@@ -1,6 +1,7 @@
 #include "tracing/ConsoleLineWriter.h"
 
 #include "osal/Console.h"
+#include "tracing/TraceEntry.h"
 
 static osal::Console s_console;
 

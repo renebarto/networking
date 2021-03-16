@@ -14,6 +14,7 @@ set(PROJECT_BUILD_REFERENCE "\"${PROJECT_VERSION}\"")
 
 set(PROJECT_COMPILER_DEFINITIONS_PRIVATE
     "PACKAGE_NAME=\"${PROJECT_NAME}\""
+    "ROOT_PATH=\"${CMAKE_SOURCE_DIR}\""
     ${COMPILER_DEFINITIONS}
     )
 
@@ -53,8 +54,10 @@ set(PROJECT_SOURCES
     src/Logging.cpp
     src/ScopedTracing.cpp
     src/TraceCategory.cpp
-    src/TraceWriter.cpp
+    src/TraceEntry.cpp
     src/TraceHelpers.cpp
+    src/TraceRegistry.cpp
+    src/TraceWriter.cpp
     src/Tracing.cpp
     )
 set(PROJECT_INCLUDES_PRIVATE
@@ -67,7 +70,9 @@ set(PROJECT_INCLUDES_PUBLIC
     include/tracing/Logging.h
     include/tracing/ScopedTracing.h
     include/tracing/TraceCategory.h
+    include/tracing/TraceEntry.h
     include/tracing/TraceHelpers.h
+    include/tracing/TraceRegistry.h
     include/tracing/TraceWriter.h
     include/tracing/Tracing.h
     )

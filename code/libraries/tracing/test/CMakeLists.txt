@@ -60,6 +60,7 @@ set(PROJECT_SOURCES
     src/ScopedTracingTest.cpp
     src/TraceCategoryTest.cpp
     src/TraceHelpersTest.cpp
+    src/TraceRegistryTest.cpp
     src/TracingTest.cpp
     )
 

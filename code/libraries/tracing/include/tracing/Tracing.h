@@ -8,6 +8,8 @@
 #include "tracing/CategorySet.h"
 #include "tracing/TraceCategory.h"
 
+#define TRACE_LOCATION __FILE__, __LINE__, __func__
+
 namespace utility {
 
 class Error;

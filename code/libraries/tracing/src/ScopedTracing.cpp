@@ -1,4 +1,5 @@
 #include "tracing/ScopedTracing.h"
+#include "tracing/TraceEntry.h"
 
 namespace tracing {
 
