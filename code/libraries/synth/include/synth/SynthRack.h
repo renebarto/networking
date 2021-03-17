@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 // Copyright   : Copyright(c) 2020, Rene Barto
 //
-// File        : Synth.h
+// File        : SynthRack.h
 //
 // Namespace   : synth
 //
@@ -13,33 +13,47 @@
 
 #pragma once
 
-#include "synth/ISynth.h"
+#include <mutex>
+#include "synth/ISynthRack.h"
+#include "synth/Synth.h"
+
+namespace midi {
+
+class MidiEvent;
+
+} // namespace midi
 
 namespace synth {
 
-class Synth
-    : public ISynth
+class SynthRack
+    : public synth::ISynthRack
 {
 private:
     bool m_isInitialized;
-    std::uint32_t m_sampleFrequency;
+    std::uint32_t m_samplesPerSecond;
     std::uint16_t m_numChannels;
     std::uint32_t m_bufferSize;
+    using Mutex = std::recursive_mutex;
+    using Lock = std::lock_guard<Mutex>;
+    Mutex m_synthsGuard;
+    std::vector<ISynthPtr> m_synths;
+    std::vector<MultiAudioBuffer> m_synthBuffers;
 
 public:
-    Synth();
-    virtual ~Synth();
+    SynthRack();
+    virtual ~SynthRack();
 
     bool Initialize(const std::string & configuration) override;
     void Uninitialize() override;
     bool IsInitialized() override;
 
-    std::uint32_t GetSampleFrequency() const override;
-    std::uint32_t GetBufferSize() const override;
-    std::uint32_t GetNumChannels() const override;
+    void AddSynth(ISynthPtr synth) override;
+    void RemoveSynth(ISynthPtr synth) override;
 
     bool Prepare(std::uint32_t samplesPerSecond, std::uint16_t numChannels, std::uint32_t bufferSize) override;
-    void GetSamples(MultiAudioBuffer & buffer) override;
+    void GetSamples(sound::SoundBuffer & buffer) override;
+
+    void OnMidiEvent(const midi::MidiEvent & event) override;
 };
 
 } // namespace synth

@@ -33,6 +33,6 @@ public:
     virtual int Run();
     void SignalHandler(osal::SignalType signal);
 
-    void Prepare(std::uint32_t samplesPerSecond, std::uint16_t numChannels, std::uint32_t bufferSize) override;
+    bool Prepare(std::uint32_t samplesPerSecond, std::uint16_t numChannels, std::uint32_t bufferSize) override;
     void GetSamples(std::vector<std::vector<float>> & buffer) override;
 };

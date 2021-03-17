@@ -94,13 +94,14 @@ void Application::SignalHandler(osal::SignalType signal)
 
 static const float TwoPi = 8 * atan(1.0F);
 
-void Application::Prepare(std::uint32_t samplesPerSecond, std::uint16_t numChannels, std::uint32_t bufferSize)
+bool Application::Prepare(std::uint32_t samplesPerSecond, std::uint16_t numChannels, std::uint32_t bufferSize)
 {
     m_samplesPerSecond = samplesPerSecond;
     m_numChannels = numChannels;
     m_bufferSize = bufferSize;
     m_phase = 0;
     m_phaseStep = TwoPi * 1000.0F / m_samplesPerSecond;
+    return true;
 }
 
 void Application::GetSamples(std::vector<std::vector<float>> & buffer)

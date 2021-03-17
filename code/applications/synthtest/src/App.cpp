@@ -7,13 +7,14 @@
 #include "tracing/Tracing.h"
 #include "utility/GenericError.h"
 #include "midi/IMidiInDevice.h"
+#include "synth/SynthRack.h"
 
 Application::Application(int argc, char *argv[])
     : m_applicationName(argv[0])
     , m_commandLineArguments()
     , m_interrupted()
     , m_soundAPI()
-    , m_synth()
+    , m_synthRack()
     , m_midiAPI()
     , m_midiDeviceIn()
 {
@@ -53,7 +54,7 @@ void Application::Usage()
 
 int Application::Run()
 {
-    tracing::SetDefaultTraceFilter(tracing::TraceCategory::Message | tracing::TraceCategory::Data/* | tracing::TraceCategory::FunctionEnter | tracing::TraceCategory::FunctionLeave*/);
+    tracing::SetDefaultTraceFilter(tracing::TraceCategory::Message | tracing::TraceCategory::Data | tracing::TraceCategory::FunctionEnter | tracing::TraceCategory::FunctionLeave);
     osal::SetThreadNameSelf("Main");
     osal::SetSignalHandler(osal::SignalType::Interrupt, std::bind(&Application::SignalHandler, this, std::placeholders::_1));
 
@@ -69,9 +70,21 @@ int Application::Run()
         tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::GenericError("Cannot initialize MIDI API"));
     }
 
+    m_synthRack = std::make_shared<synth::SynthRack>();
+    if (!m_synthRack->Initialize(
+        "[\n"
+            "{\n"
+                "\"type\": \"TestSynth\",\n"
+                "\"name\": \"TestSynth\"\n"
+            "}\n"
+        "]"))
+    {
+        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::GenericError("Cannot initialize Synth Rack"));
+    }
+
     m_midiDeviceIn = m_midiAPI->OpenInputDevice("ESI KeyControl 25 XT");
-    m_midiDeviceIn->SetEventCallback(std::bind(&synth::Synth::OnMidiEvent, &m_synth, std::placeholders::_1));
-    m_soundAPI->Start(&m_synth);
+    m_midiDeviceIn->SetEventCallback(std::bind(&synth::ISynthRack::OnMidiEvent, m_synthRack.get(), std::placeholders::_1));
+    m_soundAPI->Start(m_synthRack.get());
     m_midiDeviceIn->Start();
 
     bool quit = false;

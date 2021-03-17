@@ -22,14 +22,9 @@ namespace synth {
 
 Synth::Synth()
     : m_isInitialized()
-    , m_samplesPerSecond()
+    , m_sampleFrequency()
     , m_numChannels()
     , m_bufferSize()
-    , m_phase()
-    , m_phaseStep()
-    , m_seed(static_cast<unsigned>(std::chrono::system_clock::now().time_since_epoch().count()))
-    , m_generator(m_seed)
-    , m_distribution(-1.0F, 1.0F)
 {
     SCOPEDTRACE(
         nullptr, 
@@ -44,11 +39,11 @@ Synth::~Synth()
     Uninitialize();
 }
 
-bool Synth::Initialize()
+bool Synth::Initialize(const std::string & configuration)
 {
     bool result {};
     SCOPEDTRACE(
-        nullptr, 
+        [&] () { return utility::FormatString("configuration={}", configuration); }, 
         [&] () { return utility::FormatString("result={}", result); });
     if (m_isInitialized)
     {
@@ -74,59 +69,46 @@ bool Synth::IsInitialized()
     return m_isInitialized;
 }
 
-static const float TwoPi = 8 * atan(1.0F);
-
-void Synth::Prepare(std::uint32_t samplesPerSecond, std::uint16_t numChannels, std::uint32_t bufferSize)
+bool Synth::Prepare(std::uint32_t samplesPerSecond, std::uint16_t numChannels, std::uint32_t bufferSize)
 {
-    if (m_isInitialized)
-        Uninitialize();
-    m_samplesPerSecond = samplesPerSecond;
+    bool result {};
+    SCOPEDTRACE(
+        [&] () { return utility::FormatString("samplesPerSecond={}, numChannels={}, bufferSize={}", samplesPerSecond, numChannels, bufferSize); }, 
+        [&] () { return utility::FormatString("result={}", result); });
+    m_sampleFrequency = samplesPerSecond;
     m_numChannels = numChannels;
     m_bufferSize = bufferSize;
-    m_phase = 0;
-    m_phaseStep = TwoPi * 1000.0F / m_samplesPerSecond;
-    if (!Initialize())
+
+    if (!m_isInitialized)
     {
-        LogError(__FILE__, __LINE__, __func__, "Initialize failed");
+        LogError(__FILE__, __LINE__, __func__, "Not initialized");
+        return result;
     }
+
+    result = true;
+    return result;
 }
 
-void Synth::GetSamples(std::vector<std::vector<float>> & buffer)
+void Synth::GetSamples(MultiAudioBuffer & /*buffer*/)
 {
-    for (std::size_t frameIndex = 0; frameIndex < m_bufferSize; ++frameIndex)
-    {
-        float currentSample = sin(m_phase);
-        for (std::uint16_t channel = 0; channel < m_numChannels; ++channel)
-        {
-            if (channel == 0)
-                buffer[channel][frameIndex] = currentSample;
-            else
-                buffer[channel][frameIndex] = m_distribution(m_generator);
-        }
-        m_phase += m_phaseStep;
-        if (m_phase > TwoPi)
-            m_phase -= TwoPi;
-    }
+    SCOPEDTRACE(
+        nullptr, 
+        nullptr);
 }
 
-void Synth::OnMidiEvent(const midi::MidiEvent & event)
+std::uint32_t Synth::GetSampleFrequency() const
 {
-    TraceMessage(__FILE__, __LINE__, __func__, "event={}", event);
-    switch (event.type)
-    {
-        case midi::MidiEventType::NoteOn:
-        case midi::MidiEventType::NoteOff:
-            // m_deviceOut->SendMidiOutEvent(midi::MidiEvent(event.type, event.channel, static_cast<midi::Key>(event.key + 12), event.velocity, event.timestamp));
-            // m_deviceOut->SendMidiOutEvent(midi::MidiEvent(event.type, event.channel, static_cast<midi::Key>(event.key + 16), event.velocity, event.timestamp));
-            // m_deviceOut->SendMidiOutEvent(midi::MidiEvent(event.type, event.channel, static_cast<midi::Key>(event.key + 21), event.velocity, event.timestamp));
-            break;
-        case midi::MidiEventType::ControlChange:
-            break;
-        case midi::MidiEventType::PitchBend:
-            break;
-        default:
-            break;
-    }
+    return m_sampleFrequency;
+}
+
+std::uint32_t Synth::GetBufferSize() const
+{
+    return m_bufferSize;
+}
+
+std::uint32_t Synth::GetNumChannels() const
+{
+    return m_numChannels;
 }
 
 } // namespace synth

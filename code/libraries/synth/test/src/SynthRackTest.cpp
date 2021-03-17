@@ -1,13 +1,13 @@
 #include "GoogleTest.h"
 
-#include "synth/Synth.h"
+#include "synth/SynthRack.h"
 
 namespace synth
 {
     
-TEST(SynthTest, Initialize)
+TEST(SynthRackTest, Initialize)
 {
-    Synth api;
+    SynthRack api;
 
     EXPECT_TRUE(api.Initialize(""));
     EXPECT_TRUE(api.IsInitialized());
@@ -19,9 +19,9 @@ TEST(SynthTest, Initialize)
     EXPECT_TRUE(api.IsInitialized());
 }
 
-TEST(SynthTest, NotInitialized)
+TEST(SynthRackTest, NotInitialized)
 {
-    Synth api;
+    SynthRack api;
 
     EXPECT_FALSE(api.IsInitialized());
 }

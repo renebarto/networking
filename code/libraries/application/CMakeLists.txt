@@ -1,6 +1,6 @@
-project(json
+project(application
     VERSION ${MSI_NUMBER}
-    DESCRIPTION "JSON"
+    DESCRIPTION "Application layer"
     LANGUAGES CXX)
 
 message(STATUS "\n**********************************************************************************\n")
@@ -14,6 +14,7 @@ set(PROJECT_BUILD_REFERENCE "\"${PROJECT_VERSION}\"")
 
 set(PROJECT_COMPILER_DEFINITIONS_PRIVATE
     "PACKAGE_NAME=\"${PROJECT_NAME}\""
+    "ROOT_PATH=\"${CMAKE_SOURCE_DIR}\""
     ${COMPILER_DEFINITIONS}
     )
 
@@ -23,11 +24,7 @@ set(PROJECT_COMPILER_DEFINITIONS_PUBLIC
 set(PROJECT_COMPILER_OPTIONS_PRIVATE
     ${COMPILER_OPTIONS_CXX}
     )
-if (NOT PLATFORM_WINDOWS)
-    list(APPEND PROJECT_COMPILER_OPTIONS_PRIVATE
-        -Wold-style-cast -Wcast-qual -Wcast-align -Wconversion -Wshadow -Wswitch-default -Wswitch-enum
-        )
-endif()
+
 set(PROJECT_COMPILER_OPTIONS_PUBLIC
     )
 
@@ -36,7 +33,6 @@ set(PROJECT_INCLUDE_DIRS_PRIVATE
 
 set(PROJECT_INCLUDE_DIRS_PUBLIC
     ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/src
     )
 
 set(PROJECT_LINK_OPTIONS
@@ -44,7 +40,8 @@ set(PROJECT_LINK_OPTIONS
     )
 
 set(PROJECT_DEPENDENCIES
-    core
+    json
+    tracing
     )
 
 set(PROJECT_LIBS
@@ -53,29 +50,12 @@ set(PROJECT_LIBS
     )
 
 set(PROJECT_SOURCES 
-    src/Array.cpp
-    src/Boolean.cpp
-    src/Null.cpp
-    src/Number.cpp
-    src/Object.cpp
-    src/Parse.cpp
-    src/Serialization.cpp
-    src/String.cpp
-    src/Value.cpp
+    src/TraceDatabase.cpp
     )
 set(PROJECT_INCLUDES_PRIVATE
     )
 set(PROJECT_INCLUDES_PUBLIC
-    include/json/json.h
-    include/json/Array.h
-    include/json/Boolean.h
-    include/json/Null.h
-    include/json/Number.h
-    include/json/Object.h
-    include/json/Serialization.h
-    include/json/String.h
-    include/json/Value.h
-    src/Parse.h
+    include/application/TraceDatabase.h
     )
 
 display_list("Package                           : " ${PROJECT_NAME} )

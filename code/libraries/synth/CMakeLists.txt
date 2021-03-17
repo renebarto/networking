@@ -40,6 +40,7 @@ set(PROJECT_LINK_OPTIONS
     )
 
 set(PROJECT_DEPENDENCIES
+    json
     sound
     midi
     utility
@@ -55,12 +56,24 @@ set(PROJECT_LIBS
 set(PROJECT_SOURCES 
     src/Oscillator.cpp
     src/Synth.cpp
+    src/SynthFactory.cpp
+    src/SynthRack.cpp
+    src/TestSynth.cpp
     )
 set(PROJECT_INCLUDES_PRIVATE
     )
 set(PROJECT_INCLUDES_PUBLIC
+    include/synth/AudioBuffer.h
+    include/synth/IAudioSource.h
+    include/synth/IMultiAudioSource.h
+    include/synth/ISynth.h
+    include/synth/ISynthRack.h
+    include/synth/MultiAudioBuffer.h
     include/synth/Oscillator.h
     include/synth/Synth.h
+    include/synth/SynthFactory.h
+    include/synth/SynthRack.h
+    include/synth/TestSynth.h
     )
 
 display_list("Package                           : " ${PROJECT_NAME} )

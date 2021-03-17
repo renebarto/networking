@@ -6,7 +6,7 @@
 #include "osal/Signal.h"
 #include "midi/IMidiAPI.h"
 #include "sound/ISoundAPI.h"
-#include "synth/Synth.h"
+#include "synth/ISynthRack.h"
 
 class Application
 {
@@ -15,7 +15,7 @@ private:
     std::vector<std::string> m_commandLineArguments;
     bool m_interrupted;
     sound::ISoundAPIPtr m_soundAPI;
-    synth::Synth m_synth;
+    synth::ISynthRackPtr m_synthRack;
     midi::IMidiAPIPtr m_midiAPI;
     midi::IMidiInDevicePtr m_midiDeviceIn;
 
