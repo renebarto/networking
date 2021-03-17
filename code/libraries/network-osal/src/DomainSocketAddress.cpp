@@ -60,7 +60,7 @@ DomainSocketAddress DomainSocketAddress::Parse(const std::string & text)
     DomainSocketAddress address;
     if (!TryParse(text, address))
     {
-        tracing::Logging::Throw(__FILE__, __LINE__, __func__, 
+        tracing::Tracing::Throw(__FILE__, __LINE__, __func__, 
             utility::GenericError("DomainSocketAddress string representation must be a UNIX path of no more than "
                                   "{} bytes, string is {}", AddressSize, text));
     }

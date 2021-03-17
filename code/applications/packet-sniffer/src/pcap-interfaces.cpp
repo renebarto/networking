@@ -28,7 +28,7 @@ Interfaces::Interfaces()
     {
         std::string buffer;
         utility::Format(buffer, "Error finding devices: {}}", error_buffer);
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::GenericError(buffer));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::GenericError(buffer));
     }
     else
     {
@@ -46,7 +46,7 @@ const Interface & Interfaces::GetInterface(const std::string & interfaceName) co
 {
     if (m_interfaces.find(interfaceName) == m_interfaces.end())
     {
-        tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Cannot find interface {}", interfaceName));
+        tracing::Tracing::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Cannot find interface {}", interfaceName));
     }
     return m_interfaces.at(interfaceName);
 }
@@ -138,7 +138,7 @@ void Interfaces::ExtractInterfaceInfo()
             {
                 ConvertAddressInfo(address->dstaddr, addressInfo.destinationAddress);
             }
-            TraceMessage(__FILE__, __LINE__, __func__, serialization::Serialize(addressInfo, 0));
+            TraceInfo(__FILE__, __LINE__, __func__, serialization::Serialize(addressInfo, 0));
             addresses.push_back(addressInfo);
             address = address->next;
         }
@@ -151,7 +151,7 @@ void Interfaces::ExtractInterfaceInfo()
             m_interfaces[name] = Interface(name, description, isLoopback, addresses);
         }
         
-        TraceMessage(__FILE__, __LINE__, __func__, "Device: {} - {} ({})", interface->name, (interface->description ? interface->description : "no description"), ((interface->flags & PCAP_IF_LOOPBACK) ? "loopback" : ""));
+        TraceInfo(__FILE__, __LINE__, __func__, "Device: {} - {} ({})", interface->name, (interface->description ? interface->description : "no description"), ((interface->flags & PCAP_IF_LOOPBACK) ? "loopback" : ""));
         interface = interface->next;
     }
 

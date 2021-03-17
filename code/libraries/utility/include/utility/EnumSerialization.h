@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020 Koninklijke Philips Electronics N.V.
+//
+// File        : EnumSerialization.h
+//
+// Namespace   : serialization
+//
+// Class       : -
+//
+// Description :
+//
+//------------------------------------------------------------------------------
+
 #pragma once
 
 #include <ostream>

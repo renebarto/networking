@@ -278,13 +278,13 @@ void PrintData(const std::uint8_t * data , std::size_t size)
 
 void DataHandler(std::uint8_t * user, const struct pcap_pkthdr * h, const std::uint8_t * data)
 {
-    TraceMessage(__FILE__, __LINE__, __func__, "Data callback for {}", reinterpret_cast<char *>(user));
+    TraceInfo(__FILE__, __LINE__, __func__, "Data callback for {}", reinterpret_cast<char *>(user));
     const char * fileName = "packets.bin";
-    TraceMessage(__FILE__, __LINE__, __func__, "Open dump file {}", fileName);
+    TraceInfo(__FILE__, __LINE__, __func__, "Open dump file {}", fileName);
     std::ofstream dumpFile(fileName, std::ios_base::binary | std::ios_base::app);
     if (!dumpFile)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Create dump file {}", fileName);
+        TraceInfo(__FILE__, __LINE__, __func__, "Create dump file {}", fileName);
         dumpFile.open(fileName, std::ios_base::binary | std::ios_base::out);
 
     }
@@ -330,12 +330,12 @@ void DataHandler(std::uint8_t * user, const struct pcap_pkthdr * h, const std::u
 int main(int /*argc*/, char * /*argv*/[])
 {
     tracing::Tracing::SetTracingFunctions(nullptr, TraceEnabled);
-    TraceMessage(__FILE__, __LINE__, __func__, "packet-sniffer");
+    TraceInfo(__FILE__, __LINE__, __func__, "packet-sniffer");
 
     packetcapture::Interfaces interfaces;
     for (auto const & item : interfaces.GetAllInterfaces())
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Device: {} - {} ({})", item.first, item.second.Description(), (item.second.IsLoopback() ? "loopback" : ""));
+        TraceInfo(__FILE__, __LINE__, __func__, "Device: {} - {} ({})", item.first, item.second.Description(), (item.second.IsLoopback() ? "loopback" : ""));
     }
 
     const char * nicName = "ens33";
@@ -347,17 +347,17 @@ int main(int /*argc*/, char * /*argv*/[])
     pcap_t * capture = pcap_open_live(nicName, length, promiscuous, timeout, error_buffer);
     if (!capture)
     {
-        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::GenericError("Error opening capture: {}}", error_buffer));
+        tracing::Tracing::Fatal(__FILE__, __LINE__, __func__, utility::GenericError("Error opening capture: {}}", error_buffer));
     }
     int result = pcap_dispatch(capture, 3, DataHandler, const_cast<std::uint8_t *>(reinterpret_cast<const std::uint8_t *>("MyCapture")));
     if (result == -1)
     {
-        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::GenericError("Error capturing: {}}", pcap_geterr(capture)));
+        tracing::Tracing::Fatal(__FILE__, __LINE__, __func__, utility::GenericError("Error capturing: {}}", pcap_geterr(capture)));
     }
     pcap_close(capture);
 
     // const char * fileName = "/home/rene/repos/MyProject/output/Linux/Debug/bin/packets.bin";
-    // TraceMessage(__FILE__, __LINE__, __func__, "Open dump file {}", fileName);
+    // TraceInfo(__FILE__, __LINE__, __func__, "Open dump file {}", fileName);
     // std::ifstream dumpFile(fileName, std::ios_base::binary | std::ios_base::in);
     // if (!dumpFile.good())
     // {

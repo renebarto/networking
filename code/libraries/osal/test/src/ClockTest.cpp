@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020, Koninklijke Philips Electronics N.V.
+//
+// File        : ClockTest.cpp
+//
+// Namespace   : osal
+//
+// Class       : ClockTest
+//
+// Description :
+//
+//------------------------------------------------------------------------------
+
 #include "GoogleTest.h"
 
 #include <ctime>
@@ -140,7 +153,7 @@ TEST_F(ClockTest, UnixTimeWithNoTimeProviderReturnsNonZero)
     EXPECT_NE(std::chrono::microseconds {0}, clock.UnixTime());
 }
 
-void ToStringThreadFunc(std::size_t /*threadId*/)
+void ToStringThreadFunc(int /*threadId*/)
 {
     for (int i = 0; i < 10000; ++i)
     {
@@ -159,7 +172,7 @@ TEST_F(ClockTest, ParallelToString)
         threads[i].join();
 }
 
-void UnixTimeThreadFunc(std::size_t /*threadId*/)
+void UnixTimeThreadFunc(int /*threadId*/)
 {
     std::int64_t dummy = 0;
     for (int i = 0; i < 10000; ++i)

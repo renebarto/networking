@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <thread>
 #include "tracing/ScopedTracing.h"
-#include "tracing/Logging.h"
 #include "utility/Error.h"
 #include "utility/GenericError.h"
 #include "network-osal/Network.h"
@@ -145,7 +144,7 @@ Socket::Open()
     {
         int errorCode = GetError();
 
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "socket() failed")); 
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "socket() failed")); 
     }
 }
 
@@ -166,7 +165,7 @@ Socket::Close()
     {
         int errorCode = GetError();
 
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "close() failed")); 
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "close() failed")); 
     }
 }
 
@@ -198,7 +197,7 @@ void Socket::SetSocketOptionWithLevel(SocketOptionLevel level, SocketOption sock
     {
         int errorCode = GetError();
 
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "setsockopt() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "setsockopt() failed"));
     }
 }
 
@@ -217,7 +216,7 @@ void Socket::GetSocketOptionWithLevel(SocketOptionLevel level, SocketOption sock
     {
         int errorCode = GetError();
 
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "getsockopt() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "getsockopt() failed"));
     }
 }
 
@@ -326,7 +325,7 @@ void Socket::SetBlockingMode(bool value)
     {
         int errorCode = GetError();
 
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "fcntl() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "fcntl() failed"));
     }
 #if defined(PLATFORM_WINDOWS)
     m_isBlocking = value;
@@ -347,7 +346,7 @@ bool Socket::GetBlockingMode()
     {
         int errorCode = GetError();
 
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "fcntl() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "fcntl() failed"));
     }
 #elif defined(PLATFORM_WINDOWS)
     result = m_isBlocking;
@@ -449,7 +448,7 @@ void Socket::Bind(const sockaddr * address, socklen_t addressLength)
     {
         int errorCode = GetError();
 
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "bind() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "bind() failed"));
     }
 }
 
@@ -483,7 +482,7 @@ bool Socket::Connect(sockaddr const * serverAddress, socklen_t serverAddressLeng
     {
         int errorCode = GetError();
 
-        // tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() failed"));
+        // tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() failed"));
 
         if ((errorCode == EINPROGRESS) || (errorCode == EALREADY))
         {
@@ -496,7 +495,7 @@ bool Socket::Connect(sockaddr const * serverAddress, socklen_t serverAddressLeng
             {
                 errorCode = GetError();
 
-                // tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "poll() failed"));
+                // tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "poll() failed"));
             }
             else if (pollResult == 0)
             {
@@ -510,7 +509,7 @@ bool Socket::Connect(sockaddr const * serverAddress, socklen_t serverAddressLeng
             }
         }
         else if ((errorCode != EWOULDBLOCK) && (errorCode != EAGAIN))
-            tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() failed"));
+            tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() failed"));
     }
 #elif defined(PLATFORM_WINDOWS)
     SocketTimeout waitTime = 0;
@@ -537,36 +536,36 @@ bool Socket::Connect(sockaddr const * serverAddress, socklen_t serverAddressLeng
             FD_SET(m_handle, &exceptfds);
             // tracing::Tracing::Trace(tracing::TraceCategory::Data, __FILE__, __LINE__, __func__, "connect() wait, {} ms left", waitTime);
             int selectResult = select(1, &readfds, &writefds, &exceptfds, &waitInterval);
-            TraceMessage(__FILE__, __LINE__, __func__, "select() result={}", selectResult);
+            TraceInfo(__FILE__, __LINE__, __func__, "select() result={}", selectResult);
             waitTime -= std::min(waitTime, TimeWait);
             if (selectResult == -1)
             {
                 errorCode = GetError();
 
-                tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "select() failed"));
+                tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "select() failed"));
                 break;
             }
             else if (selectResult == 0)
             {
                 // errorCode = 0;
-                // tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() timeout"));
+                // tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() timeout"));
                 // break;
             }
             if (FD_ISSET(m_handle, &exceptfds))
             {
-                TraceMessage(__FILE__, __LINE__, __func__, "exceptfds");
+                TraceInfo(__FILE__, __LINE__, __func__, "exceptfds");
             }
             if (FD_ISSET(m_handle, &writefds))
             {
-                TraceMessage(__FILE__, __LINE__, __func__, "writefds");
-                TraceMessage(__FILE__, __LINE__, __func__, "connect() success");
+                TraceInfo(__FILE__, __LINE__, __func__, "writefds");
+                TraceInfo(__FILE__, __LINE__, __func__, "connect() success");
                 result = 0;
                 errorCode = 0;
                 break;
             }
         }
         if (errorCode != 0)
-            tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() failed"));
+            tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() failed"));
     }
 #endif
 
@@ -588,7 +587,7 @@ void Socket::Listen(int numListeners)
     {
         int errorCode = GetError();
 
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "listen() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "listen() failed"));
     }
 }
 
@@ -610,12 +609,12 @@ bool Socket::Accept(Socket & connectionSocket, sockaddr * clientAddress, socklen
     Lock lock(m_mutex);
     if (timeout != InfiniteTimeout)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Accept non-blocking");
+        TraceInfo(__FILE__, __LINE__, __func__, "Accept non-blocking");
         SetBlockingMode(false);
     }
     else
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Accept blocking");
+        TraceInfo(__FILE__, __LINE__, __func__, "Accept blocking");
         SetBlockingMode(true);
     }
 
@@ -632,7 +631,7 @@ bool Socket::Accept(Socket & connectionSocket, sockaddr * clientAddress, socklen
         {
             int errorCode = GetError();
 
-            // tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "accept() failed"));
+            // tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "accept() failed"));
 
             if (((errorCode == EWOULDBLOCK) || (errorCode == EAGAIN)) && (waitTime > 0))
             {
@@ -646,7 +645,7 @@ bool Socket::Accept(Socket & connectionSocket, sockaddr * clientAddress, socklen
             }
             else
             {
-                tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "accept() failed"));
+                tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "accept() failed"));
                 break;
             }
         }
@@ -656,7 +655,7 @@ bool Socket::Accept(Socket & connectionSocket, sockaddr * clientAddress, socklen
     SetBlockingMode(true);
     if (handle != -1)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "accept() success");
+        TraceInfo(__FILE__, __LINE__, __func__, "accept() success");
         connectionSocket.SetHandle(static_cast<SocketHandle>(handle));
     }
     else
@@ -685,7 +684,7 @@ void Socket::GetLocalAddress(sockaddr * address, socklen_t * addressLength)
     {
         int errorCode = GetError();
 
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "getsockname() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "getsockname() failed"));
     }
 }
 
@@ -707,7 +706,7 @@ void Socket::GetRemoteAddress(sockaddr * address, socklen_t * addressLength)
     {
         int errorCode = GetError();
 
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "getpeername() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "getpeername() failed"));
     }
 }
 
@@ -725,7 +724,7 @@ std::size_t Socket::Receive(std::uint8_t * data, std::size_t bufferSize, int fla
             serialization::SerializeData(data, numBytes));
     });
     Lock lock(m_mutex);
-    TraceMessage(__FILE__, __LINE__, __func__, "Receive");
+    TraceInfo(__FILE__, __LINE__, __func__, "Receive");
     try
     {
         int result = m_socketAPI.Receive(m_handle, data, bufferSize, flags);
@@ -734,11 +733,11 @@ std::size_t Socket::Receive(std::uint8_t * data, std::size_t bufferSize, int fla
             int errorCode = GetError();
 
             if ((errorCode != EINTR) && (errorCode != EWOULDBLOCK) && (errorCode != EAGAIN))
-                tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "recv() failed"));
+                tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "recv() failed"));
         } else if (result == 0)
         {
             // Read is blocking, if 0 bytes are returned the other side is closed
-            tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::GenericError("recv() returned nothing, closing socket"));
+            tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::GenericError("recv() returned nothing, closing socket"));
             if (IsOpen())
                 Close();
         } else
@@ -753,7 +752,7 @@ std::size_t Socket::Receive(std::uint8_t * data, std::size_t bufferSize, int fla
             numBytes = 0;
         }
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "Received {} bytes", numBytes);
+    TraceInfo(__FILE__, __LINE__, __func__, "Received {} bytes", numBytes);
     return numBytes;
 }
 
@@ -770,15 +769,15 @@ std::size_t Socket::Send(const std::uint8_t * data, std::size_t numBytesToSend, 
             result);
     });
     Lock lock(m_mutex);
-    TraceMessage(__FILE__, __LINE__, __func__, "Send");
+    TraceInfo(__FILE__, __LINE__, __func__, "Send");
     int numBytes = m_socketAPI.Send(m_handle, data, numBytesToSend, flags);
     if (numBytes == -1)
     {
         int errorCode = GetError();
 
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "send() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "send() failed"));
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "Sent {} bytes", numBytes);
+    TraceInfo(__FILE__, __LINE__, __func__, "Sent {} bytes", numBytes);
     result = static_cast<std::size_t>(numBytes);
     return result;
 }
@@ -800,7 +799,7 @@ bool Socket::ReceiveBlock(ByteBuffer & data, std::size_t bufferSize, int flags)
             serialization::SerializeData(data));
     });
 
-    TraceMessage(__FILE__, __LINE__, __func__, "Receive");
+    TraceInfo(__FILE__, __LINE__, __func__, "Receive");
     try
     {
         std::size_t numBytesToReceive = std::min(numBytesToReceiveTotal, BufferSize);
@@ -827,7 +826,7 @@ bool Socket::ReceiveBlock(ByteBuffer & data, std::size_t bufferSize, int flags)
     {
         LogError(__FILE__, __LINE__, __func__, "Receive failed: {}", e.what());
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "Received {} bytes", numBytesReceivedTotal);
+    TraceInfo(__FILE__, __LINE__, __func__, "Received {} bytes", numBytesReceivedTotal);
     result = (numBytesToReceiveTotal == 0);
     return result;
 }
@@ -848,7 +847,7 @@ std::size_t Socket::ReceiveBuffer(ByteBuffer & data, std::size_t bufferSize, int
             serialization::SerializeData(data));
     });
 
-    TraceMessage(__FILE__, __LINE__, __func__, "Receive");
+    TraceInfo(__FILE__, __LINE__, __func__, "Receive");
     try
     {
         std::size_t numBytesToReceive = std::min(numBytesToReceiveTotal, BufferSize);
@@ -872,7 +871,7 @@ std::size_t Socket::ReceiveBuffer(ByteBuffer & data, std::size_t bufferSize, int
     {
         LogError(__FILE__, __LINE__, __func__, "Receive failed: {}", e.what());
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "Received {} bytes", numBytesReceivedTotal);
+    TraceInfo(__FILE__, __LINE__, __func__, "Received {} bytes", numBytesReceivedTotal);
     return numBytesReceivedTotal;
 }
 
@@ -889,7 +888,7 @@ bool Socket::SendBuffer(const ByteBuffer & data, int flags)
         return utility::FormatString("result={} bytesSent={}", 
             result, numBytesSentTotal);
     });
-    TraceMessage(__FILE__, __LINE__, __func__, "Send");
+    TraceInfo(__FILE__, __LINE__, __func__, "Send");
     std::size_t numBytesLeftToSend = data.size();
     std::uint8_t block[BufferSize];
     try
@@ -909,7 +908,7 @@ bool Socket::SendBuffer(const ByteBuffer & data, int flags)
     {
         LogError(__FILE__, __LINE__, __func__, "Send failed {}", e.what());
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "Sent {} bytes", numBytesSentTotal);
+    TraceInfo(__FILE__, __LINE__, __func__, "Sent {} bytes", numBytesSentTotal);
     result = (numBytesLeftToSend == 0);
     return result;
 }
@@ -929,7 +928,7 @@ std::size_t Socket::ReceiveFrom(sockaddr * address, socklen_t * addressLength, s
             serialization::SerializeData(data, numBytes));
     });
     Lock lock(m_mutex);
-    TraceMessage(__FILE__, __LINE__, __func__, "Receive");
+    TraceInfo(__FILE__, __LINE__, __func__, "Receive");
     try
     {
         int result = m_socketAPI.ReceiveFrom(m_handle, data, bufferSize, 0, address, addressLength);
@@ -938,11 +937,11 @@ std::size_t Socket::ReceiveFrom(sockaddr * address, socklen_t * addressLength, s
             int errorCode = GetError();
 
             if ((errorCode != EINTR) && (errorCode != EWOULDBLOCK) && (errorCode != EAGAIN))
-                tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "recvfrom() failed"));
+                tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "recvfrom() failed"));
         } else if (result == 0)
         {
             // Read is blocking, if 0 bytes are returned the other side is closed
-            tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::GenericError("recvfrom() returned nothing, closing socket"));
+            tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::GenericError("recvfrom() returned nothing, closing socket"));
             Close();
         } else
         {
@@ -957,7 +956,7 @@ std::size_t Socket::ReceiveFrom(sockaddr * address, socklen_t * addressLength, s
         }
     }
 
-    TraceMessage(__FILE__, __LINE__, __func__, "Received {} bytes", numBytes);
+    TraceInfo(__FILE__, __LINE__, __func__, "Received {} bytes", numBytes);
     return numBytes;
 }
 
@@ -973,15 +972,15 @@ std::size_t Socket::SendTo(const sockaddr * address, socklen_t addressLength, co
         return utility::FormatString("result={}", result);
     });
     Lock lock(m_mutex);
-    TraceMessage(__FILE__, __LINE__, __func__, "Send");
+    TraceInfo(__FILE__, __LINE__, __func__, "Send");
     int numBytes = m_socketAPI.SendTo(m_handle, data, numBytesToSend, 0, address, addressLength);
     if (numBytes == -1)
     {
         int errorCode = GetError();
 
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "sendto() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "sendto() failed"));
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "Sent {} bytes", numBytes);
+    TraceInfo(__FILE__, __LINE__, __func__, "Sent {} bytes", numBytes);
     result = static_cast<std::size_t>(numBytes);
     return result;
 }
@@ -1003,7 +1002,7 @@ bool Socket::ReceiveBlockFrom(sockaddr * address, socklen_t * addressLength, Byt
             serialization::SerializeData(data));
     });
 
-    TraceMessage(__FILE__, __LINE__, __func__, "Receive");
+    TraceInfo(__FILE__, __LINE__, __func__, "Receive");
     try
     {
         std::size_t numBytesToReceive = std::min(numBytesToReceiveTotal, BufferSize);
@@ -1030,7 +1029,7 @@ bool Socket::ReceiveBlockFrom(sockaddr * address, socklen_t * addressLength, Byt
     {
         LogError(__FILE__, __LINE__, __func__, "Receive failed: {}", e.what());
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "Received {} bytes", numBytesReceivedTotal);
+    TraceInfo(__FILE__, __LINE__, __func__, "Received {} bytes", numBytesReceivedTotal);
     result = (numBytesToReceiveTotal == 0);
     return result;
 }
@@ -1051,7 +1050,7 @@ std::size_t Socket::ReceiveBufferFrom(sockaddr * address, socklen_t * addressLen
             serialization::SerializeData(data));
     });
 
-    TraceMessage(__FILE__, __LINE__, __func__, "Receive");
+    TraceInfo(__FILE__, __LINE__, __func__, "Receive");
     try
     {
         std::size_t numBytesToReceive = std::min(numBytesToReceiveTotal, BufferSize);
@@ -1075,7 +1074,7 @@ std::size_t Socket::ReceiveBufferFrom(sockaddr * address, socklen_t * addressLen
     {
         LogError(__FILE__, __LINE__, __func__, "Receive failed: {}", e.what());
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "Received {} bytes", numBytesReceivedTotal);
+    TraceInfo(__FILE__, __LINE__, __func__, "Received {} bytes", numBytesReceivedTotal);
     return numBytesReceivedTotal;
 }
 
@@ -1091,7 +1090,7 @@ bool Socket::SendBufferTo(const sockaddr * address, socklen_t addressLength, con
         return utility::FormatString("result={}", 
             result);
     });
-    TraceMessage(__FILE__, __LINE__, __func__, "Send");
+    TraceInfo(__FILE__, __LINE__, __func__, "Send");
     std::size_t numBytesLeftToSend = data.size();
     std::size_t numBytesSentTotal {};
     std::uint8_t block[BufferSize];
@@ -1112,7 +1111,7 @@ bool Socket::SendBufferTo(const sockaddr * address, socklen_t addressLength, con
     {
         LogError(__FILE__, __LINE__, __func__, "Send failed {}", e.what());
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "Sent {} bytes", numBytesSentTotal);
+    TraceInfo(__FILE__, __LINE__, __func__, "Sent {} bytes", numBytesSentTotal);
     result = (numBytesLeftToSend == 0);
     return result;
 }

@@ -3,10 +3,11 @@
 #include <chrono>
 #include "osal/ManualEvent.h"
 #include "osal/Signal.h"
-#include "core/Thread.h"
+#include "core/threading/Thread.h"
 #include "tracing/Tracing.h"
 
 namespace core {
+namespace threading {
 
 class WorkerThread
     : private Thread
@@ -17,7 +18,7 @@ public:
     WorkerThread & operator = (const WorkerThread &) = delete;
 
     explicit WorkerThread(const std::string & name)
-        : core::Thread(name)
+        : core::threading::Thread(name)
         , m_birthEvent()
     {
     }
@@ -54,15 +55,15 @@ protected:
         try
         {
             SetSignalMask();
-            TraceMessage(__FILE__, __LINE__, __func__, "Thread {} starting", GetName());
+            TraceInfo(__FILE__, __LINE__, __func__, "Thread {} starting", GetName());
             m_birthEvent.Set();
             Thread();
-            TraceMessage(__FILE__, __LINE__, __func__, "Thread {} stopping", GetName());
+            TraceInfo(__FILE__, __LINE__, __func__, "Thread {} stopping", GetName());
             m_state = ThreadState::Finished;
         }
         catch (const std::exception & e)
         {
-            TraceMessage(__FILE__, __LINE__, __func__, "Thread {}: Exception thown: {}", GetName(), std::string(e.what()));
+            TraceInfo(__FILE__, __LINE__, __func__, "Thread {}: Exception thown: {}", GetName(), std::string(e.what()));
             m_birthEvent.Set();
             throw;
         }
@@ -83,4 +84,5 @@ protected:
     }
 };
 
+} // namespace threading
 } // namespace core

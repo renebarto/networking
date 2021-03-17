@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020, Koninklijke Philips Electronics N.V.
+//
+// File        : TypeInfoTest.cpp
+//
+// Namespace   : osal
+//
+// Class       : -
+//
+// Description :
+//
+//------------------------------------------------------------------------------
+
 #include "GoogleTest.h"
 
 #include "osal/TypeInfo.h"

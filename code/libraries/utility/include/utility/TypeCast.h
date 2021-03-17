@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020 Koninklijke Philips Electronics N.V.
+//
+// File        : TypeCast.h
+//
+// Namespace   : -
+//
+// Class       : -
+//
+// Description :
+//
+//------------------------------------------------------------------------------
+
 #pragma once
 
 template <typename P>

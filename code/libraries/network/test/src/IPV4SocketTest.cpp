@@ -383,7 +383,7 @@ TEST_F(IPV4SocketTest, ConnectAcceptSendReceiveTCP)
     clientSocket.Open();
     IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
 
-    core::TypedReturnThread<bool> acceptorThread(IPV4SocketTCPAcceptThread);
+    core::threading::TypedReturnThread<bool> acceptorThread(IPV4SocketTCPAcceptThread);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     bool connected = clientSocket.Connect(serverAddress, 5000);
     EXPECT_TRUE(connected);
@@ -434,7 +434,7 @@ TEST_F(IPV4SocketTest, SendReceiveUDPConnected)
     clientSocket.Open();
     IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
 
-    core::TypedReturnThread<bool> serverThread(IPV4SocketUDPServerThread);
+    core::threading::TypedReturnThread<bool> serverThread(IPV4SocketUDPServerThread);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     bool connected = clientSocket.Connect(serverAddress, 5000);
     EXPECT_TRUE(connected);
@@ -460,7 +460,7 @@ TEST_F(IPV4SocketTest, SendReceiveUDPConnectionless)
     clientSocket.Open();
     IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
 
-    core::TypedReturnThread<bool> serverThread(IPV4SocketUDPServerThread);
+    core::threading::TypedReturnThread<bool> serverThread(IPV4SocketUDPServerThread);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     const std::size_t Size = 10;
     ByteBuffer bufferOut = { 'H', 'e', 'l', 'l', 'o', 'W', 'o', 'r', 'l', 'd'};

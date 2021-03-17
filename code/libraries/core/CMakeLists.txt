@@ -49,20 +49,18 @@ set(PROJECT_LIBS
     )
 
 set(PROJECT_SOURCES 
-    src/Regex.cpp
-    src/Thread.cpp
+    src/threading/Thread.cpp
+    src/types/CommonTypes.cpp
     )
 set(PROJECT_INCLUDES_PRIVATE
     )
 set(PROJECT_INCLUDES_PUBLIC
-    include/core/ActiveObject.h
-    include/core/IObservable.h
-    include/core/Iterator.h
-    include/core/Nullable.h
-    include/core/Observable.h
-    include/core/Regex.h
-    include/core/Thread.h
-    include/core/WorkerThread.h
+    include/core/serialization/Serialize.h
+    include/core/threading/ActiveObject.h
+    include/core/threading/Thread.h
+    include/core/threading/WorkerThread.h
+    include/core/types/CommonTypes.h
+    include/core/utilities/Iterator.h
     )
 
 display_list("Package                           : " ${PROJECT_NAME} )

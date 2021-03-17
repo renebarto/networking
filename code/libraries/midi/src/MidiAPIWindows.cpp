@@ -446,7 +446,7 @@ bool MidiAPIWindows::GetMidiInDevCaps(std::size_t index, MIDIINCAPS & caps) cons
     MMRESULT midiResult = midiInGetDevCaps(static_cast<UINT>(index), &caps, sizeof(caps));
     if (midiResult != MMSYSERR_NOERROR)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Could not get midi input device capabilities for {}, error code {}: {}", index, midiResult, GetMidiError(midiResult));
+        TraceInfo(__FILE__, __LINE__, __func__, "Could not get midi input device capabilities for {}, error code {}: {}", index, midiResult, GetMidiError(midiResult));
     }
     result = (midiResult == MMSYSERR_NOERROR);
     return result;
@@ -461,7 +461,7 @@ bool MidiAPIWindows::GetMidiOutDevCaps(std::size_t index, MIDIOUTCAPS & caps) co
     MMRESULT midiResult = midiOutGetDevCaps(static_cast<UINT>(index), &caps, sizeof(caps));
     if (midiResult != MMSYSERR_NOERROR)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Could not get midi output device capabilities for {}, error code {}: {}", index, midiResult, GetMidiError(midiResult));
+        TraceInfo(__FILE__, __LINE__, __func__, "Could not get midi output device capabilities for {}, error code {}: {}", index, midiResult, GetMidiError(midiResult));
     }
     result = (midiResult == MMSYSERR_NOERROR);
     return result;
@@ -476,7 +476,7 @@ HMIDIIN MidiAPIWindows::OpenMidiInputDevice(std::size_t index, IMidiInDevice * i
     MMRESULT midiResult = midiInOpen(&handle, static_cast<UINT>(index), reinterpret_cast<DWORD_PTR>(&MidiAPIWindows::MidiInProc), reinterpret_cast<DWORD_PTR>(instance), CALLBACK_FUNCTION | MIDI_IO_STATUS);
     if (midiResult != MMSYSERR_NOERROR)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Could not open midi input device {}, error code {}: {}", index, midiResult, GetMidiError(midiResult));
+        TraceInfo(__FILE__, __LINE__, __func__, "Could not open midi input device {}, error code {}: {}", index, midiResult, GetMidiError(midiResult));
     }
     return handle;
 }
@@ -489,7 +489,7 @@ void MidiAPIWindows::CloseMidiInputDevice(HMIDIIN handle)
     MMRESULT midiResult = midiInClose(handle);
     if (midiResult != MMSYSERR_NOERROR)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Could not close midi input device {}, error code {}: {}", handle, midiResult, GetMidiError(midiResult));
+        TraceInfo(__FILE__, __LINE__, __func__, "Could not close midi input device {}, error code {}: {}", handle, midiResult, GetMidiError(midiResult));
     }
 }
 
@@ -502,7 +502,7 @@ bool MidiAPIWindows::StartMidiInputDevice(HMIDIIN handle)
     MMRESULT midiResult = midiInStart(handle);
     if (midiResult != MMSYSERR_NOERROR)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Could not start midi input device {}, error code {}: {}", handle, midiResult, GetMidiError(midiResult));
+        TraceInfo(__FILE__, __LINE__, __func__, "Could not start midi input device {}, error code {}: {}", handle, midiResult, GetMidiError(midiResult));
     }
     result = (midiResult == MMSYSERR_NOERROR);
     return result;
@@ -517,7 +517,7 @@ bool MidiAPIWindows::StopMidiInputDevice(HMIDIIN handle)
     MMRESULT midiResult = midiInStop(handle);
     if (midiResult != MMSYSERR_NOERROR)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Could not stop midi input device {}, error code {}: {}", handle, midiResult, GetMidiError(midiResult));
+        TraceInfo(__FILE__, __LINE__, __func__, "Could not stop midi input device {}, error code {}: {}", handle, midiResult, GetMidiError(midiResult));
     }
     result = (midiResult == MMSYSERR_NOERROR);
     return result;
@@ -532,7 +532,7 @@ HMIDIOUT MidiAPIWindows::OpenMidiOutputDevice(std::size_t index, IMidiOutDevice 
     MMRESULT midiResult = midiOutOpen(&handle, static_cast<UINT>(index), reinterpret_cast<DWORD_PTR>(&MidiAPIWindows::MidiOutProc), reinterpret_cast<DWORD_PTR>(instance), CALLBACK_FUNCTION);
     if (midiResult != MMSYSERR_NOERROR)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Could not open midi output device {}, error code {}: {}", index, midiResult, GetMidiError(midiResult));
+        TraceInfo(__FILE__, __LINE__, __func__, "Could not open midi output device {}, error code {}: {}", index, midiResult, GetMidiError(midiResult));
     }
     return handle;
 }
@@ -545,7 +545,7 @@ void MidiAPIWindows::CloseMidiOutputDevice(HMIDIOUT handle)
     MMRESULT midiResult = midiOutClose(handle);
     if (midiResult != MMSYSERR_NOERROR)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Could not close midi output device {}, error code {}: {}", handle, midiResult, GetMidiError(midiResult));
+        TraceInfo(__FILE__, __LINE__, __func__, "Could not close midi output device {}, error code {}: {}", handle, midiResult, GetMidiError(midiResult));
     }
 }
 
@@ -558,7 +558,7 @@ bool MidiAPIWindows::SendMidiOutMessage(HMIDIOUT handle, std::uint32_t msg)
     MMRESULT midiResult = midiOutShortMsg(handle, static_cast<DWORD>(msg));
     if (midiResult != MMSYSERR_NOERROR)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Could not send midi output message {} to {}, error code {}: {}", msg, handle, midiResult, GetMidiError(midiResult));
+        TraceInfo(__FILE__, __LINE__, __func__, "Could not send midi output message {} to {}, error code {}: {}", msg, handle, midiResult, GetMidiError(midiResult));
     }
     result = (midiResult == MMSYSERR_NOERROR);
     return result;
@@ -579,7 +579,7 @@ void MidiAPIWindows::MidiInProc(
     DWORD_PTR param2)
 {
     IMidiInDevice * device = reinterpret_cast<IMidiInDevice *>(instance);
-    TraceMessage(__FILE__, __LINE__, __func__, "Received MIDI IN: handle={}, msg={}, instance={}, param1={}, param2={}", handle, static_cast<MidiMessage>(msg), device, param1, param2);
+    TraceInfo(__FILE__, __LINE__, __func__, "Received MIDI IN: handle={}, msg={}, instance={}, param1={}, param2={}", handle, static_cast<MidiMessage>(msg), device, param1, param2);
     if (device)
         device->OnMidiEvent(static_cast<std::uint32_t>(msg), static_cast<std::uint32_t>(param1), static_cast<std::uint32_t>(param2));
 }
@@ -592,7 +592,7 @@ void MidiAPIWindows::MidiOutProc(
     DWORD_PTR param2)
 {
     IMidiOutDevice * device = reinterpret_cast<IMidiOutDevice *>(instance);
-    TraceMessage(__FILE__, __LINE__, __func__, "Received MIDI OUT: handle={}, msg={}, instance={}, param1={}, param2={}", handle, static_cast<MidiMessage>(msg), device, param1, param2);
+    TraceInfo(__FILE__, __LINE__, __func__, "Received MIDI OUT: handle={}, msg={}, instance={}, param1={}, param2={}", handle, static_cast<MidiMessage>(msg), device, param1, param2);
     // if (device)
     //     device->OnMidiEvent(static_cast<std::uint32_t>(msg), static_cast<std::uint32_t>(param1), static_cast<std::uint32_t>(param2));
 }

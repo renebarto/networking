@@ -1,3 +1,17 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020, Koninklijke Philips Electronics N.V.
+//
+// File        : MapUtilitiesTest.cpp
+//
+// Namespace   : utility::maptranslation
+//
+// Class       : -
+//
+// Description : 
+//  Test for map utilities
+//
+//------------------------------------------------------------------------------
+
 #include "GoogleTest.h"
 
 #include "utility/MapUtilities.h"

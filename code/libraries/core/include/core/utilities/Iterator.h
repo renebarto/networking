@@ -1,9 +1,10 @@
 #pragma once
 
 #include "utility/GenericError.h"
-#include "tracing/Logging.h"
+#include "tracing/Tracing.h"
 
 namespace core {
+namespace utilities {
 
 template<class Container>
 class Iterator
@@ -36,14 +37,14 @@ public:
     Element * operator ->()
     {
         if ((m_current < m_begin) || (m_current >= m_end))
-            tracing::Logging::Throw(__FILE__, __LINE__, __FUNCTION__, utility::GenericError("Iterator outside range"));
+            tracing::Tracing::Throw(__FILE__, __LINE__, __FUNCTION__, utility::GenericError("Iterator outside range"));
 
         return m_current;
     }
     Element & operator *()
     {
         if ((m_current < m_begin) || (m_current >= m_end))
-            tracing::Logging::Throw(__FILE__, __LINE__, __FUNCTION__, utility::GenericError("Iterator outside range"));
+            tracing::Tracing::Throw(__FILE__, __LINE__, __FUNCTION__, utility::GenericError("Iterator outside range"));
 
         return *m_current;
     }
@@ -85,14 +86,14 @@ public:
     const Element * operator ->()
     {
         if ((m_current < m_begin) || (m_current >= m_end))
-            tracing::Logging::Throw(__FILE__, __LINE__, __FUNCTION__, utility::GenericError("Iterator outside range"));
+            tracing::Tracing::Throw(__FILE__, __LINE__, __FUNCTION__, utility::GenericError("Iterator outside range"));
 
         return m_current;
     }
     const Element & operator *() const
     {
         if ((m_current < m_begin) || (m_current >= m_end))
-            tracing::Logging::Throw(__FILE__, __LINE__, __FUNCTION__, utility::GenericError("Iterator outside range"));
+            tracing::Tracing::Throw(__FILE__, __LINE__, __FUNCTION__, utility::GenericError("Iterator outside range"));
 
         return *m_current;
     }
@@ -103,4 +104,5 @@ private:
     typename Container::const_iterator m_end;
 };
 
+} // namespace utilities
 } // namespace core

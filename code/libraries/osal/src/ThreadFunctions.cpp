@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2021 Koninklijke Philips Electronics N.V.
+//
+// File        : Thread.cpp
+//
+// Namespace   : osal
+//
+// Class       : -
+//
+// Description : Basic threading functions
+//
+//------------------------------------------------------------------------------
+
 #include "osal/ThreadFunctions.h"
 
 #include <map>
@@ -80,26 +93,21 @@ bool IsThreadAlive(std::thread & thread)
     return thread.native_handle() != 0ul;
 }
 
-ThreadPriority GetThreadPrioritySelf()
+ThreadPriority ConvertToThreadPriority(int schedulingPolicy, const sched_param & schedulingParameters)
 {
-    int policy;
-    struct sched_param sched;
-    int result = pthread_getschedparam(pthread_self(), &policy, &sched);
-    if (result != 0)
-        throw std::runtime_error("Failed to get the current thread priority!");
-    if ((policy == SCHED_FIFO) || (policy == SCHED_RR))
+    if ((schedulingPolicy == SCHED_FIFO) || (schedulingPolicy == SCHED_RR))
     {
-        if (sched.sched_priority < 15)
+        if (schedulingParameters.sched_priority < 15)
             return ThreadPriority::IDLE;
-        else if (sched.sched_priority < 30)
+        else if (schedulingParameters.sched_priority < 30)
             return ThreadPriority::LOWEST;
-        else if (sched.sched_priority < 50)
+        else if (schedulingParameters.sched_priority < 50)
             return ThreadPriority::LOW;
-        else if (sched.sched_priority < 70)
+        else if (schedulingParameters.sched_priority < 70)
             return ThreadPriority::NORMAL;
-        else if (sched.sched_priority < 85)
+        else if (schedulingParameters.sched_priority < 85)
             return ThreadPriority::HIGH;
-        else if (sched.sched_priority < 99)
+        else if (schedulingParameters.sched_priority < 99)
             return ThreadPriority::HIGHEST;
         else
             return ThreadPriority::REALTIME;
@@ -107,67 +115,65 @@ ThreadPriority GetThreadPrioritySelf()
         return ThreadPriority::NORMAL;
 }
 
-ThreadPriority GetThreadPriority(std::thread & thread)
+void ConvertFromThreadPriority(ThreadPriority priority, sched_param & schedulingParameters)
 {
-    int policy;
-    struct sched_param sched;
-    int result = pthread_getschedparam(thread.native_handle(), &policy, &sched);
-    if (result != 0)
-        throw std::runtime_error("Failed to get the given thread priority!");
-    if ((policy == SCHED_FIFO) || (policy == SCHED_RR))
-    {
-        if (sched.sched_priority < 15)
-            return ThreadPriority::IDLE;
-        else if (sched.sched_priority < 30)
-            return ThreadPriority::LOWEST;
-        else if (sched.sched_priority < 50)
-            return ThreadPriority::LOW;
-        else if (sched.sched_priority < 70)
-            return ThreadPriority::NORMAL;
-        else if (sched.sched_priority < 85)
-            return ThreadPriority::HIGH;
-        else if (sched.sched_priority < 99)
-            return ThreadPriority::HIGHEST;
-        else
-            return ThreadPriority::REALTIME;
-    } else
-        return ThreadPriority::NORMAL;
-}
-
-void SetThreadPrioritySelf(ThreadPriority priority)
-{
-    int policy = SCHED_RR;
-    struct sched_param sched;
-    sched.sched_priority = 50;
+    schedulingParameters.sched_priority = 50;
     switch (priority)
     {
         case ThreadPriority::IDLE:
-            sched.sched_priority = 1;
+            schedulingParameters.sched_priority = 1;
             break;
         case ThreadPriority::LOWEST:
-            sched.sched_priority = 15;
+            schedulingParameters.sched_priority = 15;
             break;
         case ThreadPriority::LOW:
-            sched.sched_priority = 30;
+            schedulingParameters.sched_priority = 30;
             break;
         case ThreadPriority::NORMAL:
-            sched.sched_priority = 50;
+            schedulingParameters.sched_priority = 50;
             break;
         case ThreadPriority::HIGH:
-            sched.sched_priority = 70;
+            schedulingParameters.sched_priority = 70;
             break;
         case ThreadPriority::HIGHEST:
-            sched.sched_priority = 85;
+            schedulingParameters.sched_priority = 85;
             break;
         case ThreadPriority::REALTIME:
-            sched.sched_priority = 99;
+            schedulingParameters.sched_priority = 99;
             break;
         default:
             // Do no change priority
             break;
     }
+}
 
-    int result = pthread_setschedparam(pthread_self(), policy, &sched);
+ThreadPriority GetThreadPrioritySelf()
+{
+    int policy;
+    struct sched_param schedulingParameters;
+    int result = pthread_getschedparam(pthread_self(), &policy, &schedulingParameters);
+    if (result != 0)
+        throw std::runtime_error("Failed to get the current thread priority!");
+    return ConvertToThreadPriority(policy, schedulingParameters);
+}
+
+ThreadPriority GetThreadPriority(std::thread & thread)
+{
+    int policy;
+    struct sched_param schedulingParameters;
+    int result = pthread_getschedparam(thread.native_handle(), &policy, &schedulingParameters);
+    if (result != 0)
+        throw std::runtime_error("Failed to get the given thread priority!");
+    return ConvertToThreadPriority(policy, schedulingParameters);
+}
+
+void SetThreadPrioritySelf(ThreadPriority priority)
+{
+    int policy = SCHED_RR;
+    struct sched_param schedulingParameters;
+    ConvertFromThreadPriority(priority, schedulingParameters);
+
+    int result = pthread_setschedparam(pthread_self(), policy, &schedulingParameters);
     if (result != 0)
         throw std::runtime_error("Failed to set the current thread priority!");
 }
@@ -175,37 +181,10 @@ void SetThreadPrioritySelf(ThreadPriority priority)
 void SetThreadPriority(std::thread & thread, ThreadPriority priority)
 {
     int policy = SCHED_RR;
-    struct sched_param sched;
-    sched.sched_priority = 50;
-    switch (priority)
-    {
-        case ThreadPriority::IDLE:
-            sched.sched_priority = 1;
-            break;
-        case ThreadPriority::LOWEST:
-            sched.sched_priority = 15;
-            break;
-        case ThreadPriority::LOW:
-            sched.sched_priority = 30;
-            break;
-        case ThreadPriority::NORMAL:
-            sched.sched_priority = 50;
-            break;
-        case ThreadPriority::HIGH:
-            sched.sched_priority = 70;
-            break;
-        case ThreadPriority::HIGHEST:
-            sched.sched_priority = 85;
-            break;
-        case ThreadPriority::REALTIME:
-            sched.sched_priority = 99;
-            break;
-        default:
-            // Do no change priority
-            break;
-    }
+    struct sched_param schedulingParameters;
+    ConvertFromThreadPriority(priority, schedulingParameters);
 
-    int result = pthread_setschedparam(thread.native_handle(), policy, &sched);
+    int result = pthread_setschedparam(thread.native_handle(), policy, &schedulingParameters);
     if (result != 0)
         throw std::runtime_error("Failed to set the given thread priority!");
 }
@@ -276,11 +255,8 @@ bool IsThreadAlive(std::thread & thread)
     return thread.native_handle() != nullptr;
 }
 
-ThreadPriority GetThreadPrioritySelf()
+ThreadPriority ConvertToThreadPriority(int priority)
 {
-    int priority = ::GetThreadPriority(::GetCurrentThread());
-    if (priority == THREAD_PRIORITY_ERROR_RETURN)
-        throw std::runtime_error("Failed to get the current thread priority!");
     if (priority < THREAD_PRIORITY_LOWEST)
         return ThreadPriority::IDLE;
     else if (priority < THREAD_PRIORITY_BELOW_NORMAL)
@@ -295,6 +271,43 @@ ThreadPriority GetThreadPrioritySelf()
         return ThreadPriority::HIGHEST;
     else
         return ThreadPriority::REALTIME;
+}
+
+void ConvertFromThreadPriority(ThreadPriority threadPriority, int & priority)
+{
+    priority = THREAD_PRIORITY_NORMAL;
+    switch (threadPriority)
+    {
+        case ThreadPriority::IDLE:
+            priority = THREAD_PRIORITY_IDLE;
+            break;
+        case ThreadPriority::LOWEST:
+            priority = THREAD_PRIORITY_LOWEST;
+            break;
+        case ThreadPriority::LOW:
+            priority = THREAD_PRIORITY_BELOW_NORMAL;
+            break;
+        case ThreadPriority::NORMAL:
+            priority = THREAD_PRIORITY_NORMAL;
+            break;
+        case ThreadPriority::HIGH:
+            priority = THREAD_PRIORITY_ABOVE_NORMAL;
+            break;
+        case ThreadPriority::HIGHEST:
+            priority = THREAD_PRIORITY_HIGHEST;
+            break;
+        case ThreadPriority::REALTIME:
+            priority = THREAD_PRIORITY_TIME_CRITICAL;
+            break;
+    }
+}
+
+ThreadPriority GetThreadPrioritySelf()
+{
+    int priority = ::GetThreadPriority(::GetCurrentThread());
+    if (priority == THREAD_PRIORITY_ERROR_RETURN)
+        throw std::runtime_error("Failed to get the current thread priority!");
+    return ConvertToThreadPriority(priority);
 }
 
 ThreadPriority GetThreadPriority(std::thread & thread)
@@ -302,49 +315,13 @@ ThreadPriority GetThreadPriority(std::thread & thread)
     int priority = ::GetThreadPriority(static_cast<HANDLE>(thread.native_handle()));
     if (priority == THREAD_PRIORITY_ERROR_RETURN)
         throw std::runtime_error("Failed to get the given thread priority!");
-    if (priority < THREAD_PRIORITY_LOWEST)
-        return ThreadPriority::IDLE;
-    else if (priority < THREAD_PRIORITY_BELOW_NORMAL)
-        return ThreadPriority::LOWEST;
-    else if (priority < THREAD_PRIORITY_NORMAL)
-        return ThreadPriority::LOW;
-    else if (priority < THREAD_PRIORITY_ABOVE_NORMAL)
-        return ThreadPriority::NORMAL;
-    else if (priority < THREAD_PRIORITY_HIGHEST)
-        return ThreadPriority::HIGH;
-    else if (priority < THREAD_PRIORITY_TIME_CRITICAL)
-        return ThreadPriority::HIGHEST;
-    else
-        return ThreadPriority::REALTIME;
+    return ConvertToThreadPriority(priority);
 }
 
 void SetThreadPrioritySelf(ThreadPriority priority)
 {
-    int nPriority = THREAD_PRIORITY_NORMAL;
-    switch (priority)
-    {
-        case ThreadPriority::IDLE:
-            nPriority = THREAD_PRIORITY_IDLE;
-            break;
-        case ThreadPriority::LOWEST:
-            nPriority = THREAD_PRIORITY_LOWEST;
-            break;
-        case ThreadPriority::LOW:
-            nPriority = THREAD_PRIORITY_BELOW_NORMAL;
-            break;
-        case ThreadPriority::NORMAL:
-            nPriority = THREAD_PRIORITY_NORMAL;
-            break;
-        case ThreadPriority::HIGH:
-            nPriority = THREAD_PRIORITY_ABOVE_NORMAL;
-            break;
-        case ThreadPriority::HIGHEST:
-            nPriority = THREAD_PRIORITY_HIGHEST;
-            break;
-        case ThreadPriority::REALTIME:
-            nPriority = THREAD_PRIORITY_TIME_CRITICAL;
-            break;
-    }
+    int nPriority {};
+    ConvertFromThreadPriority(priority, nPriority);
 
     if (!::SetThreadPriority(::GetCurrentThread(), nPriority))
         throw std::runtime_error("Failed to set the current thread priority!");
@@ -352,31 +329,8 @@ void SetThreadPrioritySelf(ThreadPriority priority)
 
 void SetThreadPriority(std::thread & thread, ThreadPriority priority)
 {
-    int nPriority = THREAD_PRIORITY_NORMAL;
-    switch (priority)
-    {
-        case ThreadPriority::IDLE:
-            nPriority = THREAD_PRIORITY_IDLE;
-            break;
-        case ThreadPriority::LOWEST:
-            nPriority = THREAD_PRIORITY_LOWEST;
-            break;
-        case ThreadPriority::LOW:
-            nPriority = THREAD_PRIORITY_BELOW_NORMAL;
-            break;
-        case ThreadPriority::NORMAL:
-            nPriority = THREAD_PRIORITY_NORMAL;
-            break;
-        case ThreadPriority::HIGH:
-            nPriority = THREAD_PRIORITY_ABOVE_NORMAL;
-            break;
-        case ThreadPriority::HIGHEST:
-            nPriority = THREAD_PRIORITY_HIGHEST;
-            break;
-        case ThreadPriority::REALTIME:
-            nPriority = THREAD_PRIORITY_TIME_CRITICAL;
-            break;
-    }
+    int nPriority {};
+    ConvertFromThreadPriority(priority, nPriority);
 
     if (!::SetThreadPriority(static_cast<HANDLE>(thread.native_handle()), nPriority))
         throw std::runtime_error("Failed to set the given thread priority!");

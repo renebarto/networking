@@ -1,3 +1,5 @@
+message(STATUS "In directory: ${CMAKE_CURRENT_SOURCE_DIR}")
+
 add_subdirectory(osal)
 add_subdirectory(utility)
 add_subdirectory(tracing)

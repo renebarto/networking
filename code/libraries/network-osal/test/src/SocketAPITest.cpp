@@ -4,11 +4,10 @@
 
 #include <algorithm>
 #include "osal/Utilities.h"
-#include "core/Thread.h"
+#include "core/threading/Thread.h"
 #include "network-osal/IPV4Address.h"
 #include "network-osal/Network.h"
 #include "network-osal/Socket.h"
-#include "tracing/Logging.h"
 #include "tracing/Tracing.h"
 #include "utility/Error.h"
 #include "Utility.h"
@@ -58,7 +57,7 @@ public:
     void SetUp() override
     {
         savedTraceFilter = tracing::GetDefaultTraceFilter();
-        tracing::SetDefaultTraceFilter(tracing::TraceCategory::Message);
+        tracing::SetDefaultTraceFilter(tracing::TraceCategory::Information);
     }
     void TearDown() override
     {
@@ -101,11 +100,11 @@ TEST_F(SocketAPITest, OpenCloseTCP)
 
 bool SetBlockingMode(SocketAPI & api, SocketHandle handle, bool blocking)
 {
-    TraceMessage(__FILE__, __LINE__, __func__, (blocking ? "Set blocking mode" : "Set non blocking mode"));
+    TraceInfo(__FILE__, __LINE__, __func__, (blocking ? "Set blocking mode" : "Set non blocking mode"));
     if (-1 == api.SetBlockingMode(handle, blocking))
     {
         int errorCode = GetError();
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "SetBlockingMode() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "SetBlockingMode() failed"));
         return false;
     }
     return true;
@@ -123,20 +122,20 @@ bool ExchangeDataNonConnected(SocketAPI & api, SocketHandle handle)
     if (numBytesSent == -1)
     {
         int errorCode = GetError();
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Client SendTo() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Client SendTo() failed"));
         return false;
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "Client SendTo sent={}", numBytesSent);
+    TraceInfo(__FILE__, __LINE__, __func__, "Client SendTo sent={}", numBytesSent);
     sockaddr_in peerAddress {};
     socklen_t peerAddressSize = sizeof(peerAddress);
     int numBytesReceived = api.ReceiveFrom(handle, bufferIn, Size, 0, reinterpret_cast<sockaddr *>(&peerAddress), &peerAddressSize);
     if (numBytesReceived == -1)
     {
         int errorCode = GetError();
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Client ReceiveFrom() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Client ReceiveFrom() failed"));
         return false;
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "Client ReceiveFrom received={}", numBytesReceived);
+    TraceInfo(__FILE__, __LINE__, __func__, "Client ReceiveFrom received={}", numBytesReceived);
     if (Size != numBytesSent)
         return false;
     if (Size != numBytesReceived)
@@ -155,18 +154,18 @@ bool ExchangeDataConnected(SocketAPI & api, SocketHandle handle)
     if (numBytesSent == -1)
     {
         int errorCode = GetError();
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Send() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Send() failed"));
         return false;
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "Send sent={}", numBytesSent);
+    TraceInfo(__FILE__, __LINE__, __func__, "Send sent={}", numBytesSent);
     int numBytesReceived = api.Receive(handle, bufferIn, static_cast<std::size_t>(numBytesSent), 0);
     if (numBytesReceived == -1)
     {
         int errorCode = GetError();
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Receive() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Receive() failed"));
         return false;
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "Receive received={}", numBytesReceived);
+    TraceInfo(__FILE__, __LINE__, __func__, "Receive received={}", numBytesReceived);
     if (Size != numBytesSent)
         return false;
     if (Size != numBytesReceived)
@@ -181,13 +180,13 @@ bool Connect(SocketAPI & api, SocketHandle handle, const sockaddr_in & address)
     bool connected {};
     SocketTimeout timeout = 5000;
     int result {};
-    TraceMessage(__FILE__, __LINE__, __func__, "Client Connect start");
+    TraceInfo(__FILE__, __LINE__, __func__, "Client Connect start");
 #if defined(PLATFORM_LINUX)
     result = api.Connect(handle, reinterpret_cast<const sockaddr *>(&address), sizeof(address));
     if (result == -1)
     {
         int errorCode = GetError();
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Client Connect() error"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Client Connect() error"));
 
         if ((errorCode == EINPROGRESS) || (errorCode == EALREADY))
         {
@@ -210,7 +209,7 @@ bool Connect(SocketAPI & api, SocketHandle handle, const sockaddr_in & address)
             }
         }
         else if ((errorCode != EWOULDBLOCK) && (errorCode != EAGAIN))
-            tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Client Connect() failed"));
+            tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Client Connect() failed"));
     }
 #elif defined(PLATFORM_WINDOWS)
     SocketTimeout waitTime = timeout;
@@ -218,7 +217,7 @@ bool Connect(SocketAPI & api, SocketHandle handle, const sockaddr_in & address)
     if (result == -1)
     {
         int errorCode = GetError();
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Client Connect() error"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Client Connect() error"));
 
         while ((waitTime > 0) && ((errorCode == EWOULDBLOCK) || (errorCode == EINPROGRESS)))
         {
@@ -233,39 +232,39 @@ bool Connect(SocketAPI & api, SocketHandle handle, const sockaddr_in & address)
             FD_SET(handle, &exceptfds);
             tracing::Tracing::Trace(tracing::TraceCategory::Data, __FILE__, __LINE__, __func__, "connect() wait, {} ms left", waitTime);
             int selectResult = select(1, &readfds, &writefds, &exceptfds, &waitInterval);
-            TraceMessage(__FILE__, __LINE__, __func__, "select() result={}", selectResult);
+            TraceInfo(__FILE__, __LINE__, __func__, "select() result={}", selectResult);
             waitTime -= std::min(waitTime, TimeWait);
             if (selectResult == -1)
             {
                 errorCode = GetError();
 
-                tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "select() failed"));
+                tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "select() failed"));
                 break;
             }
             else if (selectResult == 0)
             {
                 // errorCode = 0;
-                // tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() timeout"));
+                // tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "connect() timeout"));
                 // break;
             }
             if (FD_ISSET(handle, &exceptfds))
             {
-                TraceMessage(__FILE__, __LINE__, __func__, "Client Connect() exception");
+                TraceInfo(__FILE__, __LINE__, __func__, "Client Connect() exception");
             }
             if (FD_ISSET(handle, &writefds))
             {
-                TraceMessage(__FILE__, __LINE__, __func__, "Client Connect() success");
+                TraceInfo(__FILE__, __LINE__, __func__, "Client Connect() success");
                 result = 0;
                 errorCode = 0;
                 break;
             }
         }
         if (result == -1)
-            tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Client Connect() timeout"));
+            tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Client Connect() timeout"));
     }
 #endif
     // Note: UDP connection will always succeed, as it simply registers the address
-    TraceMessage(__FILE__, __LINE__, __func__, "Client Connect end result={}", result);
+    TraceInfo(__FILE__, __LINE__, __func__, "Client Connect end result={}", result);
     if (result != -1)
     {
 #if defined(__FreeBSD__) || defined(BSD)
@@ -281,7 +280,7 @@ bool Connect(SocketAPI & api, SocketHandle handle, const sockaddr_in & address)
 #endif
     }
     connected = (result != -1);
-    TraceMessage(__FILE__, __LINE__, __func__, "Client Connect end connected={}", connected);
+    TraceInfo(__FILE__, __LINE__, __func__, "Client Connect end connected={}", connected);
     return connected;
 }
 
@@ -298,12 +297,12 @@ bool ConnectNonBlocking(SocketAPI & api, SocketHandle handle, const sockaddr_in 
 
 bool Bind(SocketAPI & api, SocketHandle handle, const sockaddr_in & address)
 {
-    TraceMessage(__FILE__, __LINE__, __func__, "Bind");
+    TraceInfo(__FILE__, __LINE__, __func__, "Bind");
     int result = api.Bind(handle, reinterpret_cast<const sockaddr *>(&address), sizeof(address));
     if (result == -1)
     {
         int errorCode = GetError();
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Bind() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Bind() failed"));
         return false;
     }
     return true;
@@ -311,12 +310,12 @@ bool Bind(SocketAPI & api, SocketHandle handle, const sockaddr_in & address)
 
 bool Listen(SocketAPI & api, SocketHandle handle, int numListeners)
 {
-    TraceMessage(__FILE__, __LINE__, __func__, "Server Listen");
+    TraceInfo(__FILE__, __LINE__, __func__, "Server Listen");
     int result = api.Listen(handle, numListeners);
     if (result == -1)
     {
         int errorCode = GetError();
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Server Listen() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Server Listen() failed"));
         return false;
     }
     return true;
@@ -354,7 +353,7 @@ bool SocketAPITest_TCPAcceptFunction()
     SocketTimeout timeout = 5000;
     SocketTimeout waitTime = timeout;
 
-    TraceMessage(__FILE__, __LINE__, __func__, "Server Accept start");
+    TraceInfo(__FILE__, __LINE__, __func__, "Server Accept start");
 
     do
     {
@@ -363,11 +362,11 @@ bool SocketAPITest_TCPAcceptFunction()
         {
             int errorCode = GetError();
 
-            tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Server Accept() error"));
+            tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Server Accept() error"));
 
             if (((errorCode == EWOULDBLOCK) || (errorCode == EAGAIN)) && (waitTime > 0))
             {
-                TraceMessage(__FILE__, __LINE__, __func__, "Server Accept() wait, {} ms left", waitTime);
+                TraceInfo(__FILE__, __LINE__, __func__, "Server Accept() wait, {} ms left", waitTime);
                 std::this_thread::sleep_for(std::chrono::milliseconds(TimeWait));
                 waitTime -= std::min(waitTime, TimeWait);
             }
@@ -377,7 +376,7 @@ bool SocketAPITest_TCPAcceptFunction()
             }
             else
             {
-                tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Server Accept() failed"));
+                tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Server Accept() failed"));
                 break;
             }
         }
@@ -385,7 +384,7 @@ bool SocketAPITest_TCPAcceptFunction()
     while ((clientHandle == -1) && (waitTime > 0));
     bool accepted = (clientHandle != -1);
 
-    TraceMessage(__FILE__, __LINE__, __func__, "Server Accept end");
+    TraceInfo(__FILE__, __LINE__, __func__, "Server Accept end");
 
     if (!SetBlockingMode(api, acceptorHandle, true))
     {
@@ -397,7 +396,7 @@ bool SocketAPITest_TCPAcceptFunction()
     {
         const int Size = 10;
         std::uint8_t buffer[Size];
-        TraceMessage(__FILE__, __LINE__, __func__, "Client set blocking mode");
+        TraceInfo(__FILE__, __LINE__, __func__, "Client set blocking mode");
         if (!SetBlockingMode(api, clientHandle, true))
         {
             api.Close(clientHandle);
@@ -409,26 +408,26 @@ bool SocketAPITest_TCPAcceptFunction()
         if (numBytesReceived == -1)
         {
             int errorCode = GetError();
-            tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Server Receive() failed"));
+            tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Server Receive() failed"));
             api.Close(clientHandle);
             api.Close(acceptorHandle);
             return false;
         }
-        TraceMessage(__FILE__, __LINE__, __func__, "Server Receive received={}", numBytesReceived);
+        TraceInfo(__FILE__, __LINE__, __func__, "Server Receive received={}", numBytesReceived);
         int numBytesSent = api.Send(clientHandle, buffer, static_cast<std::size_t>(numBytesReceived), 0);
         if (numBytesSent == -1)
         {
             int errorCode = GetError();
-            tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Server Send() failed"));
+            tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Server Send() failed"));
             api.Close(clientHandle);
             api.Close(acceptorHandle);
             return false;
         }
-        TraceMessage(__FILE__, __LINE__, __func__, "Server Send sent={}", numBytesSent);
+        TraceInfo(__FILE__, __LINE__, __func__, "Server Send sent={}", numBytesSent);
     }
     // Wait for client to close connection, otherwise we'll end up in TIME_WAIT status
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    TraceMessage(__FILE__, __LINE__, __func__, "Server close down");
+    TraceInfo(__FILE__, __LINE__, __func__, "Server close down");
     api.Close(clientHandle);
     api.Close(acceptorHandle);
 
@@ -454,7 +453,7 @@ bool SocketAPITest_TCPClientFunction()
         }
     }
     // Make sure to close client before server ends, otherwise we'll end up in TIME_WAIT status
-    TraceMessage(__FILE__, __LINE__, __func__, "Client close down");
+    TraceInfo(__FILE__, __LINE__, __func__, "Client close down");
     api.Close(clientHandle);
 
     return connected;
@@ -480,22 +479,22 @@ bool SocketAPITest_UDPServerFunction()
     if (numBytesReceived == -1)
     {
         int errorCode = GetError();
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Server ReceiveFrom() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Server ReceiveFrom() failed"));
         api.Close(serverHandle);
         return false;
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "Server ReceiveFrom received={}", numBytesReceived);
+    TraceInfo(__FILE__, __LINE__, __func__, "Server ReceiveFrom received={}", numBytesReceived);
     int numBytesSent = api.SendTo(serverHandle, buffer, static_cast<std::size_t>(numBytesReceived), 0, reinterpret_cast<const sockaddr *>(&clientAddress), clientAddressSize);
     if (numBytesSent == -1)
     {
         int errorCode = GetError();
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Server SendTo() failed"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Server SendTo() failed"));
         api.Close(serverHandle);
         return false;
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "Server SendTo sent={}", numBytesSent);
+    TraceInfo(__FILE__, __LINE__, __func__, "Server SendTo sent={}", numBytesSent);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    TraceMessage(__FILE__, __LINE__, __func__, "Server close down");
+    TraceInfo(__FILE__, __LINE__, __func__, "Server close down");
     api.Close(serverHandle);
 
     return numBytesSent == Size;
@@ -512,7 +511,7 @@ bool SocketAPITest_UDPClientFunction()
         api.Close(clientHandle);
         return false;
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "Client close down");
+    TraceInfo(__FILE__, __LINE__, __func__, "Client close down");
     api.Close(clientHandle);
 
     return true;
@@ -540,7 +539,7 @@ bool SocketAPITest_UDPConnectedClientFunction()
     }
 
     // Make sure to close client before server ends, otherwise we'll end up in TIME_WAIT status
-    TraceMessage(__FILE__, __LINE__, __func__, "Client close down");
+    TraceInfo(__FILE__, __LINE__, __func__, "Client close down");
     api.Close(clientHandle);
 
     return true;
@@ -548,7 +547,7 @@ bool SocketAPITest_UDPConnectedClientFunction()
 
 TEST_F(SocketAPITest, SendReceiveUDPConnectionlessSucceeds)
 {
-    core::TypedReturnThread<bool> serverThread(SocketAPITest_UDPServerFunction);
+    core::threading::TypedReturnThread<bool> serverThread(SocketAPITest_UDPServerFunction);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     bool connectionOk = SocketAPITest_UDPClientFunction();
@@ -566,7 +565,7 @@ TEST_F(SocketAPITest, SendReceiveUDPConnectionlessFailsIfNoPeer)
 
 TEST_F(SocketAPITest, SendReceiveUDPConnectedSucceeds)
 {
-    core::TypedReturnThread<bool> serverThread(SocketAPITest_UDPServerFunction);
+    core::threading::TypedReturnThread<bool> serverThread(SocketAPITest_UDPServerFunction);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     bool connectionOk = SocketAPITest_UDPConnectedClientFunction();
@@ -584,7 +583,7 @@ TEST_F(SocketAPITest, SendReceiveUDPConnectedFailsIfNoServer)
 
 TEST_F(SocketAPITest, ConnectAcceptSendReceiveTCPSucceeds)
 {
-    core::TypedReturnThread<bool> acceptorThread(SocketAPITest_TCPAcceptFunction);
+    core::threading::TypedReturnThread<bool> acceptorThread(SocketAPITest_TCPAcceptFunction);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     bool connectionOk = SocketAPITest_TCPClientFunction();
@@ -602,7 +601,7 @@ TEST_F(SocketAPITest, ConnectAcceptSendReceiveTCPFailsIfNoServer)
 
 TEST_F(SocketAPITest, ConnectAcceptSendReceiveTCPFailsAfterFirstSuccessfulConnectWhenServerNoLongerAccepting)
 {
-    core::TypedReturnThread<bool> acceptorThread(SocketAPITest_TCPAcceptFunction);
+    core::threading::TypedReturnThread<bool> acceptorThread(SocketAPITest_TCPAcceptFunction);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     SocketHandle clientHandle1 = api.Open(SocketFamily::InternetV4, SocketType::Stream, SocketProtocol::IP);

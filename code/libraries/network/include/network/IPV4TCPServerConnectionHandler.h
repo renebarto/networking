@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/Observable.h"
+#include "utility/Observable.h"
 #include "network/IPV4TCPServerConnectionThread.h"
 
 namespace network {
@@ -16,7 +16,7 @@ using DataCallback = std::function<bool (const ByteBuffer &, ByteBuffer &)>;
 
 class IPV4TCPServerConnectionHandler
     : public IPV4TCPServerConnectionThread
-    , public core::Observable<IClosedConnectionCallback>
+    , public utility::Observable<IClosedConnectionCallback>
 {
 public:
     DataCallback m_dataCallback;

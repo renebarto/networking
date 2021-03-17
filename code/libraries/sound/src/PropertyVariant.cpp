@@ -16,7 +16,6 @@
 #include <MMDeviceAPI.h>
 
 #include "tracing/ScopedTracing.h"
-#include "tracing/Logging.h"
 
 #include "WindowsCOM.h"
 #include "PropertyVariant.h"

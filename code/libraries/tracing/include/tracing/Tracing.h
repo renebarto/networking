@@ -8,8 +8,6 @@
 #include "tracing/CategorySet.h"
 #include "tracing/TraceCategory.h"
 
-#define TRACE_LOCATION __FILE__, __LINE__, __func__
-
 namespace utility {
 
 class Error;
@@ -28,6 +26,7 @@ using TraceFunction = std::function<
           const std::string & msg)>;
 
 using IsTraceCategoryEnabledFunction = std::function<bool(TraceCategory category)>;
+using FatalExitFunction = std::function<void(int errorCode)>;
 
 void SetDefaultTraceFilter(const CategorySet<TraceCategory> & defaultFilter);
 CategorySet<TraceCategory> GetDefaultTraceFilter();
@@ -41,6 +40,7 @@ private:
     static TraceFunction m_traceFunc;
     static IsTraceCategoryEnabledFunction m_isTraceCategoryEnabledFunc;
     static CategorySet<TraceCategory> m_defaultTraceFilter;
+    static FatalExitFunction m_fatalExitFunc;
 
     typedef std::recursive_mutex Mutex;
     typedef std::lock_guard<Mutex> Lock;
@@ -68,6 +68,28 @@ public:
             Trace(category, path, line, functionName, str);
         }
     }
+
+
+    static void SetFatalExitFunction(FatalExitFunction function);
+    static void FatalExit(int errorCode);
+
+    static void Log(const std::string & path, int line, const std::string & functionName, const std::string & message);
+    template <typename ... Args>
+    static void Log(const std::string & path, int line, const std::string & functionName, const std::string & format, Args const & ... args) noexcept
+    {
+        if (IsTraceCategoryEnabled(TraceCategory::Log))
+        {
+            std::string str;
+            utility::Format(str, format, args ...);
+            Log(path, line, functionName, str);
+        }
+    }
+    static void Error(const std::string & path, int line, const std::string & functionName, const utility::Error & error);
+    static void Error(const std::string & path, int line, const std::string & functionName, const utility::GenericError & error);
+    static void Fatal(const std::string & path, int line, const std::string & functionName, const utility::Error & error);
+    static void Fatal(const std::string & path, int line, const std::string & functionName, const utility::GenericError & error);
+    static void Throw(const std::string & path, int line, const std::string & functionName, const utility::Error & error);
+    static void Throw(const std::string & path, int line, const std::string & functionName, const utility::GenericError & error);
 };
 
 } // namespace tracing
@@ -94,23 +116,23 @@ void TraceFuncLeave(const std::string & path, int line, const std::string & func
 
 inline void TraceStartup(const std::string & path, int line, const std::string & functionName, const std::string & message)
 {
-    tracing::Tracing::Trace(tracing::TraceCategory::Startup, path, line, functionName, message);
+    tracing::Tracing::Trace(tracing::TraceCategory::StartupShutdown, path, line, functionName, message);
 }
 
 inline void TraceShutdown(const std::string & path, int line, const std::string & functionName, const std::string & message)
 {
-    tracing::Tracing::Trace(tracing::TraceCategory::Shutdown, path, line, functionName, message);
+    tracing::Tracing::Trace(tracing::TraceCategory::StartupShutdown, path, line, functionName, message);
 }
 
-inline void TraceMessage(const std::string & path, int line, const std::string & functionName, const std::string & message)
+inline void TraceInfo(const std::string & path, int line, const std::string & functionName, const std::string & message)
 {
-    tracing::Tracing::Trace(tracing::TraceCategory::Message, path, line, functionName, message);
+    tracing::Tracing::Trace(tracing::TraceCategory::Information, path, line, functionName, message);
 }
 
 template <typename ... Args>
-void TraceMessage(const std::string & path, int line, const std::string & functionName, const std::string & format, Args const & ... args) noexcept
+void TraceInfo(const std::string & path, int line, const std::string & functionName, const std::string & format, Args const & ... args) noexcept
 {
-    tracing::Tracing::Trace(tracing::TraceCategory::Message, path, line, functionName, format, args ...);
+    tracing::Tracing::Trace(tracing::TraceCategory::Information, path, line, functionName, format, args ...);
 }
 inline void TraceData(const std::string & path, int line, const std::string & functionName, const std::string & message)
 {
@@ -133,3 +155,22 @@ void TraceDebug(const std::string & path, int line, const std::string & function
     tracing::Tracing::Trace(tracing::TraceCategory::Debug, path, line, functionName, format, args ...);
 }
 
+inline void LogError(const std::string & path, int line, const std::string & functionName, const std::string & message)
+{
+    tracing::Tracing::Log(path, line, functionName, message);
+}
+template <typename ... Args>
+static void LogError(const std::string & path, int line, const std::string & functionName, const std::string & format, Args const & ... args) noexcept
+{
+    tracing::Tracing::Log(path, line, functionName, format, args ...);
+}
+
+inline void LogFatal(const std::string & path, int line, const std::string & functionName, const std::string & message)
+{
+    tracing::Tracing::Log(path, line, functionName, message);
+}
+template <typename ... Args>
+static void LogFatal(const std::string & path, int line, const std::string & functionName, const std::string & format, Args const & ... args) noexcept
+{
+    tracing::Tracing::Log(path, line, functionName, format, args ...);
+}

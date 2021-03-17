@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020, Koninklijke Philips Electronics N.V.
+//
+// File        : TriBoolTest.cpp
+//
+// Namespace   : utility
+//
+// Class       : TriBoolTest
+//
+// Description :
+//
+//------------------------------------------------------------------------------
+
 #include "GoogleTest.h"
 
 #include "utility/TriBool.h"

@@ -9,10 +9,14 @@
 
 #elif defined(PLATFORM_WINDOWS)
 
-#pragma warning(disable: 5039)
+#if _MSC_VER > 1900 // Versions after VS 2015
+#pragma warning(disable: 5039) //TICS !POR#018 !POR#037
+#endif
 #include <winsock2.h>
 #include <iphlpapi.h>
-#pragma warning(default: 5039)
+#if _MSC_VER > 1900 // Versions after VS 2015
+#pragma warning(default: 5039) //TICS !POR#018 !POR#037
+#endif
 
 #else
 

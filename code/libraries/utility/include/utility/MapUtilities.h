@@ -1,3 +1,17 @@
+//------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020, Koninklijke Philips Electronics N.V.
+//
+// File        : MapUtilities.h
+//
+// Namespace   : utility::maptranslation
+//
+// Class       : -
+//
+// Description :
+// - Functionality to lookup values in a map, and retireve lists of keys or values
+//
+//---------------------------------------------------------------
+
 #pragma once
 
 #include <map>
@@ -36,5 +50,6 @@ bool Translate(const std::map<T1, T2, Comp1, Comp2> & theMap, const T1 & key, T2
     }
     return false;
 }
+
 } // namespace maptranslation
 } // namespace utility

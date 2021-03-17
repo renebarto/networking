@@ -14,7 +14,6 @@
 #if defined(PLATFORM_WINDOWS)
 
 #include "tracing/ScopedTracing.h"
-#include "tracing/Logging.h"
 
 #include "RenderBuffer.h"
 

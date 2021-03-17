@@ -3,7 +3,7 @@
 #include <iomanip>
 #include "utility/Assert.h"
 #include "utility/GenericError.h"
-#include "tracing/Logging.h"
+#include "tracing/Tracing.h"
 #include "network-osal/SocketDefinitions.h"
 
 namespace network {
@@ -54,7 +54,7 @@ IPV6Address IPV6Address::Parse(const std::string & text)
     IPV6Address ipAddress;
     if (!TryParse(text, ipAddress))
     {
-        tracing::Logging::Throw(__FILE__, __LINE__, __func__, 
+        tracing::Tracing::Throw(__FILE__, __LINE__, __func__, 
             utility::GenericError("IPV6Address string representation must be formatted as "
                                   "xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx (or a shortened format), string is {}", text));
     }

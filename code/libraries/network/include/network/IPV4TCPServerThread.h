@@ -1,14 +1,14 @@
 #pragma once
 
 #include <vector>
-#include "core/ActiveObject.h"
+#include "core/threading/ActiveObject.h"
 #include "network/IPV4TCPSocket.h"
 #include "network/IPV4TCPServerConnectionThread.h"
 
 namespace network {
 
 class IPV4TCPServerThread 
-    : private core::ActiveObject
+    : private core::threading::ActiveObject
 {
 protected:
     ISocketAPI & m_socketAPI;

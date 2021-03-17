@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020 Koninklijke Philips Electronics N.V.
+//
+// File        : Deserialization.h
+//
+// Namespace   : serialization
+//
+// Class       : -
+//
+// Description :
+//
+//------------------------------------------------------------------------------
+
 #pragma once
 
 #include <sstream>
@@ -64,7 +77,6 @@ bool DeserializeBinary(std::int64_t & value, const std::vector<std::uint8_t> & b
 bool DeserializeBinary(std::uint64_t & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
 bool DeserializeBinary(float & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
 bool DeserializeBinary(double & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
-bool DeserializeBinary(long double & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
 bool DeserializeBinary(std::string & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
 bool DeserializeBinary(std::wstring & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
 

@@ -4,9 +4,9 @@
 #include <functional>
 #include <list>
 #include <mutex>
-#include "core/IObservable.h"
+#include "utility/IObservable.h"
 
-namespace core
+namespace utility
 {
 
 template <class T>
@@ -82,4 +82,4 @@ typename std::list<T *>::iterator Observable<T>::Find(T * observer)
     return it;
 }
 
-} // namespace core
+} // namespace utility

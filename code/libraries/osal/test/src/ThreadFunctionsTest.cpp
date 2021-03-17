@@ -1,8 +1,20 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020, Koninklijke Philips Electronics N.V.
+//
+// File        : ThreadTest.cpp
+//
+// Namespace   : osal
+//
+// Class       : -
+//
+// Description :
+//
+//------------------------------------------------------------------------------
+
 #include "GoogleTest.h"
 
 #include <sstream>
 #include "osal/ThreadFunctions.h"
-#include "core/Thread.h"
 
 namespace osal
 {
@@ -23,24 +35,5 @@ TEST(ThreadTest, IfTheMainThreadIsNameItIsInTheMap)
     EXPECT_EQ("Main", GetThreadNameSelf());
 }
 
-std::string HelperThread()
-{
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    return GetThreadNameSelf();
-}
-TEST(ThreadTest, GetNamesOfMultipleThreads)
-{
-    SetThreadNameSelf("Main");
-
-    const std::string helperThreadName = "HelperThread";
-    core::TypedReturnThread<std::string> helperThread(HelperThread, helperThreadName);
-    EXPECT_EQ(helperThreadName, helperThread.GetName());
-
-    helperThread.WaitForDeath();
-    auto result = helperThread.GetResult();
-   
-    EXPECT_EQ(helperThreadName, result);
-    EXPECT_EQ("Main", GetThreadNameSelf());
-}
-
 } // namespace osal
+

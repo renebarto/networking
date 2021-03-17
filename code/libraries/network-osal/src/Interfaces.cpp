@@ -10,13 +10,17 @@
 
 #elif defined(PLATFORM_WINDOWS)
 
-#pragma warning(disable: 5039)
+#if _MSC_VER > 1900 // Versions after VS 2015
+#pragma warning(disable: 5039) //TICS !POR#018 !POR#037
+#endif
 #include <winsock2.h>
 #include <iphlpapi.h>
 #pragma warning(disable: 4365)
 #include <ws2ipdef.h>
 #pragma warning(default: 4365)
-#pragma warning(default: 5039)
+#if _MSC_VER > 1900 // Versions after VS 2015
+#pragma warning(default: 5039) //TICS !POR#018 !POR#037
+#endif
 
 #if defined(interface)
 #undef interface
@@ -29,7 +33,6 @@
 #endif
 
 #include <vector>
-#include "tracing/Logging.h"
 #include "tracing/Tracing.h"
 #include "utility/Assert.h"
 #include "utility/Endian.h"
@@ -54,7 +57,7 @@ Interfaces::Interfaces()
     // Get all NICs
     if (getifaddrs(&interfaces) == -1)
     {
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errno, strerror(errno), "Cannot determine network interfaces"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errno, strerror(errno), "Cannot determine network interfaces"));
     }
     else
     {
@@ -71,7 +74,7 @@ Interfaces::Interfaces(const std::string & interfaceName)
     // Get all NICs
     if (getifaddrs(&interfaces) == -1)
     {
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errno, strerror(errno), "Cannot determine network interfaces"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errno, strerror(errno), "Cannot determine network interfaces"));
     }
     else
     {
@@ -164,11 +167,11 @@ void Interfaces::ExtractInterfaceInfo(void * info, const std::string & interface
                 {
                     ConvertAddressInfo(interface->ifa_ifu.ifu_dstaddr, addressInfo.destinationAddress);
                 }
-                TraceMessage(__FILE__, __LINE__, __func__, serialization::Serialize(addressInfo, 0));
+                TraceInfo(__FILE__, __LINE__, __func__, serialization::Serialize(addressInfo, 0));
                 addresses.push_back(addressInfo);
             }
             
-            TraceMessage(__FILE__, __LINE__, __func__, "Device: {} ({})", name, (isUp ? "Up" : "Down"));
+            TraceInfo(__FILE__, __LINE__, __func__, "Device: {} ({})", name, (isUp ? "Up" : "Down"));
         }
         
         interface = interface->ifa_next;
@@ -205,7 +208,7 @@ Interfaces::Interfaces()
     if (result != NO_ERROR)
     {
         int errorCode = static_cast<int>(result);
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Cannot determine network interfaces"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Cannot determine network interfaces"));
     }
     else
     {
@@ -240,7 +243,7 @@ Interfaces::Interfaces(const std::string & interfaceName)
     if (result != NO_ERROR)
     {
         int errorCode = static_cast<int>(result);
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Cannot determine network interfaces"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Cannot determine network interfaces"));
     }
     else
     {
@@ -359,7 +362,7 @@ void Interfaces::ExtractInterfaceInfo(void * info, const std::string & interface
                 // tracing::Tracing::Trace(tracing::TraceCategory::Information, __FILE__, __LINE__, __func__, "Interface {} has MAC address {}", name, addressInfo);
             }
             
-            TraceMessage(__FILE__, __LINE__, __func__, "Device: {}", nic);
+            TraceInfo(__FILE__, __LINE__, __func__, "Device: {}", nic);
         }
         
         interface = interface->Next;
@@ -390,7 +393,7 @@ const Interface & Interfaces::GetInterface(const std::string & interfaceName) co
 {
     if (m_interfacesMap.find(interfaceName) == m_interfacesMap.end())
     {
-        tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Cannot find interface {}", interfaceName));
+        tracing::Tracing::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Cannot find interface {}", interfaceName));
     }
     return m_interfacesMap.at(interfaceName);
 }

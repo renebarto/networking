@@ -1,9 +1,9 @@
 #include <GoogleTest.h>
 
-// #include "osal/Time.h"
-#include "core/WorkerThread.h"
+#include "core/threading/WorkerThread.h"
 
 namespace core {
+namespace threading {
 
 static auto SLEEP = std::chrono::milliseconds(200);
 static auto TIMEOUT = std::chrono::milliseconds(50);
@@ -64,4 +64,5 @@ TEST_F(WorkerThreadTest, Create)
     EXPECT_FALSE(MyWorkerThread::m_isDeleted);
 }
 
+} // namespace threading
 } // namespace core

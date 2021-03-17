@@ -2,7 +2,6 @@
 
 #include <functional>
 #include "osal/ThreadFunctions.h"
-#include "tracing/Logging.h"
 #include "tracing/Tracing.h"
 #include "tracing/TraceWriter.h"
 #include "utility/GenericError.h"
@@ -48,17 +47,17 @@ void Application::Usage()
 
 int Application::Run()
 {
-    tracing::SetDefaultTraceFilter(tracing::TraceCategory::Message | tracing::TraceCategory::Data | tracing::TraceCategory::FunctionEnter | tracing::TraceCategory::FunctionLeave);
+    tracing::SetDefaultTraceFilter(tracing::TraceCategory::Information | tracing::TraceCategory::Data | tracing::TraceCategory::FunctionEnter | tracing::TraceCategory::FunctionLeave);
     osal::SetThreadNameSelf("Main");
     tracing::TraceWriter traceWriter(m_writer);
     tracing::Tracing::SetTracingFunction(
         std::bind(&tracing::TraceWriter::Trace, &traceWriter, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, 
                   std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
 
-    TraceMessage(__FILE__, __LINE__, __func__, "Starting");
+    TraceInfo(__FILE__, __LINE__, __func__, "Starting");
 
 
-    TraceMessage(__FILE__, __LINE__, __func__, "Stopping");
+    TraceInfo(__FILE__, __LINE__, __func__, "Stopping");
 
     return 0;
 }

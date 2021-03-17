@@ -1,8 +1,9 @@
 #include "GoogleTest.h"
 
-#include "core/Iterator.h"
+#include "core/utilities/Iterator.h"
 
 namespace core {
+namespace utilities {
 
 class IteratorTest : public ::testing::Test
 {
@@ -157,4 +158,5 @@ TEST_F(ConstIteratorTest, ChangeValue)
     EXPECT_EQ(3, container[2]);
 }
 
+} // namespace utilities
 } // namespace core

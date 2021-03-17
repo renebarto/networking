@@ -1,6 +1,5 @@
 #include "App.h"
 
-#include "tracing/Logging.h"
 #include "tracing/Tracing.h"
 #include "osal/ThreadFunctions.h"
 #include "network-osal/SocketAPI.h"
@@ -47,7 +46,7 @@ void Application::Usage()
 
 int Application::Run()
 {
-    tracing::SetDefaultTraceFilter(tracing::TraceCategory::Message | tracing::TraceCategory::Data);
+    tracing::SetDefaultTraceFilter(tracing::TraceCategory::Information | tracing::TraceCategory::Data);
     osal::SetThreadNameSelf("Main");
     std::string serverIPAddress = "127.0.0.1";
     if (m_commandLineArguments.size() >= 1)
@@ -80,7 +79,7 @@ int Application::Run()
     }
     else
     {
-        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::GenericError("Cannot connect to server {}", serverEndPoint));
+        tracing::Tracing::Fatal(__FILE__, __LINE__, __func__, utility::GenericError("Cannot connect to server {}", serverEndPoint));
     }
     return 0;
 }

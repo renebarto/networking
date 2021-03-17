@@ -6,7 +6,7 @@
 
 #include "network-osal/SocketAPIMock.h"
 #include "osal/Utilities.h"
-#include "core/Thread.h"
+#include "core/threading/Thread.h"
 #include "network-osal/IPV4Address.h"
 #include "tracing/ScopedTracing.h"
 #include "tracing/Tracing.h"
@@ -38,7 +38,7 @@ public:
     void SetUp() override
     {
         m_savedTraceFilter = tracing::GetDefaultTraceFilter();
-        tracing::SetDefaultTraceFilter(tracing::TraceCategory::Message);
+        tracing::SetDefaultTraceFilter(tracing::TraceCategory::Information);
     }
     void TearDown() override
     {
@@ -1001,7 +1001,7 @@ TEST_F(SocketTest, ConnectAcceptSendReceiveTCP)
     sockaddr_in serverAddress {};
     FillAddress(serverAddress, TestPort, IPV4Address::LocalHost.GetUInt32());
 
-    core::TypedReturnThread<bool> acceptorThread(TCPAcceptThread);
+    core::threading::TypedReturnThread<bool> acceptorThread(TCPAcceptThread);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     bool connected = clientSocket.Connect(reinterpret_cast<sockaddr *>(&serverAddress), sizeof(serverAddress), 5000);
     EXPECT_TRUE(connected);
@@ -1053,7 +1053,7 @@ TEST_F(SocketTest, SendReceiveUDPConnected)
     sockaddr_in serverAddress {};
     FillAddress(serverAddress, TestPort, IPV4Address::LocalHost.GetUInt32());
 
-    core::TypedReturnThread<bool> serverThread(UDPServerThread);
+    core::threading::TypedReturnThread<bool> serverThread(UDPServerThread);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     bool connected = clientSocket.Connect(reinterpret_cast<sockaddr *>(&serverAddress), sizeof(serverAddress), 5000);
     EXPECT_TRUE(connected);
@@ -1080,7 +1080,7 @@ TEST_F(SocketTest, SendReceiveUDPConnectionless)
     sockaddr_in serverAddress {};
     FillAddress(serverAddress, TestPort, IPV4Address::LocalHost.GetUInt32());
 
-    core::TypedReturnThread<bool> serverThread(UDPServerThread);
+    core::threading::TypedReturnThread<bool> serverThread(UDPServerThread);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     const std::size_t Size = 10;
     ByteBuffer bufferOut = { 'H', 'e', 'l', 'l', 'o', 'W', 'o', 'r', 'l', 'd'};

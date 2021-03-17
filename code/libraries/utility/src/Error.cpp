@@ -22,10 +22,11 @@ Error::operator <<(
 std::ostream &
 operator <<(std::ostream & stream, const Error & value)
 {
+    auto fillChar = stream.fill();
     return stream 
         << std::dec << value.ErrorCode() 
         << " (" << std::hex << std::setw(2) << std::setfill('0') << value.ErrorCode() << "): " 
-        << value.ErrorString() << " " << value.Message();
+        << value.ErrorString() << " " << value.Message() << std::setfill(fillChar);
 }
 
 } // namespace utility

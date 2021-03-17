@@ -1,3 +1,5 @@
+// Copyright 2020 Koninklijke Philips N.V.
+
 #pragma once
 
 #include <iostream>

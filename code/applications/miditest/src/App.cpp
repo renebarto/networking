@@ -2,7 +2,6 @@
 
 #include <functional>
 #include "osal/ThreadFunctions.h"
-#include "tracing/Logging.h"
 #include "tracing/Tracing.h"
 #include "utility/GenericError.h"
 #include "midi/IMidiAPI.h"
@@ -54,7 +53,7 @@ void Application::Usage()
 
 void Application::OnMidiEvent(const midi::MidiEvent & event)
 {
-    TraceMessage(__FILE__, __LINE__, __func__, "event={}", event);
+    TraceInfo(__FILE__, __LINE__, __func__, "event={}", event);
     switch (event.type)
     {
         case midi::MidiEventType::NoteOn:
@@ -77,38 +76,38 @@ void Application::OnMidiEvent(const midi::MidiEvent & event)
 
 int Application::Run()
 {
-    tracing::SetDefaultTraceFilter(tracing::TraceCategory::Message | tracing::TraceCategory::Data | tracing::TraceCategory::FunctionEnter | tracing::TraceCategory::FunctionLeave);
+    tracing::SetDefaultTraceFilter(tracing::TraceCategory::Information | tracing::TraceCategory::Data | tracing::TraceCategory::FunctionEnter | tracing::TraceCategory::FunctionLeave);
     osal::SetThreadNameSelf("Main");
     osal::SetSignalHandler(osal::SignalType::Interrupt, std::bind(&Application::SignalHandler, this, std::placeholders::_1));
 
     m_api = midi::CreateAPI();
     if (!m_api->Initialize())
     {
-        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::GenericError("Cannot initialize MIDI API"));
+        tracing::Tracing::Fatal(__FILE__, __LINE__, __func__, utility::GenericError("Cannot initialize MIDI API"));
     }
 
     auto numInputDevices = m_api->GetNumInputDevices();
     auto numOutputDevices = m_api->GetNumOutputDevices();
-    TraceMessage(__FILE__, __LINE__, __func__, "MIDI in devices: ", numInputDevices);
+    TraceInfo(__FILE__, __LINE__, __func__, "MIDI in devices: ", numInputDevices);
     for (std::size_t i = 0; i < numInputDevices; ++i)
     {
         midi::MidiCapabilities capabilities;
         if (m_api->GetCapabilitiesForInputDevice(i, capabilities))
-            TraceMessage(__FILE__, __LINE__, __func__, "MIDI in device {}: {}", i, capabilities.Name());
+            TraceInfo(__FILE__, __LINE__, __func__, "MIDI in device {}: {}", i, capabilities.Name());
         else
-            tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::GenericError("Error while retrieving info for MIDI in device {}", i));
+            tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::GenericError("Error while retrieving info for MIDI in device {}", i));
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "MIDI out devices: ", numOutputDevices);
+    TraceInfo(__FILE__, __LINE__, __func__, "MIDI out devices: ", numOutputDevices);
     for (std::size_t i = 0; i < numOutputDevices; ++i)
     {
         midi::MidiCapabilities capabilities;
         if (m_api->GetCapabilitiesForOutputDevice(i, capabilities))
-            TraceMessage(__FILE__, __LINE__, __func__, "MIDI out device {}: {}", i, capabilities.Name());
+            TraceInfo(__FILE__, __LINE__, __func__, "MIDI out device {}: {}", i, capabilities.Name());
         else
-            tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::GenericError("Error while retrieving info for MIDI out device {}", i));
+            tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::GenericError("Error while retrieving info for MIDI out device {}", i));
     }
 
-    TraceMessage(__FILE__, __LINE__, __func__, "Open MIDI device");
+    TraceInfo(__FILE__, __LINE__, __func__, "Open MIDI device");
     m_deviceIn = m_api->OpenInputDevice("ESI KeyControl 25 XT");
     // m_deviceIn = m_api->OpenInputDevice("AIO Midi");
     m_deviceOut = m_api->OpenOutputDevice("AIO Midi");
@@ -119,7 +118,7 @@ int Application::Run()
     {
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "Shutting down");
+    TraceInfo(__FILE__, __LINE__, __func__, "Shutting down");
     m_deviceIn->Stop();
     m_deviceIn.reset();
     m_deviceOut.reset();
@@ -129,7 +128,7 @@ int Application::Run()
 
 void Application::SignalHandler(osal::SignalType signal)
 {
-    TraceMessage(__FILE__, __LINE__, __func__, "Caught signal {}", signal);
+    TraceInfo(__FILE__, __LINE__, __func__, "Caught signal {}", signal);
     if (signal == osal::SignalType::Interrupt)
         m_interrupted = true;
 }

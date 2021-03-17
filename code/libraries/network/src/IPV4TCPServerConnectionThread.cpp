@@ -5,7 +5,7 @@
 namespace network {
 
 IPV4TCPServerConnectionThread::IPV4TCPServerConnectionThread(ISocketAPI & api)
-    : core::ActiveObject("IPV4TCPServerConnectionThread")
+    : core::threading::ActiveObject("IPV4TCPServerConnectionThread")
     , m_socketAPI(api)
     , m_clientSocket(api)
     , m_clientEndPoint()

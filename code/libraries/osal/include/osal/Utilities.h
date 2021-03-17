@@ -1,12 +1,27 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2021 Koninklijke Philips Electronics N.V.
+//
+// File        : Utilities.h
+//
+// Namespace   : osal
+//
+// Class       : -
+//
+// Description :
+//
+//------------------------------------------------------------------------------
+
 #pragma once
 
 #include <cstdint>
 
+//TICS -POR#021 We suppress warnings for Windows only
 #if defined(PLATFORM_LINUX)
 
 #include <byteswap.h>
 
 #endif
+//TICS +POR#021
 
 namespace osal {
 
@@ -22,13 +37,15 @@ template<> inline std::uint8_t SwapBytes<std::uint8_t>(std::uint8_t value)
 }
 template<> inline std::int16_t SwapBytes<std::int16_t>(std::int16_t value)
 {
+//TICS -CFL#020 Return statement
 //TICS -POR#021 Platform specific
 #if defined(PLATFORM_WINDOWS)
     return static_cast<std::int16_t>(_byteswap_ushort(static_cast<std::uint16_t>(value)));
 #elif defined(PLATFORM_LINUX)
-    return static_cast<std::int16_t>(bswap_16(value));
+    return static_cast<std::int16_t>(bswap_16(value)); //TICS !NAM#008 !CON#004 !ORG#013 bswap_16 uses cast and function starting with __
 #endif
 //TICS +POR#021
+//TICS +CFL#020 Return statement
 }
 template<> inline std::uint16_t SwapBytes<std::uint16_t>(std::uint16_t value)
 {
@@ -36,7 +53,7 @@ template<> inline std::uint16_t SwapBytes<std::uint16_t>(std::uint16_t value)
 #if defined(PLATFORM_WINDOWS)
     return _byteswap_ushort(value);
 #elif defined(PLATFORM_LINUX)
-    return bswap_16(value);
+    return bswap_16(value); //TICS !NAM#008 !CON#004 !ORG#013 bswap_16 uses cast and function starting with __
 #endif
 //TICS +POR#021
 }

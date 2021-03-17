@@ -2,9 +2,10 @@
 
 #include "tracing/ScopedTracing.h"
 #include "tracing/Tracing.h"
-#include "core/WorkerThread.h"
+#include "core/threading/WorkerThread.h"
 
 namespace core {
+namespace threading {
 
 class ActiveObject
     : public WorkerThread
@@ -37,11 +38,11 @@ public:
         {
             m_isDying = true;
 
-            TraceMessage(__FILE__, __LINE__, __func__, "Signaling thread to shut down");
+            TraceInfo(__FILE__, __LINE__, __func__, "Signaling thread to shut down");
 
             FlushThread();
 
-            TraceMessage(__FILE__, __LINE__, __func__, "Waiting for thread to shut down");
+            TraceInfo(__FILE__, __LINE__, __func__, "Waiting for thread to shut down");
 
             WorkerThread::WaitForDeath();
             WorkerThread::Destroy();
@@ -75,17 +76,17 @@ protected:
         {
             m_isAlive = true;
 
-            TraceMessage(__FILE__, __LINE__, __func__, "Thread {} starting", GetName());
+            TraceInfo(__FILE__, __LINE__, __func__, "Thread {} starting", GetName());
 
             InitThread();
             Run();
             ExitThread();
 
-            TraceMessage(__FILE__, __LINE__, __func__, "Thread {} shutting down", GetName());
+            TraceInfo(__FILE__, __LINE__, __func__, "Thread {} shutting down", GetName());
         }
         catch (const std::exception & e)
         {
-            TraceMessage(__FILE__, __LINE__, __func__, "Thread {}: Exception thown: {}", GetName(), std::string(e.what()));
+            TraceInfo(__FILE__, __LINE__, __func__, "Thread {}: Exception thown: {}", GetName(), std::string(e.what()));
             m_isAlive = false;
             throw;
         }
@@ -98,4 +99,5 @@ protected:
     virtual void FlushThread() {};
 };
 
+} // namespace threading
 } // namespace core

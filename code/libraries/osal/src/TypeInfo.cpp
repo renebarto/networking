@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-// Copyright   : Copyright(c) 2020, Rene Barto
+// Copyright   : Copyright(c) 2008, Koninklijke Philips Electronics N.V.
 //
 // File        : TypeInfo.cpp
 //
@@ -7,7 +7,7 @@
 //
 // Class       : -
 //
-// Description : Type information abstraction
+// Description : Type info functions
 //
 //------------------------------------------------------------------------------
 
@@ -41,8 +41,7 @@ std::string demangle(const char* name)
 }
 
 #else
-
-// does nothing if not g++
+// For VS2019, the link qualifier is also added to the type name, so we need to strip this if it exists.
 std::string demangle(const char* name) {
     std::string result = name;
     const std::string callingConvention = "__cdecl";

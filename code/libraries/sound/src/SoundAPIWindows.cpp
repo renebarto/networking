@@ -14,7 +14,6 @@
 #if defined(PLATFORM_WINDOWS)
 
 #include "tracing/ScopedTracing.h"
-#include "tracing/Logging.h"
 #include "utility/EnumSerialization.h"
 #include "utility/Error.h"
 
@@ -77,12 +76,12 @@ bool SoundAPIWindows::Initialize(const std::string & deviceName)
     auto deviceNames = m_deviceCollection->GetDeviceNames();
     for (auto const & name : deviceNames)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Device name {}", name);
+        TraceInfo(__FILE__, __LINE__, __func__, "Device name {}", name);
     }
     auto deviceIDs = m_deviceCollection->GetDeviceIDs();
     for (auto const & id : deviceIDs)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Device ID {}", id);
+        TraceInfo(__FILE__, __LINE__, __func__, "Device ID {}", id);
     }
 
     if (deviceName.empty())

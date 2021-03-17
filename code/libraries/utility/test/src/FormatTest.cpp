@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020 Koninklijke Philips Electronics N.V.
+//
+// File        : FormatTest.cpp
+//
+// Namespace   : utility
+//
+// Class       : -
+//
+// Description :
+//
+//------------------------------------------------------------------------------
+
 #include "GoogleTest.h"
 
 #include "utility/Format.h"
@@ -6,7 +19,7 @@
 namespace utility {
 
 template <class T>
-std::string FormatStandard(std::streamsize width, std::streamsize /*integralDigits*/, std::string::size_type /*fractionalDigits*/, T value)
+std::string FormatStandard(int width, int /*integralDigits*/, int /*fractionalDigits*/, T value)
 {
     std::ostringstream valuePrint;
     std::ostringstream stream;
@@ -17,7 +30,7 @@ std::string FormatStandard(std::streamsize width, std::streamsize /*integralDigi
     return stream.str();
 }
 template <class T>
-std::string FormatFixed(std::streamsize width, std::streamsize integralDigits, std::streamsize fractionalDigits, T value)
+std::string FormatFixed(int width, int integralDigits, int fractionalDigits, T value)
 {
     std::ostringstream valuePrint;
     std::ostringstream stream;
@@ -28,7 +41,7 @@ std::string FormatFixed(std::streamsize width, std::streamsize integralDigits, s
     return stream.str();
 }
 template <class T>
-std::string FormatScientific(std::streamsize width, std::streamsize integralDigits, std::streamsize fractionalDigits, T value)
+std::string FormatScientific(int width, int integralDigits, int fractionalDigits, T value)
 {
     std::ostringstream valuePrint;
     std::ostringstream stream;
@@ -127,7 +140,6 @@ TEST(FormatTest, FormatIntegralWithFormat)
 
 TEST(FormatTest, FormatFloatingPointWithFormat)
 {
-    // Apparently there is a difference between MinGW and Windows in how they print floating point numbers
     std::ostringstream refStream;
     std::string str;
     double value = 1234.5678;

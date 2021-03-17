@@ -17,7 +17,6 @@
 #include <functiondiscoverykeys.h>
 
 #include "tracing/ScopedTracing.h"
-#include "tracing/Logging.h"
 #include "utility/StringFunctions.h"
 
 #include "WindowsCOM.h"

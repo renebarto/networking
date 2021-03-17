@@ -3,7 +3,7 @@
 #include <map>
 #include <vector>
 #include "utility/GenericError.h"
-#include "core/Iterator.h"
+#include "core/utilities/Iterator.h"
 #include "json/Create.h"
 #include "json/Value.h"
 
@@ -46,7 +46,7 @@ public:
         ValuePtr operator *()
         {
             if (AtEnd())
-                tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Iterator outside scope"));
+                tracing::Tracing::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Iterator outside scope"));
 
             return *m_current;
         }
@@ -86,7 +86,7 @@ public:
         ValuePtr operator *()
         {
             if (AtEnd())
-                tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Iterator outside scope"));
+                tracing::Tracing::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Iterator outside scope"));
 
             return *m_current;
         }

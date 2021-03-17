@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020 Koninklijke Philips Electronics N.V.
+//
+// File        : Deserialization.cpp
+//
+// Namespace   : serialization
+//
+// Class       : -
+//
+// Description :
+//
+//------------------------------------------------------------------------------
+
 #include "utility/Deserialization.h"
 
 #include <algorithm>
@@ -366,31 +379,6 @@ bool DeserializeBinary(double & value, const std::vector<std::uint8_t> & buffer,
         return false;
     auto convertedValue = utility::ToEndianness(*reinterpret_cast<std::uint64_t *>(&data), endianness);
     value = *reinterpret_cast<double *>(&convertedValue);
-    return true;
-}
-
-template<int N>
-struct AlignedByteArray
-{
-//TICS -POR#021 Platform specific
-#if defined(PLATFORM_LINUX)
-    std::uint8_t __attribute__((aligned(4))) data[N];
-#else
-    std::uint8_t data[N];
-#endif
-//TICS +POR#021
-};
-
-bool DeserializeBinary(long double & value, const std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
-{
-    AlignedByteArray<16> temp;
-    if (!Extract(buffer, offset, temp.data, sizeof(temp.data)))
-        return false;
-    if (endianness != utility::PlatformEndianness())
-    {
-        std::reverse(std::begin(temp.data), std::end(temp.data));
-    }
-    value = *reinterpret_cast<long double *>(temp.data);
     return true;
 }
 

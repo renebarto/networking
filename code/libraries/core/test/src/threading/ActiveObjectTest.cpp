@@ -2,9 +2,10 @@
 
 #include <iostream>
 #include <thread>
-#include "core/ActiveObject.h"
+#include "core/threading/ActiveObject.h"
 
 namespace core {
+namespace threading {
 
 static auto SLEEP = std::chrono::milliseconds(100);
 
@@ -75,7 +76,7 @@ public:
     void SetUp() override
     {
         m_savedTraceFilter = tracing::GetDefaultTraceFilter();
-        tracing::SetDefaultTraceFilter(tracing::TraceCategory::Message);
+        tracing::SetDefaultTraceFilter(tracing::TraceCategory::Information);
     }
     void TearDown() override
     {
@@ -105,4 +106,5 @@ TEST_F(ActiveObjectTest, Loop)
     EXPECT_TRUE(MyActiveObject::m_isDeleted);
 }
 
+} // namespace threading
 } // namespace core

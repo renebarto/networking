@@ -1,3 +1,17 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020, Koninklijke Philips Electronics N.V.
+//
+// File        : TriBool.h
+//
+// Namespace   : utility
+//
+// Class       : TriBool
+//
+// Description :
+//  Replacement of Boost version of tribool.
+//
+//------------------------------------------------------------------------------
+
 #pragma once
 
 #include <ios>

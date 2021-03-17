@@ -319,7 +319,7 @@ TEST_F(IPV4TCPSocketTest, ConnectAcceptSendReceiveTCP)
     clientSocket.Open();
     IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
 
-    core::TypedReturnThread<bool> acceptorThread(IPV4TCPSocketTCPAcceptThread);
+    core::threading::TypedReturnThread<bool> acceptorThread(IPV4TCPSocketTCPAcceptThread);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     bool connected = clientSocket.Connect(serverAddress, 5000);
     EXPECT_TRUE(connected);

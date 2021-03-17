@@ -16,7 +16,6 @@
 #include <cmath>
 
 #include "tracing/ScopedTracing.h"
-#include "tracing/Logging.h"
 #include "utility/Error.h"
 #include "utility/GenericError.h"
 
@@ -34,7 +33,7 @@ namespace sound {
 static const int BufferSizeInMSec = 100;
 
 RenderThread::RenderThread(SoundClient & soundClient)
-    : core::ActiveObject("RenderThread")
+    : core::threading::ActiveObject("RenderThread")
     , m_soundClient(soundClient)
     , m_isInitialized()
     , m_stop()
@@ -77,7 +76,7 @@ void RenderThread::InitThread()
         LogError(__FILE__, __LINE__, __func__, "Not initialized");
         return;
     }
-    TraceMessage(__FILE__, __LINE__, __func__, "Initializing thread");
+    TraceInfo(__FILE__, __LINE__, __func__, "Initializing thread");
 }
 
 void RenderThread::Run()
@@ -92,7 +91,7 @@ void RenderThread::Run()
         return;
     }
 
-    TraceMessage(__FILE__, __LINE__, __func__, "Starting thread");
+    TraceInfo(__FILE__, __LINE__, __func__, "Starting thread");
     WindowsCOM comBase;
     comBase.Initialize();
 
@@ -125,12 +124,12 @@ void RenderThread::Run()
 
     if (m_enableMMCSS)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Hook up to MMCSS");
+        TraceInfo(__FILE__, __LINE__, __func__, "Hook up to MMCSS");
         mmcssHandle = AvSetMmThreadCharacteristics(L"Audio", &mmcssTaskIndex);
         if (mmcssHandle == nullptr)
         {
             auto errorCode = static_cast<int>(GetLastError());
-            tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Unable to enable MMCSS on render thread"));
+            tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Unable to enable MMCSS on render thread"));
         }
     }
 
@@ -151,7 +150,7 @@ void RenderThread::Run()
                 //
                 //  We've received a shutdown request.
                 //
-                TraceMessage(__FILE__, __LINE__, __func__, "Received shutdown event, stopping");
+                TraceInfo(__FILE__, __LINE__, __func__, "Received shutdown event, stopping");
                 m_stop = true;
                 break;
 
@@ -163,7 +162,7 @@ void RenderThread::Run()
                 break;
 
             default:
-                TraceMessage(__FILE__, __LINE__, __func__, "Unknown wait result: {}", static_cast<int>(waitResult));
+                TraceInfo(__FILE__, __LINE__, __func__, "Unknown wait result: {}", static_cast<int>(waitResult));
                 m_stop = true;
                 break;
         }
@@ -175,11 +174,11 @@ void RenderThread::Run()
     //
     if (m_enableMMCSS && (mmcssHandle != nullptr))
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Unhook from MMCSS");
+        TraceInfo(__FILE__, __LINE__, __func__, "Unhook from MMCSS");
         AvRevertMmThreadCharacteristics(mmcssHandle);
     }
 
-    TraceMessage(__FILE__, __LINE__, __func__, "Stopping thread");
+    TraceInfo(__FILE__, __LINE__, __func__, "Stopping thread");
 }
 
 void RenderThread::ExitThread()
@@ -190,7 +189,7 @@ void RenderThread::ExitThread()
 
     Uninitialize();
 
-    TraceMessage(__FILE__, __LINE__, __func__, "Exiting thread");
+    TraceInfo(__FILE__, __LINE__, __func__, "Exiting thread");
 }
 
 void RenderThread::FlushThread()
@@ -198,7 +197,7 @@ void RenderThread::FlushThread()
     SCOPEDTRACE(
         nullptr, 
         nullptr);
-    TraceMessage(__FILE__, __LINE__, __func__, "Flushing thread");
+    TraceInfo(__FILE__, __LINE__, __func__, "Flushing thread");
     if (m_shutdownEvent != nullptr)
     {
         SetEvent(m_shutdownEvent);
@@ -226,7 +225,7 @@ bool RenderThread::Initialize(ISoundSource * audioSource)
         return result;
     }
 
-    TraceMessage(__FILE__, __LINE__, __func__, "Setting up with {} buffers of {} bytes each ({} frames x {} channels x {} bytes/sample), running @{} frames/sec, total buffer time {} msec",
+    TraceInfo(__FILE__, __LINE__, __func__, "Setting up with {} buffers of {} bytes each ({} frames x {} channels x {} bytes/sample), running @{} frames/sec, total buffer time {} msec",
         m_renderBufferCount, m_renderBufferSizeInBytes, BufferSizePerPeriod(), ChannelCount(), FrameSize() / ChannelCount(), SamplesPerSecond(), BufferSizeInMSec);
 
     IAudioRenderClient * renderClient {};
@@ -245,7 +244,7 @@ bool RenderThread::Initialize(ISoundSource * audioSource)
     if (m_shutdownEvent == nullptr)
     {
         auto errorCode = static_cast<int>(GetLastError());
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Unable to create shutdown event"));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "Unable to create shutdown event"));
         return result;
     }
 
@@ -298,7 +297,7 @@ void RenderThread::AddAudioSamples()
         //  Calculate the number of frames available.  We'll render
         //  that many frames or the number of frames left in the buffer, whichever is smaller.
         //
-        TraceMessage(__FILE__, __LINE__, __func__, "read {} write {}", m_renderBufferReadIndex, m_renderBufferWriteIndex);
+        TraceInfo(__FILE__, __LINE__, __func__, "read {} write {}", m_renderBufferReadIndex, m_renderBufferWriteIndex);
         std::uint32_t framesAvailable = m_bufferSize - padding;
         while (m_renderBufferSizeInBytes <= framesAvailable * m_frameSize)
         {
@@ -357,7 +356,7 @@ void RenderThread::AddAudioSamples()
                             break;
 
                         default:
-                            tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Invalid RenderSampleType {}", static_cast<int>(m_renderSampleType)));
+                            tracing::Tracing::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Invalid RenderSampleType {}", static_cast<int>(m_renderSampleType)));
                             break;
                     }
                 }

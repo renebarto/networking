@@ -52,14 +52,13 @@ set(PROJECT_LIBS
     ${PROJECT_DEPENDENCIES}
     )
 
-set(PROJECT_SOURCES 
-    src/ActiveObjectTest.cpp
-    src/IteratorTest.cpp
-    src/NullableTest.cpp
-    src/ObservableTest.cpp
-    src/RegexTest.cpp
-    src/ThreadTest.cpp
-    src/WorkerThreadTest.cpp
+set(PROJECT_SOURCES
+    src/serialization/SerializeTest.cpp
+    src/threading/ActiveObjectTest.cpp
+    src/threading/ThreadTest.cpp
+    src/threading/WorkerThreadTest.cpp
+    src/types/CommonTypesTest.cpp
+    src/utilities/IteratorTest.cpp
     )
 
 set(PROJECT_INCLUDES_PRIVATE

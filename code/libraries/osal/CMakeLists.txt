@@ -50,16 +50,20 @@ set(PROJECT_LIBS
 set(PROJECT_SOURCES 
     src/Clock.cpp
     src/Console.cpp
+    src/ErrorCode.cpp
     src/FileHandling.cpp
     src/Signal.cpp
     src/ThreadFunctions.cpp
     src/TypeInfo.cpp
     )
+
 set(PROJECT_INCLUDES_PRIVATE
     )
+
 set(PROJECT_INCLUDES_PUBLIC
     include/osal/Clock.h
     include/osal/Console.h
+    include/osal/ErrorCode.h
     include/osal/FileHandling.h
     include/osal/ManualEvent.h
     include/osal/Semaphore.h

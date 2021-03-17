@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020 Koninklijke Philips Electronics N.V.
+//
+// File        : Endian.cpp
+//
+// Namespace   : serialization
+//
+// Class       : -
+//
+// Description :
+//
+//------------------------------------------------------------------------------
+
 #include "utility/Endian.h"
 
 namespace serialization {

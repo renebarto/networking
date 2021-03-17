@@ -1,7 +1,7 @@
 #include "GoogleTest.h"
 
 #include "osal/ThreadFunctions.h"
-#include "core/Observable.h"
+#include "utility/Observable.h"
 #include "network-osal/SocketAPIMock.h"
 #include "tracing/ScopedTracing.h"
 #include "tracing/Tracing.h"
@@ -41,7 +41,7 @@ public:
     void SetUp() override
     {
         m_savedTraceFilter = tracing::GetDefaultTraceFilter();
-        tracing::SetDefaultTraceFilter(tracing::TraceCategory::Message | tracing::TraceCategory::Data);
+        tracing::SetDefaultTraceFilter(tracing::TraceCategory::Information | tracing::TraceCategory::Data);
         osal::SetThreadNameSelf("IPV4TCPServerTest");
     }
     void TearDown() override
@@ -50,7 +50,7 @@ public:
     }
     bool DataCallback(const ByteBuffer & dataReceived, ByteBuffer & dataToSend)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Data in: {}", serialization::SerializeData(dataReceived.data(), dataReceived.size()));
+        TraceInfo(__FILE__, __LINE__, __func__, "Data in: {}", serialization::SerializeData(dataReceived.data(), dataReceived.size()));
         dataToSend = dataReceived;
         ++m_dataCallbackInvokedTimes;
         if (m_dataCallbackInvokedTimes >= 2)

@@ -131,7 +131,7 @@ public:
     void OnMidiEvent(std::uint32_t msg, std::uint32_t param1, std::uint32_t param2) override
     {
         MidiMessage midiMessage = static_cast<MidiMessage>(msg);
-        TraceMessage(__FILE__, __LINE__, __func__, "Received MIDI event: msg={}, param1={,8:X8}, param2={,8:X8}", midiMessage, param1, param2);
+        TraceInfo(__FILE__, __LINE__, __func__, "Received MIDI event: msg={}, param1={,8:X8}, param2={,8:X8}", midiMessage, param1, param2);
         switch (midiMessage)
         {
             case MidiMessage::MidiInOpen:

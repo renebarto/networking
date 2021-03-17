@@ -3,7 +3,6 @@
 #include <functional>
 #include <conio.h>
 #include "osal/ThreadFunctions.h"
-#include "tracing/Logging.h"
 #include "tracing/Tracing.h"
 #include "utility/GenericError.h"
 
@@ -57,14 +56,14 @@ void Application::Usage()
 
 int Application::Run()
 {
-    tracing::SetDefaultTraceFilter(tracing::TraceCategory::Message | tracing::TraceCategory::Data/* | tracing::TraceCategory::FunctionEnter | tracing::TraceCategory::FunctionLeave*/);
+    tracing::SetDefaultTraceFilter(tracing::TraceCategory::Information | tracing::TraceCategory::Data/* | tracing::TraceCategory::FunctionEnter | tracing::TraceCategory::FunctionLeave*/);
     osal::SetThreadNameSelf("Main");
     osal::SetSignalHandler(osal::SignalType::Interrupt, std::bind(&Application::SignalHandler, this, std::placeholders::_1));
 
     m_api = sound::CreateAPI();
     if (!m_api->Initialize("Digital Audio (S/PDIF) (High Definition Audio Device)"))
     {
-        tracing::Logging::Fatal(__FILE__, __LINE__, __func__, utility::GenericError("Cannot initialize Sound API"));
+        tracing::Tracing::Fatal(__FILE__, __LINE__, __func__, utility::GenericError("Cannot initialize Sound API"));
     }
 
     m_api->Start(this);
@@ -87,7 +86,7 @@ int Application::Run()
 
 void Application::SignalHandler(osal::SignalType signal)
 {
-    TraceMessage(__FILE__, __LINE__, __func__, "Caught signal {}", signal);
+    TraceInfo(__FILE__, __LINE__, __func__, "Caught signal {}", signal);
     if (signal == osal::SignalType::Interrupt)
         m_interrupted = true;
 }

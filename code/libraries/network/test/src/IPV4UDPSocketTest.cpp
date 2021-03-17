@@ -345,7 +345,7 @@ TEST_F(IPV4UDPSocketTest, SendReceiveUDPConnected)
     clientSocket.Open();
     IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
 
-    core::TypedReturnThread<bool> serverThread(IPV4UDPSocketUDPServerThread);
+    core::threading::TypedReturnThread<bool> serverThread(IPV4UDPSocketUDPServerThread);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     bool connected = clientSocket.Connect(serverAddress, 5000);
     EXPECT_TRUE(connected);
@@ -372,7 +372,7 @@ TEST_F(IPV4UDPSocketTest, SendReceiveUDPConnectionless)
     clientSocket.Open();
     IPV4EndPoint serverAddress(IPV4Address::LocalHost, TestPort);
 
-    core::TypedReturnThread<bool> serverThread(IPV4UDPSocketUDPServerThread);
+    core::threading::TypedReturnThread<bool> serverThread(IPV4UDPSocketUDPServerThread);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     const std::size_t BufferSize = 10;
     std::uint8_t bufferOut[BufferSize] = { 'H', 'e', 'l', 'l', 'o', 'W', 'o', 'r', 'l', 'd'};

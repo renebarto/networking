@@ -25,7 +25,7 @@ public:
     void SetUp() override
     {
         m_savedTraceFilter = tracing::GetDefaultTraceFilter();
-        tracing::SetDefaultTraceFilter(tracing::TraceCategory::Message | tracing::TraceCategory::Data);
+        tracing::SetDefaultTraceFilter(tracing::TraceCategory::Information | tracing::TraceCategory::Data);
         osal::SetThreadNameSelf("IPV4TCPServerSocketTest");
     }
     void TearDown() override
@@ -183,7 +183,7 @@ bool IPV4TCPSocketConnectThread()
     EXPECT_TRUE(connected);
     if (connected)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Connected");
+        TraceInfo(__FILE__, __LINE__, __func__, "Connected");
         const std::size_t BufferSize = 10;
         std::uint8_t bufferOut[BufferSize] = { 'H', 'e', 'l', 'l', 'o', 'W', 'o', 'r', 'l', 'd'};
         std::uint8_t bufferIn[BufferSize];
@@ -211,7 +211,7 @@ TEST_F(IPV4TCPServerSocketTest, ConnectAcceptSendReceiveTCP)
     const int NumListeners = 1;
     IPV4TCPServerSocket server(api, TestPort, NumListeners, std::chrono::seconds(1));
     server.Initialize();
-    core::TypedReturnThread<bool> connectorThread(IPV4TCPSocketConnectThread, "IPV4TCPSocketConnectThread");
+    core::threading::TypedReturnThread<bool> connectorThread(IPV4TCPSocketConnectThread, "IPV4TCPSocketConnectThread");
 
     IPV4TCPSocket client(api);
     client.Open();
@@ -220,7 +220,7 @@ TEST_F(IPV4TCPServerSocketTest, ConnectAcceptSendReceiveTCP)
     EXPECT_TRUE(accepted);
     if (accepted)
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Accepted connection");
+        TraceInfo(__FILE__, __LINE__, __func__, "Accepted connection");
         const std::size_t BufferSize = 10;
         std::uint8_t buffer[BufferSize];
         std::size_t bytesReceived = client.Receive(buffer, BufferSize, 0);

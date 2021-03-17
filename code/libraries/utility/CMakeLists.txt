@@ -39,7 +39,8 @@ set(PROJECT_LINK_OPTIONS
     )
 
 set(PROJECT_DEPENDENCIES
-    osal)
+    osal
+    )
 
 set(PROJECT_LIBS
     ${LINKER_LIBRARIES}
@@ -53,6 +54,7 @@ set(PROJECT_SOURCES
     src/Error.cpp
     src/Format.cpp
     src/GenericError.cpp
+    src/Regex.cpp
     src/Serialization.cpp
     src/StringFunctions.cpp
     )
@@ -64,8 +66,14 @@ set(PROJECT_INCLUDES_PUBLIC
     include/utility/Deserialization.h
     include/utility/Endian.h
     include/utility/EnumSerialization.h
+    include/utility/Error.h
     include/utility/Format.h
+    include/utility/GenericError.h
+    include/utility/IObservable.h
     include/utility/MapUtilities.h
+    include/utility/Nullable.h
+    include/utility/Observable.h
+    include/utility/Regex.h
     include/utility/Serialization.h
     include/utility/StringFunctions.h
     include/utility/TriBool.h

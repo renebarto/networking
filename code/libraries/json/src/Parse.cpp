@@ -1,5 +1,6 @@
 #include "Parse.h"
 
+#include <cctype>
 #include "utility/StringFunctions.h"
 #include "json/Null.h"
 #include "json/Boolean.h"

@@ -39,7 +39,6 @@ set(PROJECT_LINK_OPTIONS
     )
 
 set(PROJECT_DEPENDENCIES
-    tracing
     utility
     gtest
     gtest_main
@@ -50,6 +49,7 @@ set(PROJECT_DEPENDENCIES
 set(PROJECT_LIBS
     ${LINKER_LIBRARIES}
     ${PROJECT_DEPENDENCIES}
+    uuid
     )
 
 set(PROJECT_SOURCES 
@@ -60,6 +60,9 @@ set(PROJECT_SOURCES
     src/EnumSerializationTest.cpp
     src/FormatTest.cpp
     src/MapUtilitiesTest.cpp
+    src/NullableTest.cpp
+    src/ObservableTest.cpp
+    src/RegexTest.cpp
     src/SerializationTest.cpp
     src/StringFunctionsTest.cpp
     src/TriBoolTest.cpp

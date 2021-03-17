@@ -1,6 +1,6 @@
 #include "network-osal/SocketAPI.h"
 
-#include "tracing/Logging.h"
+#include "tracing/Tracing.h"
 #include "utility/Error.h"
 #include "network-osal/Network.h"
 
@@ -154,7 +154,7 @@ public:
         // Do not trace here, as tracing may not be initialized yet
         errorCode = WSAStartup(MAKEWORD(2, 2), &m_data);
         if (errorCode != 0)
-            tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "socket() failed")); 
+            tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "socket() failed")); 
         else
             m_initialized = true;
     }
@@ -165,7 +165,7 @@ public:
         {
             errorCode = WSACleanup();
             if (errorCode != 0)
-                tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "socket() failed")); 
+                tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::Error(errorCode, GetErrorString(errorCode), "socket() failed")); 
         }
     }
 private:

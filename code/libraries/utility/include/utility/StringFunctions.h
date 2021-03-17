@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020 Koninklijke Philips Electronics N.V.
+//
+// File        : StringFunctions.h
+//
+// Namespace   : utility
+//
+// Class       : -
+//
+// Description :
+//
+//------------------------------------------------------------------------------
+
 #pragma once
 
 #include <string>

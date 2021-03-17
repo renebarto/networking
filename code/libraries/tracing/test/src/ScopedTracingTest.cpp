@@ -2,7 +2,7 @@
 
 #include "tracing/ScopedTracing.h"
 #include "tracing/TraceCategory.h"
-#include "core/Regex.h"
+#include "utility/Regex.h"
 
 namespace tracing {
 
@@ -61,7 +61,7 @@ TEST_F(ScopedTracingTest, IfEnabledEntryAndExitMessageWritten)
     {
         ScopedTracing trace("MyFile", 123, "MyFunction", [](){ return "This is the begin"; }, [](){ return "This is the end"; });
     }
-    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+    EXPECT_TRUE(utility::VerifyMatch(m_traceOutput, 
         TraceRegexTimeStamp + "Enter\\|MyFile\\:123\\|MyFunction\\|This is the begin\n" +
         TraceRegexTimeStamp + "Leave\\|MyFile\\:123\\|MyFunction\\|This is the end\n"));
 }
@@ -72,7 +72,7 @@ TEST_F(ScopedTracingTest, IfExitFunctionIsNullEmptyStringIsWritten)
     {
         ScopedTracing trace("MyFile", 123, "MyFunction", nullptr, nullptr);
     }
-    EXPECT_TRUE(core::VerifyMatch(m_traceOutput, 
+    EXPECT_TRUE(utility::VerifyMatch(m_traceOutput, 
         TraceRegexTimeStamp + "Enter\\|MyFile\\:123\\|MyFunction\\|\n" +
         TraceRegexTimeStamp + "Leave\\|MyFile\\:123\\|MyFunction\\|\n"));
 }

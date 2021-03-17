@@ -28,11 +28,10 @@ set(PROJECT_COMPILER_OPTIONS_PUBLIC
     )
 
 set(PROJECT_INCLUDE_DIRS_PRIVATE
-    ${PROJECT_SOURCE_DIR}/src
+    ${PROJECT_SOURCE_DIR}/include
     )
 
 set(PROJECT_INCLUDE_DIRS_PUBLIC
-    ${PROJECT_SOURCE_DIR}/include
     )
 
 set(PROJECT_LINK_OPTIONS
@@ -41,7 +40,6 @@ set(PROJECT_LINK_OPTIONS
 
 set(PROJECT_DEPENDENCIES
     osal
-    core
     gtest
     gtest_main
     gmock
@@ -56,6 +54,7 @@ set(PROJECT_LIBS
 set(PROJECT_SOURCES 
     src/ClockTest.cpp
     src/ConsoleTest.cpp
+    src/ErrorCodeTest.cpp
     src/ManualEventTest.cpp
     src/SemaphoreTest.cpp
     src/SignalTest.cpp

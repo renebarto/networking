@@ -36,9 +36,9 @@ void IPV4TCPServerHandler::DoConnectionCleanup()
     for (auto & connectionHandler : m_connectionHandlersClosed)
     {
         connectionHandler->FlushThread();
-        TraceMessage(__FILE__, __LINE__, __func__, "Stop old connection {}", connectionHandler->GetName());
+        TraceInfo(__FILE__, __LINE__, __func__, "Stop old connection {}", connectionHandler->GetName());
         connectionHandler->Stop();
-        TraceMessage(__FILE__, __LINE__, __func__, "Remove old connection {}", connectionHandler->GetName());
+        TraceInfo(__FILE__, __LINE__, __func__, "Remove old connection {}", connectionHandler->GetName());
         connectionHandler.reset();
     }
     m_connectionHandlersClosed.clear();
@@ -52,9 +52,9 @@ void IPV4TCPServerHandler::ForceConnectionClose()
     {
         connectionHandler->Unsubscribe(this);
         connectionHandler->FlushThread();
-        TraceMessage(__FILE__, __LINE__, __func__, "Stop old connection {}", connectionHandler->GetName());
+        TraceInfo(__FILE__, __LINE__, __func__, "Stop old connection {}", connectionHandler->GetName());
         connectionHandler->Stop();
-        TraceMessage(__FILE__, __LINE__, __func__, "Remove old connection {}", connectionHandler->GetName());
+        TraceInfo(__FILE__, __LINE__, __func__, "Remove old connection {}", connectionHandler->GetName());
         connectionHandler.reset();
     }
     m_connectionHandlers.clear();
@@ -72,7 +72,7 @@ bool IPV4TCPServerHandler::OnAccepted(IPV4TCPSocket && clientSocket, const IPV4E
     bool connectionAdded {};
     SCOPEDTRACE([&] () { return utility::FormatString("clientAddress=[{}]", clientAddress); }, 
                 [&] () { return utility::FormatString("connectionAdded={}", connectionAdded);});
-    TraceMessage(__FILE__, __LINE__, __func__, "Add connection for {}", clientAddress);
+    TraceInfo(__FILE__, __LINE__, __func__, "Add connection for {}", clientAddress);
     auto connectionHandler = std::make_shared<IPV4TCPServerConnectionHandler>(m_socketAPI, m_dataCallback);
     connectionHandler->Subscribe(this);
     connectionHandler->Start(std::move(clientSocket), clientAddress);
@@ -88,7 +88,7 @@ void IPV4TCPServerHandler::OnConnectionClosed(IPV4TCPServerConnectionThread * co
 {
     SCOPEDTRACE([&] () { return utility::FormatString("connection={}", connection); }, 
                 nullptr);
-    TraceMessage(__FILE__, __LINE__, __func__, "Connection closed");
+    TraceInfo(__FILE__, __LINE__, __func__, "Connection closed");
     IPV4TCPServerConnectionHandler * connectionHandler = dynamic_cast<IPV4TCPServerConnectionHandler *>(connection);
 
     Lock lock(m_mutex);

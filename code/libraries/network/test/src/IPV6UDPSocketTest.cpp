@@ -4,7 +4,6 @@
 
 #include "network-osal/SocketAPI.h"
 #include "tracing/ScopedTracing.h"
-#include "tracing/Logging.h"
 #include "utility/GenericError.h"
 #include "Utility.h"
 
@@ -337,7 +336,7 @@ bool IPV6UDPSocketUDPServerThread()
     }
     catch (std::exception & e)
     {
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::GenericError(e.what()));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::GenericError(e.what()));
         throw;
     }
     return ok;
@@ -350,7 +349,7 @@ TEST_F(IPV6UDPSocketTest, SendReceiveUDPConnected)
     clientSocket.Open();
     IPV6EndPoint serverAddress(IPV6Address::LocalHost, TestPort);
 
-    core::TypedReturnThread<bool> serverThread(IPV6UDPSocketUDPServerThread);
+    core::threading::TypedReturnThread<bool> serverThread(IPV6UDPSocketUDPServerThread);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     bool connected = clientSocket.Connect(serverAddress, 5000);
     EXPECT_TRUE(connected);
@@ -377,7 +376,7 @@ TEST_F(IPV6UDPSocketTest, SendReceiveUDPConnectionless)
     clientSocket.Open();
     IPV6EndPoint serverAddress(IPV6Address::LocalHost, TestPort);
 
-    core::TypedReturnThread<bool> serverThread(IPV6UDPSocketUDPServerThread);
+    core::threading::TypedReturnThread<bool> serverThread(IPV6UDPSocketUDPServerThread);
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     const std::size_t BufferSize = 10;
     std::uint8_t bufferOut[BufferSize] = { 'H', 'e', 'l', 'l', 'o', 'W', 'o', 'r', 'l', 'd'};

@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020 Koninklijke Philips Electronics N.V.
+//
+// File        : EnumSerializationTest.cpp
+//
+// Namespace   : utility
+//
+// Class       : -
+//
+// Description :
+//
+//------------------------------------------------------------------------------
+
 #include "utility/EnumSerialization.h"
 
 #include "GoogleTest.h"

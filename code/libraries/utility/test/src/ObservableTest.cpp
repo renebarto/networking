@@ -1,8 +1,8 @@
 #include "GoogleTest.h"
 
-#include "core/Observable.h"
+#include "utility/Observable.h"
 
-namespace core {
+namespace utility {
 
 using Value = int;
 
@@ -74,4 +74,4 @@ TEST(observableTest, ForAll)
     EXPECT_EQ(&value2, result[1]);
 }
 
-} // namespace core
+} // namespace utility

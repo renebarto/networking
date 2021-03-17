@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2009 Koninklijke Philips Electronics N.V.
+//
+// File        : Clock.cpp
+//
+// Namespace   : osal
+//
+// Class       : Clock
+//
+// Description :
+//
+//------------------------------------------------------------------------------
+
 #include "osal/Clock.h"
 
 #include <ctime>

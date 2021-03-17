@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020 Koninklijke Philips Electronics N.V.
+//
+// File        : Format.h
+//
+// Namespace   : utility
+//
+// Class       : -
+//
+// Description :
+//
+//------------------------------------------------------------------------------
+
 #pragma once
 
 #include <cstring>
@@ -248,7 +261,14 @@ void Format(std::basic_string<T> & buffer,
                     return;
                 }
                 parameterUsed[parameterIndex] = true;
-                Format(buffer, parameterIndex, 0, width, formatSpecifier, args ...);
+                try
+                {
+                    Format(buffer, parameterIndex, 0, width, formatSpecifier, args ...);
+                }
+                catch (std::logic_error & e)
+                {
+                    SetFormatError(e.what());
+                }
 
                 currentPosition = parameterEndIndication + 1;
             } else

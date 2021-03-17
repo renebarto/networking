@@ -12,8 +12,6 @@
 //------------------------------------------------------------------------------
 
 #include <algorithm>
-#include "tracing/Logging.h"
-#include "tracing/Tracing.h"
 #include "tracing/ScopedTracing.h"
 #include "utility/EnumSerialization.h"
 #include "midi/IMidiAPI.h"
@@ -212,7 +210,7 @@ void SynthRack::GetSamples(std::vector<std::vector<float>> & buffer)
 
 void SynthRack::OnMidiEvent(const midi::MidiEvent & event)
 {
-    TraceMessage(__FILE__, __LINE__, __func__, "event={}", event);
+    TraceInfo(__FILE__, __LINE__, __func__, "event={}", event);
     switch (event.type)
     {
         case midi::MidiEventType::NoteOn:

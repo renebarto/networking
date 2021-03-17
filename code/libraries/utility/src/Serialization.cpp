@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020 Koninklijke Philips Electronics N.V.
+//
+// File        : Serialization.cpp
+//
+// Namespace   : serialization
+//
+// Class       : -
+//
+// Description :
+//
+//------------------------------------------------------------------------------
+
 #include "utility/Serialization.h"
 
 #include <algorithm>
@@ -481,6 +494,26 @@ std::string SerializeData(const std::vector<std::uint8_t> & value)
     return "-";
 }
 
+std::string SerializeMACAddress(const std::vector<std::uint8_t> & address)
+{
+    std::ostringstream stream;
+    if (address.size() != 6)
+        return "Invalid format for MAC address";
+    stream << std::hex << std::setw(2) << std::setfill('0') << std::noshowbase 
+        << static_cast<int>(address[0]) << ":";
+    stream << std::hex << std::setw(2) << std::setfill('0') << std::noshowbase 
+        << static_cast<int>(address[1]) << ":";
+    stream << std::hex << std::setw(2) << std::setfill('0') << std::noshowbase 
+        << static_cast<int>(address[2]) << ":";
+    stream << std::hex << std::setw(2) << std::setfill('0') << std::noshowbase 
+        << static_cast<int>(address[3]) << ":";
+    stream << std::hex << std::setw(2) << std::setfill('0') << std::noshowbase 
+        << static_cast<int>(address[4]) << ":";
+    stream << std::hex << std::setw(2) << std::setfill('0') << std::noshowbase 
+        << static_cast<int>(address[5]);
+    return stream.str();
+}
+
 // Binary Serialization
 
 void AppendOrReplace(std::vector<std::uint8_t> & buffer, std::size_t & offset, const void * data, std::size_t length)
@@ -562,33 +595,6 @@ void SerializeBinary(double value, std::vector<std::uint8_t> & buffer, std::size
 {
     const std::uint64_t convertedValue = utility::ToEndianness(*reinterpret_cast<const std::uint64_t *>(&value), endianness);
     const std::uint8_t * data = reinterpret_cast<const std::uint8_t *>(&convertedValue);
-    AppendOrReplace(buffer, offset, data, sizeof(convertedValue));
-}
-
-void SerializeBinary(long double value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness)
-{
-    std::uint8_t convertedValue[16] {};
-    std::copy(reinterpret_cast<const std::uint8_t *>(&value), reinterpret_cast<const std::uint8_t *>(&value) + sizeof(value), std::begin(convertedValue));
-    if (endianness != utility::PlatformEndianness())
-    {
-        std::reverse(std::begin(convertedValue), std::end(convertedValue));
-    }
-//TICS -POR#021 Platform specific
-#if defined(PLATFORM_LINUX) && !defined(PLATFORM_LINUX_WRL)
-    // For Linux (Debian etc.) long double is implemented as 80 bit floating point, but serialized to 128 bit, with 6 bytes of garbage at the end
-    // (or begin for Big Endian). So we clear these 6 bytes.
-    if (endianness == utility::Endianness::LittleEndian)
-    {
-        std::fill_n(&convertedValue[10], 6, 0);
-    }   
-    else
-    {
-        std::fill_n(std::begin(convertedValue), 6, 0);
-    }     
-#endif
-//TICS +POR#021
-    
-    const std::uint8_t * data = convertedValue;
     AppendOrReplace(buffer, offset, data, sizeof(convertedValue));
 }
 

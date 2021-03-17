@@ -1,8 +1,9 @@
 #include "network/IPV6EndPoint.h"
 
+#include <cctype>
 #include "utility/Endian.h"
 #include "utility/GenericError.h"
-#include "tracing/Logging.h"
+#include "tracing/Tracing.h"
 
 namespace network {
 
@@ -140,18 +141,18 @@ IPV6EndPoint::IPV6EndPoint(const IPV6Address & ipAddress, PortType port,
 {
 }
 IPV6EndPoint::IPV6EndPoint(const in6_addr & ipAddress)
-        : m_ipAddress(ipAddress)
-        , m_port(AnyPort)
-        , m_flowInformation()
-        , m_scopeIdentifier()
+    : m_ipAddress(ipAddress)
+    , m_port(AnyPort)
+    , m_flowInformation()
+    , m_scopeIdentifier()
 {
 }
 IPV6EndPoint::IPV6EndPoint(const in6_addr & ipAddress, PortType port,
-                           uint32_t flowInformation, uint32_t scopeIdentifier)
-        : m_ipAddress(ipAddress)
-        , m_port(port)
-        , m_flowInformation(flowInformation)
-        , m_scopeIdentifier(scopeIdentifier)
+                        uint32_t flowInformation, uint32_t scopeIdentifier)
+    : m_ipAddress(ipAddress)
+    , m_port(port)
+    , m_flowInformation(flowInformation)
+    , m_scopeIdentifier(scopeIdentifier)
 {
 }
 IPV6EndPoint::IPV6EndPoint(const IPV6Address::AddressType ipAddress, PortType port,
@@ -194,7 +195,7 @@ IPV6EndPoint IPV6EndPoint::Parse(const std::string & text)
     IPV6EndPoint ipAddress;
     if (!TryParse(text, ipAddress))
     {
-        tracing::Logging::Throw(__FILE__, __LINE__, __func__, 
+        tracing::Tracing::Throw(__FILE__, __LINE__, __func__, 
             utility::GenericError("IPV6EndPoint string representation must be formatted as "
                   "[xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx]:ddddd (or a shortened format),  string is {}", text));
     }

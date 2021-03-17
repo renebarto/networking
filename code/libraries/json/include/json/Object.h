@@ -3,7 +3,7 @@
 #include <map>
 #include <vector>
 #include "utility/GenericError.h"
-#include "core/Iterator.h"
+#include "core/utilities/Iterator.h"
 #include "json/Value.h"
 
 namespace json {
@@ -64,7 +64,7 @@ public:
         KVPair operator *()
         {
             if (AtEnd())
-                tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Iterator outside scope"));
+                tracing::Tracing::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Iterator outside scope"));
 
             return KVPair(m_current->first, m_current->second);
         }
@@ -104,7 +104,7 @@ public:
         KVPair operator *()
         {
             if (AtEnd())
-                tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Iterator outside scope"));
+                tracing::Tracing::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Iterator outside scope"));
 
             return KVPair(m_current->first, m_current->second);
         }

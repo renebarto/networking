@@ -16,7 +16,6 @@
 #include <MMDeviceAPI.h>
 
 #include "tracing/ScopedTracing.h"
-#include "tracing/Logging.h"
 #include "utility/EnumSerialization.h"
 #include "utility/Error.h"
 #include "utility/GenericError.h"
@@ -203,7 +202,7 @@ bool SoundClient::DetermineAudioFormat()
         return result;
     }
 
-    TraceMessage(__FILE__, __LINE__, __func__, "Audio format: {}, blockalign={}, bits/sample={}", m_mixFormat->wFormatTag, m_mixFormat->nBlockAlign, m_mixFormat->wBitsPerSample);
+    TraceInfo(__FILE__, __LINE__, __func__, "Audio format: {}, blockalign={}, bits/sample={}", m_mixFormat->wFormatTag, m_mixFormat->nBlockAlign, m_mixFormat->wBitsPerSample);
 
     if (m_mixFormat->wFormatTag == WAVE_FORMAT_PCM || 
         m_mixFormat->wFormatTag == WAVE_FORMAT_EXTENSIBLE &&
@@ -276,7 +275,7 @@ const WAVEFORMATEX & SoundClient::GetMixFormat() const
 {
     if (m_mixFormat == nullptr)
     {
-        tracing::Logging::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Not correctly initialized"));
+        tracing::Tracing::Throw(__FILE__, __LINE__, __func__, utility::GenericError("Not correctly initialized"));
     }
     return *m_mixFormat; 
 }

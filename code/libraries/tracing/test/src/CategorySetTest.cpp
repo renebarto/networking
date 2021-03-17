@@ -31,10 +31,10 @@ TEST(CategorySetTest, ConstructDefault)
 
 TEST(CategorySetTest, Construct)
 {
-    CategorySet<TraceCategory> set(TraceCategory::Message);
+    CategorySet<TraceCategory> set(TraceCategory::Information);
     for (auto const & category : EnumTraceCategories())
     {
-        if (category != TraceCategory::Message)
+        if (category != TraceCategory::Information)
             EXPECT_FALSE(set.is_set(category));
         else
             EXPECT_TRUE(set.is_set(category));
@@ -52,7 +52,7 @@ TEST(CategorySetTest, ConstructMaskNone)
 
 TEST(CategorySetTest, ConstructMaskAll)
 {
-    CategorySet<TraceCategory> set(0xFFFF);
+    CategorySet<TraceCategory> set(0xFFFFFFFF);
     for (auto const & category : EnumTraceCategories())
     {
         EXPECT_TRUE(set.is_set(category));
@@ -61,10 +61,10 @@ TEST(CategorySetTest, ConstructMaskAll)
 
 TEST(CategorySetTest, ConstructMaskOnlyDebug)
 {
-    CategorySet<TraceCategory> set(0x0001);
+    CategorySet<TraceCategory> set(0x00000001);
     for (auto const & category : EnumTraceCategories())
     {
-        if (category != TraceCategory::FunctionEnter)
+        if (category != TraceCategory::Debug)
             EXPECT_FALSE(set.is_set(category));
         else
             EXPECT_TRUE(set.is_set(category));
@@ -87,7 +87,7 @@ TEST(CategorySetTest, Set)
 
 TEST(CategorySetTest, Reset)
 {
-    CategorySet<TraceCategory> set(0xFFFF);
+    CategorySet<TraceCategory> set(0xFFFFFFFF);
     set.reset(TraceCategory::FunctionEnter);
     set.reset(TraceCategory::FunctionLeave);
     for (auto const & category : EnumTraceCategories())

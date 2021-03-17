@@ -1,6 +1,5 @@
 #include "network/IPV4TCPServerSocket.h"
 
-#include "tracing/Logging.h"
 #include "tracing/ScopedTracing.h"
 
 namespace network {
@@ -27,7 +26,7 @@ bool IPV4TCPServerSocket::Initialize()
                 [&] () { return utility::FormatString("result={}", result); });
     if (m_isInitialized)
     {
-        LogWarning(__FILE__, __LINE__, __func__, "Already initialized");
+        LogError(__FILE__, __LINE__, __func__, "Already initialized");
         result = true;
     }
     else

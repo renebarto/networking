@@ -11,8 +11,6 @@
 //
 //------------------------------------------------------------------------------
 
-#include "tracing/Logging.h"
-#include "tracing/Tracing.h"
 #include "tracing/ScopedTracing.h"
 #include "utility/EnumSerialization.h"
 #include "midi/IMidiAPI.h"

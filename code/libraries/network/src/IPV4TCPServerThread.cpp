@@ -8,7 +8,7 @@ namespace network {
 const std::chrono::milliseconds IPV4TCPServerThread::WaitTime(1000);
 
 IPV4TCPServerThread::IPV4TCPServerThread(ISocketAPI & api)
-    : core::ActiveObject("IPV4TCPServerThread")
+    : core::threading::ActiveObject("IPV4TCPServerThread")
     , m_socketAPI(api)
     , m_port()
     , m_numListeners()
@@ -55,7 +55,7 @@ void IPV4TCPServerThread::Run()
     IPV4TCPServerSocket serverSocket(m_socketAPI, m_port, m_numListeners, m_acceptTimeout);
     serverSocket.Initialize();
     m_abortThread = false;
-    TraceMessage(__FILE__, __LINE__, __func__, "Starting {}", GetName());
+    TraceInfo(__FILE__, __LINE__, __func__, "Starting {}", GetName());
     while (!IsDying() && !m_abortThread)
     {
         DoConnectionCleanup();
@@ -68,16 +68,16 @@ void IPV4TCPServerThread::Run()
             {
                 if (!OnAccepted(std::move(clientSocket), clientAddress))
                 {
-                    TraceMessage(__FILE__, __LINE__, __func__, "Connection refused {}", GetName());
+                    TraceInfo(__FILE__, __LINE__, __func__, "Connection refused {}", GetName());
                 }
                 else
                 {
-                    TraceMessage(__FILE__, __LINE__, __func__, "Connection accepted {}", GetName());
+                    TraceInfo(__FILE__, __LINE__, __func__, "Connection accepted {}", GetName());
                 }
             }
             else
             {
-                TraceMessage(__FILE__, __LINE__, __func__, "Accept failed {}", GetName());
+                TraceInfo(__FILE__, __LINE__, __func__, "Accept failed {}", GetName());
             }
         }
         else
@@ -86,13 +86,13 @@ void IPV4TCPServerThread::Run()
         }
     }
     ForceConnectionClose();
-    TraceMessage(__FILE__, __LINE__, __func__, "Shutting down {}", GetName());
+    TraceInfo(__FILE__, __LINE__, __func__, "Shutting down {}", GetName());
     serverSocket.Uninitialize();
 }
 
 void IPV4TCPServerThread::FlushThread()
 {
-    TraceMessage(__FILE__, __LINE__, __func__, "Flush thread {}", GetName());
+    TraceInfo(__FILE__, __LINE__, __func__, "Flush thread {}", GetName());
     m_abortThread = true;
 }
 

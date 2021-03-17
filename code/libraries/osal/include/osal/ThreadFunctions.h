@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2021 Koninklijke Philips Electronics N.V.
+//
+// File        : Thread.h
+//
+// Namespace   : osal
+//
+// Class       : -
+//
+// Description : Basic threading functions
+//
+//------------------------------------------------------------------------------
+
 #pragma once
 
 #include <thread>

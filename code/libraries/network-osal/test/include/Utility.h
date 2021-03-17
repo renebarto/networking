@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/Thread.h"
+#include "core/threading/Thread.h"
 
 namespace network {
 

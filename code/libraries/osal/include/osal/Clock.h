@@ -1,3 +1,17 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2009 Koninklijke Philips Electronics N.V.
+//
+// File        : Clock.h
+//
+// Namespace   : osal
+//
+// Class       : Clock
+//
+// Description : Add a time/date interface to set a SW only time mechanism that
+//               doesn't influence semaphore time-outs and sleeps
+//
+//------------------------------------------------------------------------------
+
 #pragma once
 
 #include <chrono>

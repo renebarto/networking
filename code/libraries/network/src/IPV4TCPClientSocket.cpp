@@ -1,6 +1,5 @@
 #include "network/IPV4TCPClientSocket.h"
 
-#include "tracing/Logging.h"
 #include "tracing/ScopedTracing.h"
 
 namespace network {
@@ -27,7 +26,7 @@ bool IPV4TCPClientSocket::Connect(const IPV4EndPoint & address, std::chrono::mil
     
     if (m_isConnected)
     {
-        LogWarning(__FILE__, __LINE__, __func__, "Already connected");
+        LogError(__FILE__, __LINE__, __func__, "Already connected");
         result = false;
     }
     else

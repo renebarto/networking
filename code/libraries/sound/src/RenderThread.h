@@ -15,7 +15,7 @@
 
 #if defined(PLATFORM_WINDOWS)
 
-#include "core/ActiveObject.h"
+#include "core/threading/ActiveObject.h"
 #include "RenderBuffer.h"
 #include "WindowsCOM.h"
 #include "sound/ISoundSource.h"
@@ -31,7 +31,7 @@ class SoundClient;
 using ChannelSampleBuffer = std::vector<float>;
 
 class RenderThread
-    : public core::ActiveObject
+    : public core::threading::ActiveObject
 {
 private:
     SoundClient & m_soundClient;

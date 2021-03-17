@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020 Koninklijke Philips Electronics N.V.
+//
+// File        : Serialization.h
+//
+// Namespace   : serialization
+//
+// Class       : -
+//
+// Description :
+//
+//------------------------------------------------------------------------------
+
 #pragma once
 
 #include <chrono>
@@ -31,7 +44,6 @@ enum class FloatingPointRepresentation
 };
 std::string Serialize(float value, int width = 0, int precision = 16, FloatingPointRepresentation representation = FloatingPointRepresentation::Mixed);
 std::string Serialize(double value, int width = 0, int precision = 16, FloatingPointRepresentation representation = FloatingPointRepresentation::Mixed);
-std::string Serialize(long double value, int width = 0, int precision = 16, FloatingPointRepresentation representation = FloatingPointRepresentation::Mixed);
 std::string Serialize(const std::string & value, int width = 0, bool quote = false);
 std::string Serialize(const std::wstring & value, int width = 0, bool quote = false);
 std::string Serialize(const char * value, int width = 0, bool quote = false);
@@ -42,6 +54,7 @@ std::string Serialize(std::chrono::milliseconds & value, int width = 0);
 std::string Serialize(std::chrono::seconds & value, int width = 0);
 std::string SerializeData(const std::uint8_t * value, std::size_t size);
 std::string SerializeData(const std::vector<std::uint8_t> & value);
+std::string SerializeMACAddress(const std::vector<std::uint8_t> & value);
 
 template<typename T>
 std::string Serialize(T t, int width)
@@ -73,7 +86,6 @@ void SerializeBinary(std::int64_t value, std::vector<std::uint8_t> & buffer, std
 void SerializeBinary(std::uint64_t value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
 void SerializeBinary(float value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
 void SerializeBinary(double value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
-void SerializeBinary(long double value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
 void SerializeBinary(const std::string & value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
 void SerializeBinary(const std::wstring & value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);
 void SerializeBinary(const char * value, std::vector<std::uint8_t> & buffer, std::size_t & offset, utility::Endianness endianness = utility::Endianness::LittleEndian);

@@ -4,10 +4,22 @@
 
 namespace tracing {
 
-TEST(TraceHelpersTest, ExtractFileName)
+TEST(TraceHelpersTest, ExtractFileNameWindows)
 {
     std::string path = "C:\\dir\\file.txt";
     EXPECT_EQ("file.txt", ExtractFileName(path));
+}
+
+TEST(TraceHelpersTest, ExtractFileNameLinux)
+{
+    std::string path = "/dir/file.txt";
+    EXPECT_EQ("file.txt", ExtractFileName(path));
+}
+
+TEST(TraceHelpersTest, ExtractFileNameEmpty)
+{
+    std::string path = "";
+    EXPECT_EQ("", ExtractFileName(path));
 }
 
 TEST(TraceHelpersTest, RelativePathSameRoot)

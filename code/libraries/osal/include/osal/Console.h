@@ -49,13 +49,15 @@ enum class ConsoleColor : int {
 
 std::ostream & operator << (std::ostream & stream, ConsoleColor value);
 
-struct _SetForegroundColor
+struct _SetForegroundColor //TICS !NAM#002 Using type with _ on purpose
 {
+public:
     ConsoleColor color;
 };
 
-struct _SetBackgroundColor
+struct _SetBackgroundColor //TICS !NAM#002 Using type with _ on purpose
 {
+public:
     ConsoleColor color;
 };
 
@@ -64,12 +66,12 @@ class Console
 protected:
     // The type of basic IO manipulators (endl, ends, and flush) for narrow
     // streams.
-    typedef std::ostream & (* BasicIoManip)(std::ostream &);
+    typedef std::ostream & (* BasicIoManip)(std::ostream &); //TICS !STY#029 Access specifier
 
 public:
     Console(int handle = GetFileDescriptor(stdout));
-    Console(FILE * file);
-    Console(std::ostream & stream);
+    explicit Console(FILE * file);
+    explicit Console(std::ostream & stream);
 
     std::ostream * GetStream() { return m_stream; }
 
@@ -98,7 +100,7 @@ public:
     {
         Lock lock(m_mutex);
         using ::operator <<;
-        if (m_stream)
+        if (m_stream != nullptr)
             *m_stream << val;
         return *this;
     }
@@ -106,7 +108,7 @@ public:
     Console & operator << (BasicIoManip val)
     {
         Lock lock(m_mutex);
-        if (m_stream)
+        if (m_stream != nullptr)
             *m_stream << val;
         return *this;
     }
@@ -124,7 +126,7 @@ public:
         return *this;
     }
 
-protected:
+private:
     using Mutex = std::recursive_mutex;
     using Lock = std::lock_guard<Mutex>;
 

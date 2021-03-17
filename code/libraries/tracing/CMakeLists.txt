@@ -50,8 +50,6 @@ set(PROJECT_LIBS
 
 set(PROJECT_SOURCES 
     src/ConsoleLineWriter.cpp
-    src/LogCategory.cpp
-    src/Logging.cpp
     src/ScopedTracing.cpp
     src/TraceCategory.cpp
     src/TraceEntry.cpp
@@ -66,8 +64,6 @@ set(PROJECT_INCLUDES_PUBLIC
     include/tracing/CategorySet.h
     include/tracing/ConsoleLineWriter.h
     include/tracing/LineWriter.h
-    include/tracing/LogCategory.h
-    include/tracing/Logging.h
     include/tracing/ScopedTracing.h
     include/tracing/TraceCategory.h
     include/tracing/TraceEntry.h

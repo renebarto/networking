@@ -2,7 +2,7 @@
 
 #include <random>
 #include "osal/TypeInfo.h"
-#include "tracing/Logging.h"
+#include "tracing/Tracing.h"
 #include "utility/EnumSerialization.h"
 #include "utility/Format.h"
 

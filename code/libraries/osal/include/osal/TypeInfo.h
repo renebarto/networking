@@ -1,11 +1,11 @@
 //------------------------------------------------------------------------------
-// Copyright   : Copyright(c) 2020, Rene Barto
+// Copyright   : Copyright(c) 2021, Koninklijke Philips Electronics N.V.
 //
 // File        : TypeInfo.h
 //
 // Class       : osal
 //
-// Description : Type information abstraction
+// Description : Type information functions
 //
 //------------------------------------------------------------------------------
 

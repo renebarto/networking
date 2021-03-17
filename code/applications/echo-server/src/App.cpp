@@ -1,9 +1,8 @@
 #include "App.h"
 
-#include "tracing/Logging.h"
 #include "tracing/Tracing.h"
 #include "osal/ThreadFunctions.h"
-#include "core/Observable.h"
+#include "utility/Observable.h"
 #include "network-osal/SocketAPI.h"
 #include "utility/GenericError.h"
 #include "network/IPV4TCPServer.h"
@@ -52,14 +51,14 @@ void Application::Usage()
 
 void Application::SignalHandler(osal::SignalType signal)
 {
-    TraceMessage(__FILE__, __LINE__, __func__, "Caught signal {}", signal);
+    TraceInfo(__FILE__, __LINE__, __func__, "Caught signal {}", signal);
     if (signal == osal::SignalType::Interrupt)
         m_interrupted = true;
 }
 
 bool Application::DataCallback(const network::ByteBuffer & dataReceived, network::ByteBuffer & dataToSend)
 {
-    TraceMessage(__FILE__, __LINE__, __func__, "Data in: {}", serialization::SerializeData(dataReceived.data(), dataReceived.size()));
+    TraceInfo(__FILE__, __LINE__, __func__, "Data in: {}", serialization::SerializeData(dataReceived.data(), dataReceived.size()));
     dataToSend = dataReceived;
     return true;
 }
@@ -67,7 +66,7 @@ bool Application::DataCallback(const network::ByteBuffer & dataReceived, network
 int Application::Run()
 {
     int result {};
-    tracing::SetDefaultTraceFilter(tracing::TraceCategory::Message | tracing::TraceCategory::Data);
+    tracing::SetDefaultTraceFilter(tracing::TraceCategory::Information | tracing::TraceCategory::Data);
     osal::SetThreadNameSelf("Main");
     osal::SetSignalHandler(osal::SignalType::Interrupt, std::bind(&Application::SignalHandler, this, std::placeholders::_1));
 
@@ -78,7 +77,7 @@ int Application::Run()
     if (!serialization::Deserialize(serverPort, port))
     {
         port = 7;
-        tracing::Logging::Error(__FILE__, __LINE__, __func__, utility::GenericError("Cannot parse port {}, falling back to default", serverPort, port));
+        tracing::Tracing::Error(__FILE__, __LINE__, __func__, utility::GenericError("Cannot parse port {}, falling back to default", serverPort, port));
     }
 
     network::SocketAPI api;

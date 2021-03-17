@@ -1,3 +1,16 @@
+//------------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020 Koninklijke Philips Electronics N.V.
+//
+// File        : SerializationTest.cpp
+//
+// Namespace   : serialization
+//
+// Class       : -
+//
+// Description :
+//
+//------------------------------------------------------------------------------
+
 #include "GoogleTest.h"
 
 #include <cstring>
@@ -6,27 +19,27 @@
 namespace serialization {
 
 template <class T>
-static std::ostream & PrintStandard(std::ostream & stream, std::string::size_type /*integralDigits*/, std::string::size_type fractionalDigits, T value)
+static std::ostream & PrintStandard(std::ostream & stream, int /*integralDigits*/, int fractionalDigits, T value)
 {
     std::ostringstream valuePrint;
-    valuePrint << std::setfill('0') << std::setprecision(static_cast<std::streamsize>(fractionalDigits)) << value;
+    valuePrint << std::setfill('0') << std::setprecision(fractionalDigits) << value;
     stream << valuePrint.str();
     return stream;
 }
 
 template <class T>
-static std::ostream & PrintScientific(std::ostream & stream, std::string::size_type integralDigits, std::string::size_type fractionalDigits, T value)
+static std::ostream & PrintScientific(std::ostream & stream, int integralDigits, int fractionalDigits, T value)
     {
     std::ostringstream valuePrint;
     valuePrint << std::scientific << std::setfill('0') 
-        << std::setw(static_cast<std::streamsize>(integralDigits + fractionalDigits + 1))
-        << std::setprecision(static_cast<std::streamsize>(fractionalDigits)) << value;
+        << std::setw(integralDigits + fractionalDigits + 1)
+        << std::setprecision(fractionalDigits) << value;
     stream << valuePrint.str();
     return stream;
 }
 
 template <class T>
-static std::string SerializeStandard(std::string::size_type width, T value)
+static std::string SerializeStandard(int width, T value)
 {
     std::ostringstream stream;
     PrintStandard(stream, 0, width, value);
@@ -34,7 +47,7 @@ static std::string SerializeStandard(std::string::size_type width, T value)
 }
 
 template <class T>
-static std::string SerializeScientific(std::string::size_type integralDigits, std::string::size_type fractionalDigits, T value)
+static std::string SerializeScientific(int integralDigits, int fractionalDigits, T value)
 {
     std::ostringstream stream;
     PrintScientific(stream, integralDigits, fractionalDigits, value);
@@ -642,44 +655,6 @@ TEST(SerializationTest, SerializeBinaryDoubleBigEndian)
     EXPECT_EQ(std::size_t {8}, offset);
     EXPECT_EQ(offset, buffer.size());
     EXPECT_EQ(std::vector<std::uint8_t>({ 0x3F, 0xE0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }), buffer);
-}
-
-TEST(SerializationTest, SerializeBinaryLongDoubleLittleEndian)
-{
-    long double value = 0.5L;
-    std::vector<std::uint8_t> buffer;
-    std::size_t offset = 0;
-    SerializeBinary(value, buffer, offset, utility::Endianness::LittleEndian);
-    EXPECT_EQ(std::size_t {16}, offset);
-    EXPECT_EQ(offset, buffer.size());
-//TICS -POR#021 Platform specific
-#if defined(PLATFORM_LINUX) && !defined(PLATFORM_LINUX_WRL)
-    EXPECT_EQ(std::vector<std::uint8_t>({ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 
-                                          0xFE, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }), buffer);
-#else
-    EXPECT_EQ(std::vector<std::uint8_t>({ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE0, 0x3F, 
-                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }), buffer);
-#endif
-//TICS +POR#021
-}
-
-TEST(SerializationTest, SerializeBinaryLongDoubleBigEndian)
-{
-    long double value = 0.5L;
-    std::vector<std::uint8_t> buffer;
-    std::size_t offset = 0;
-    SerializeBinary(value, buffer, offset, utility::Endianness::BigEndian);
-    EXPECT_EQ(std::size_t {16}, offset);
-    EXPECT_EQ(offset, buffer.size());
-//TICS -POR#021 Platform specific
-#if defined(PLATFORM_LINUX) && !defined(PLATFORM_LINUX_RPI)
-    EXPECT_EQ(std::vector<std::uint8_t>({ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3F, 0xFE, 
-                                          0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }), buffer);
-#else
-    EXPECT_EQ(std::vector<std::uint8_t>({ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-                                          0x3F, 0xE0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }), buffer);
-#endif
-//TICS +POR#021
 }
 
 TEST(SerializationTest, SerializeBinaryStringLittleEndian)

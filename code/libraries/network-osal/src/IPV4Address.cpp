@@ -3,7 +3,7 @@
 #include "osal/Utilities.h"
 #include "utility/Assert.h"
 #include "utility/GenericError.h"
-#include "tracing/Logging.h"
+#include "tracing/Tracing.h"
 #include "network-osal/SocketDefinitions.h"
 
 namespace network {
@@ -56,7 +56,7 @@ IPV4Address IPV4Address::Parse(const std::string & text)
     IPV4Address ipAddress;
     if (!TryParse(text, ipAddress))
     {
-        tracing::Logging::Throw(__FILE__, __LINE__, __func__, 
+        tracing::Tracing::Throw(__FILE__, __LINE__, __func__, 
             utility::GenericError("IPV4Address string representation must be formatted as ddd.ddd.ddd.ddd"
                                   ", string is {}", text));
     }

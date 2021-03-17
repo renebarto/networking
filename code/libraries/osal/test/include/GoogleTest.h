@@ -1,14 +1,16 @@
-#pragma once
+// Copyright 2020 Koninklijke Philips N.V.
 
-#include <iostream>
+#pragma once
 
 //TICS -POR#021 We suppress warnings for Windows only
 #if defined (_MSC_VER)
 #pragma warning(disable: 4826) //TICS !POR#018 !POR#037 Suppress compilation warnings on GoogleTest for Windows only
+#pragma warning(disable: 4355) //TICS !POR#018 !POR#037 Suppress compilation warnings on GoogleTest for Windows only
 #endif
 #include "gtest/gtest.h"
 #if defined (_MSC_VER)
 #pragma warning(default: 4826) //TICS !POR#018 !POR#037 Suppress compilation warnings on GoogleTest for Windows only
+#pragma warning(default: 4355) //TICS !POR#018 !POR#037 Suppress compilation warnings on GoogleTest for Windows only
 #endif
 //TICS +POR#021
 

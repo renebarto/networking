@@ -1,6 +1,6 @@
 #pragma once
 
-namespace core
+namespace utility
 {
 
 template <class T>
@@ -13,4 +13,4 @@ public:
     virtual void Unsubscribe(T * observer) = 0;
 };
 
-} // namespace core
+} // namespace utility

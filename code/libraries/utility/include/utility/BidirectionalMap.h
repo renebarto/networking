@@ -1,3 +1,17 @@
+//------------------------------------------------------------------------
+// Copyright   : Copyright(c) 2020, Koninklijke Philips Electronics N.V.
+//
+// File        : BidirectionalMap.h
+//
+// Namespace   : utility
+//
+// Class       : BidirectionalMap
+//
+// Description :
+// - Template for conversion between two types. Used to serialize and deserialize enum and enum class types
+//
+//---------------------------------------------------------------
+
 #pragma once
 
 #include <functional>
@@ -36,7 +50,7 @@ public:
         return Translate(key);
     }
 
-    const T2& Translate(const T1& key) const noexcept
+    const T2& Translate(const T1& key) const
     {
         return maptranslation::Translate(m_T1toT2Map, key);
     }
@@ -51,7 +65,7 @@ public:
         return maptranslation::Translate(m_T1toT2Map, key, value, defaultValue);
     }
 
-    const T1& Translate(const T2& key) const noexcept
+    const T1& Translate(const T2& key) const
     {
         return maptranslation::Translate(m_T2toT1Map, key);
     }

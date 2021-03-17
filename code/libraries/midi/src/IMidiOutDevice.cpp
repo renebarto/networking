@@ -91,13 +91,13 @@ public:
 
     void SendMidiOutEvent(std::uint32_t msg) override
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "Send MIDI event: msg={,8:X8}", msg);
+        TraceInfo(__FILE__, __LINE__, __func__, "Send MIDI event: msg={,8:X8}", msg);
         m_api->SendMidiOutMessage(m_handle, msg);
     }
 
     void SendMidiOutEvent(const MidiEvent & event) override
     {
-        TraceMessage(__FILE__, __LINE__, __func__, "event={}, key={}, velocity={}, timestamp={}", 
+        TraceInfo(__FILE__, __LINE__, __func__, "event={}, key={}, velocity={}, timestamp={}", 
             event.type, event.key, event.velocity, event.timestamp);
         std::uint32_t msg = event.MakeParam1();
         SendMidiOutEvent(msg);
