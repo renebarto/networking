@@ -52,7 +52,7 @@ TEST_F(SemaphoreTest, Create) {
     EXPECT_EQ(0, sem.get_value());
     std::ostringstream stream;
     stream << sem;
-    EXPECT_EQ("osal::Semaphore Value=0", stream.str());
+    EXPECT_EQ("osal::SemaphoreAccessor Value=0", stream.str());
 }
 
 TEST_F(SemaphoreTest, Notify) {
@@ -61,7 +61,7 @@ TEST_F(SemaphoreTest, Notify) {
     EXPECT_EQ(1, sem.get_value());
     std::ostringstream stream;
     stream << sem;
-    EXPECT_EQ("osal::Semaphore Value=1", stream.str());
+    EXPECT_EQ("osal::SemaphoreAccessor Value=1", stream.str());
 }
 
 TEST_F(SemaphoreTest, NotifyAhead) {
