@@ -84,6 +84,8 @@ public:
                 exit(static_cast<int>(signal));
             case SignalType::None:
                 break;
+            default:
+                break;
         }
     }
 

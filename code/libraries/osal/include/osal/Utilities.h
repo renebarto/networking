@@ -35,9 +35,9 @@ template<> inline std::uint8_t SwapBytes<std::uint8_t>(std::uint8_t value)
 {
     return value;
 }
+//TICS -CFL#020 Return statement
 template<> inline std::int16_t SwapBytes<std::int16_t>(std::int16_t value)
 {
-//TICS -CFL#020 Return statement
 //TICS -POR#021 Platform specific
 #if defined(PLATFORM_WINDOWS)
     return static_cast<std::int16_t>(_byteswap_ushort(static_cast<std::uint16_t>(value)));
@@ -45,7 +45,6 @@ template<> inline std::int16_t SwapBytes<std::int16_t>(std::int16_t value)
     return static_cast<std::int16_t>(bswap_16(value)); //TICS !NAM#008 !CON#004 !ORG#013 bswap_16 uses cast and function starting with __
 #endif
 //TICS +POR#021
-//TICS +CFL#020 Return statement
 }
 template<> inline std::uint16_t SwapBytes<std::uint16_t>(std::uint16_t value)
 {
@@ -57,6 +56,7 @@ template<> inline std::uint16_t SwapBytes<std::uint16_t>(std::uint16_t value)
 #endif
 //TICS +POR#021
 }
+//TICS +CFL#020 Return statement
 template<> inline std::int32_t SwapBytes<std::int32_t>(std::int32_t value)
 {
 //TICS -POR#021 Platform specific

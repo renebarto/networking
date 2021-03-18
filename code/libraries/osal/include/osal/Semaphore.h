@@ -26,6 +26,7 @@ public:
     Semaphore()
         : m_value(0)
     {}
+    virtual ~Semaphore() = default;
 
     void Post() {
         Lock lock(m_mutex);

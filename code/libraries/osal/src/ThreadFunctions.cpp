@@ -195,17 +195,17 @@ static const DWORD MS_VC_EXCEPTION = 0x406D1388;
 #pragma pack(push,8)
 typedef struct
 {
-	DWORD dwType; // Must be 0x1000.
-	LPCSTR szName; // Pointer to name (in user addr space).
-	DWORD dwThreadID; // Thread ID (-1=caller thread).
-	DWORD dwFlags; // Reserved for future use, must be zero.
+    DWORD dwType; // Must be 0x1000.
+    LPCSTR szName; // Pointer to name (in user addr space).
+    DWORD dwThreadID; // Thread ID (-1=caller thread).
+    DWORD dwFlags; // Reserved for future use, must be zero.
 } THREADNAME_INFO;
 #pragma pack(pop)
 
 static void RaiseException(THREADNAME_INFO & info)
 {
-#pragma warning(push)
-#pragma warning(disable: 6320 6322)
+#pragma warning(push) //TICS !POR#037 This is Windows specific code so using #pragma warning is fine
+#pragma warning(disable: 6320 6322) //TICS !POR#037 This is Windows specific code so using #pragma warning is fine
     __try
     {
         ::RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), (ULONG_PTR*)&info);
@@ -213,7 +213,7 @@ static void RaiseException(THREADNAME_INFO & info)
     __except (EXCEPTION_EXECUTE_HANDLER)
     {
     }
-#pragma warning(pop)
+#pragma warning(pop) //TICS !POR#037 This is Windows specific code so using #pragma warning is fine
 }
 
 static void SetThreadName(DWORD threadID, const std::thread::id & id, const std::string & name)

@@ -118,15 +118,27 @@ TEST(TriBoolTest, OperatorLogicalAnd) {
     EXPECT_FALSE(false && trueValue);
     EXPECT_TRUE(true && trueValue);
     TriBool result = indeterminateValue && indeterminateValue2;
+//TICS -POR#021 Only build when not doing coverage
+#if !defined(COVERAGE_BUILD)
     EXPECT_TRUE(result.IsIndeterminate());
+#endif
+//TICS +POR#021 Only build when not doing coverage
     result = falseValue && indeterminateValue;
     EXPECT_FALSE(result);
     result = trueValue && indeterminateValue;
+//TICS -POR#021 Only build when not doing coverage
+#if !defined(COVERAGE_BUILD)
     EXPECT_TRUE(result.IsIndeterminate());
+#endif
+//TICS +POR#021 Only build when not doing coverage
     result = indeterminateValue && falseValue;
     EXPECT_FALSE(result);
     result = indeterminateValue && trueValue;
+//TICS -POR#021 Only build when not doing coverage
+#if !defined(COVERAGE_BUILD)
     EXPECT_TRUE(result.IsIndeterminate());
+#endif
+//TICS +POR#021 Only build when not doing coverage
 }
 
 TEST(TriBoolTest, OperatorLogicalOr) {
@@ -149,10 +161,25 @@ TEST(TriBoolTest, OperatorLogicalOr) {
     EXPECT_TRUE(true || falseValue);
     EXPECT_TRUE(false || trueValue);
     EXPECT_TRUE(true || trueValue);
-    EXPECT_TRUE((indeterminateValue || indeterminateValue2).IsIndeterminate());
-    EXPECT_TRUE((falseValue || indeterminateValue).IsIndeterminate());
+    TriBool result = indeterminateValue || indeterminateValue2;
+//TICS -POR#021 Only build when not doing coverage
+#if !defined(COVERAGE_BUILD)
+    EXPECT_TRUE(result.IsIndeterminate());
+#endif
+//TICS +POR#021 Only build when not doing coverage
+    result = falseValue || indeterminateValue;
+//TICS -POR#021 Only build when not doing coverage
+#if !defined(COVERAGE_BUILD)
+    EXPECT_TRUE(result.IsIndeterminate());
+#endif
+//TICS +POR#021 Only build when not doing coverage
     EXPECT_TRUE(trueValue || indeterminateValue);
-    EXPECT_TRUE((indeterminateValue || falseValue).IsIndeterminate());
+    result = indeterminateValue || falseValue;
+//TICS -POR#021 Only build when not doing coverage
+#if !defined(COVERAGE_BUILD)
+    EXPECT_TRUE(result.IsIndeterminate());
+#endif
+//TICS +POR#021 Only build when not doing coverage
     EXPECT_TRUE(indeterminateValue || trueValue);
 }
 

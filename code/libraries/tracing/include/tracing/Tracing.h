@@ -69,7 +69,6 @@ public:
         }
     }
 
-
     static void SetFatalExitFunction(FatalExitFunction function);
     static void FatalExit(int errorCode);
 
@@ -174,3 +173,4 @@ static void LogFatal(const std::string & path, int line, const std::string & fun
 {
     tracing::Tracing::Log(path, line, functionName, format, args ...);
 }
+

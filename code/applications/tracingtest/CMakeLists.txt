@@ -40,7 +40,7 @@ set(PROJECT_LINK_OPTIONS
     )
 
 set(PROJECT_DEPENDENCIES
-    midi
+    tracing
     )
 
 set(PROJECT_LIBS

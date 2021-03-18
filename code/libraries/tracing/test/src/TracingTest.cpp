@@ -97,19 +97,71 @@ TEST_F(TracingTest, IfDefaultFilterIsChangedOnlySpecifiedCategoriesAreEnabled)
 TEST_F(TracingTest, TracingCategories)
 {
     SetDefaultTraceFilter(TraceCategory::All);
+    Tracing::Trace(TraceCategory::SscfBegin, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::SscfEnd, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::SscfEvent, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::SscfLib, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::DriverLayer, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Physical, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::ApplicationLayer, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::ControlLayer, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::PipelineIn, "MyFile", 123, "MyFunction", "Hello World");
     Tracing::Trace(TraceCategory::FunctionEnter, "MyFile", 123, "MyFunction", "Hello World");
     Tracing::Trace(TraceCategory::FunctionLeave, "MyFile", 123, "MyFunction", "Hello World");
-    Tracing::Trace(TraceCategory::StartupShutdown, "MyFile", 123, "MyFunction", "Hello World");
-    Tracing::Trace(TraceCategory::Log, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::CanNmtDbt, "MyFile", 123, "MyFunction", "Hello World");
     Tracing::Trace(TraceCategory::Information, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Log, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Interrupt, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::BistPostInfo, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::SscfCan, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::BitfieldDriver, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::StartupShutdown, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Cat00001000, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::ResultFlow, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Cat00000400, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Cat00000200, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Cat00000100, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Cat00000080, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Cat00000040, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Cat00000020, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Cat00000010, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Cat00000008, "MyFile", 123, "MyFunction", "Hello World");
     Tracing::Trace(TraceCategory::Data, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Flow, "MyFile", 123, "MyFunction", "Hello World");
+    Tracing::Trace(TraceCategory::Debug, "MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(utility::VerifyMatch(m_traceOutput, 
+        TraceRegexTimeStamp + "SscfBeg\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "SscfEnd\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "SscfEv\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "SscfLib\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Drvr\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Phys\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Appl\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Ctrl\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "PlIn\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
         TraceRegexTimeStamp + "Enter\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
         TraceRegexTimeStamp + "Leave\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
-        TraceRegexTimeStamp + "StartupShutdown\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
-        TraceRegexTimeStamp + "Log\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "NmtDbt\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
         TraceRegexTimeStamp + "Info\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
-        TraceRegexTimeStamp + "Data\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
+        TraceRegexTimeStamp + "Log\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Interrupt\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "BistPostInfo\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "SscfCan\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "BitfieldDriver\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "StartupShutdown\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Cat00001000\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "ResultFlow\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Cat00000400\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Cat00000200\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Cat00000100\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Cat00000080\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Cat00000040\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Cat00000020\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Cat00000010\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Cat00000008\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Data\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Flow\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n" + 
+        TraceRegexTimeStamp + "Debug\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, TracingWithFormat)

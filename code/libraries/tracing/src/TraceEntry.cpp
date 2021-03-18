@@ -4,7 +4,7 @@ namespace tracing {
 
 TraceEntry::TraceEntry(const std::string & compilationUnitFileName, TraceRegistry & traceRegistry)
     : m_traceFilter()
-    , m_compilationUnitFileName(compilationUnitFileName)
+    , m_compilationUnitFileName(RelativePath(compilationUnitFileName))
 {
     traceRegistry.AddTraceEntry(this);
 }
