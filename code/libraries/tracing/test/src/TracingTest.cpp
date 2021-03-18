@@ -165,7 +165,7 @@ TEST_F(TracingTest, TraceShutdown)
     SetDefaultTraceFilter(TraceCategory::All);
     TraceShutdown("MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(utility::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Shtdn\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
+        TraceRegexTimeStamp + "StartupShutdown\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, TraceInfoString)
@@ -306,7 +306,7 @@ TEST_F(TracingTest, LogErrorString)
     SetDefaultTraceFilter(TraceCategory::All);
     LogError("MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(utility::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Error\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
+        TraceRegexTimeStamp + "Log\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, LogErrorFormatted)
@@ -314,7 +314,7 @@ TEST_F(TracingTest, LogErrorFormatted)
     SetDefaultTraceFilter(TraceCategory::All);
     LogError("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
     EXPECT_TRUE(utility::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Error\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
+        TraceRegexTimeStamp + "Log\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, LogFatalString)
@@ -322,7 +322,7 @@ TEST_F(TracingTest, LogFatalString)
     SetDefaultTraceFilter(TraceCategory::All);
     LogFatal("MyFile", 123, "MyFunction", "Hello World");
     EXPECT_TRUE(utility::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Fatal\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
+        TraceRegexTimeStamp + "Log\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 TEST_F(TracingTest, LogFatalFormatted)
@@ -330,7 +330,7 @@ TEST_F(TracingTest, LogFatalFormatted)
     SetDefaultTraceFilter(TraceCategory::All);
     LogFatal("MyFile", 123, "MyFunction", "{0} {1}", "Hello", "World");
     EXPECT_TRUE(utility::VerifyMatch(m_traceOutput, 
-        TraceRegexTimeStamp + "Fatal\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
+        TraceRegexTimeStamp + "Log\\|MyFile\\:123\\|MyFunction\\|TracingTest\\|Hello World\n"));
 }
 
 } // namespace tracing

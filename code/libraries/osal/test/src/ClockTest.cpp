@@ -164,12 +164,12 @@ void ToStringThreadFunc(int /*threadId*/)
 
 TEST_F(ClockTest, ParallelToString)
 {
-    const std::size_t numThreads = 20;
+    const int numThreads = 20;
     std::vector<std::thread> threads;
-    for (std::size_t i = 0; i < numThreads; ++i)
+    for (int i = 0; i < numThreads; ++i)
         threads.push_back(std::thread(ToStringThreadFunc, i));
-    for (std::size_t i = 0; i < numThreads; ++i)
-        threads[i].join();
+    for (int i = 0; i < numThreads; ++i)
+        threads[static_cast<std::size_t>(i)].join();
 }
 
 void UnixTimeThreadFunc(int /*threadId*/)
@@ -185,12 +185,12 @@ void UnixTimeThreadFunc(int /*threadId*/)
 
 TEST_F(ClockTest, ParallelUnixTime)
 {
-    const std::size_t numThreads = 20;
+    const int numThreads = 20;
     std::vector<std::thread> threads;
-    for (std::size_t i = 0; i < numThreads; ++i)
+    for (int i = 0; i < numThreads; ++i)
         threads.push_back(std::thread(UnixTimeThreadFunc, i));
-    for (std::size_t i = 0; i < numThreads; ++i)
-        threads[i].join();
+    for (int i = 0; i < numThreads; ++i)
+        threads[static_cast<std::size_t>(i)].join();
 }
 
 } // namespace osal

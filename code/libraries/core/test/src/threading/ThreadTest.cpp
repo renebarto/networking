@@ -210,7 +210,7 @@ std::string HelperThread()
     std::this_thread::sleep_for(std::chrono::seconds(1));
     return osal::GetThreadNameSelf();
 }
-TEST(ThreadTest, GetNamesOfMultipleThreads)
+TEST_F(ThreadTest, GetNamesOfMultipleThreads)
 {
     osal::SetThreadNameSelf("Main");
 
